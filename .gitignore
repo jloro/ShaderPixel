@@ -27,7 +27,7 @@ ShaderPixel
 .vscode
 
 # Libs
-sdl2/*
+sdl2/
 
 # Executables
 *.exe

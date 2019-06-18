@@ -5,13 +5,15 @@ LIBFLAGS = -lglfw3
 
 EXEC_NAME = test
 SRC_FILES = main.cpp \
+			Shader.cpp \
+			Camera.cpp \
 
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 
 SRC_PATH = ./src/
 OBJ_PATH = ./.obj/
 LIB_PATH = ./lib/
-INC_PATH = ./inc/ $(LIB_PATH)glfw/include/ $(LIB_PATH)/glad/
+INC_PATH = ./inc/ $(LIB_PATH)glfw/include/ $(LIB_PATH)/glad/ $(LIB_PATH)/glm/
 
 LIBS = glfw/build/src
 

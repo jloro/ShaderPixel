@@ -1,3 +1,4 @@
 -I inc/
 -I lib/glad/
 -I lib/glfw/include/
+-I lib/glm/

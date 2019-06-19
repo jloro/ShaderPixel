@@ -83,7 +83,7 @@ DONE_MESSAGE = "\033$(GREEN)2m✓\t\033$(GREEN)mDONE !\033[0m\
 
 ## RULES ##
 
-all: SDL2 print_name $(GLAD) $(NAME) print_end
+all: SDL2 print_name GLAD $(NAME) print_end
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(HEADERS)
 	@echo "\033$(PURPLE)m⧖	Creating	$@\033[0m"
@@ -97,7 +97,7 @@ $(OBJS_DIR):
 	@mkdir -p $(addprefix $(OBJS_DIR)/, $(OBJS_SUB_DIRS))
 
 $(NAME): $(OBJS_DIR) $(OBJS_PRE) $(HEADERS) 
-	@echo "\033$(GREEN)m➼\t\033$(GREEN)32m Creating $(DIR_NAME)'s executable\033[0m"
+	@echo "\033$(GREEN)m➼\t\033$(GREEN)32m Creating $(NAME)'s executable\033[0m"
 	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS_PRE) $(LFLAGS) $(FRAMEWORK)
 	@$(eval MESSAGE = $(DONE_MESSAGE))
 
@@ -106,16 +106,12 @@ rm_obj:
 	@echo "\033$(PINK)36m✗	\033[0m\033$(PINK)31m$(NAME)'s object removed\033[0m"
 
 clean: rm_obj
-	@make -C $(LIBFT_DIR) clean
-	@make -C $(LIBPT_DIR) clean
-	@make -C $(LIBMYSDL_DIR) clean
+	@make -C $(GLAD_PATH) clean
 
-fclean: rm_obj
+fclean: rm_obj clean
 	@rm -rf $(NAME)
 	@echo "\033$(PINK)36m✗	\033[0m\033$(PINK)31m$(NAME) removed\033[0m"
-	@make -C $(LIBFT_DIR) fclean
-	@make -C $(LIBPT_DIR) fclean
-	@make -C $(LIBMYSDL_DIR) fclean
+	@make -C $(GLAD_PATH) fclean
 
 re: fclean all
 
@@ -129,13 +125,13 @@ re_SDL2: fclean rm_SDL2 all
 
 MODE_DEBUG: change_cflag all
 
-re_MODE_DEBUG: rm_obj MODE_DEBUG
+re_sanitize: rm_obj MODE_DEBUG
 
-change_cflag:
+sanitize:
 	@$(eval CFLAGS = -fsanitize=address)
 
 GLAD:
-	make -C lib/glad
+	make -C $(GLAD_PATH)
 
 SDL2:
 	@if [ ! -d "./lib/sdl2" ]; then \
@@ -158,6 +154,10 @@ SDL2:
 	else \
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_VER) already installed\033[0m"; \
 	fi
+print_name:
+	@echo "\033[033m➼\t\033[033mCompiling $(NAME) ...\033[0m"
 
+print_end:
+	@echo $(MESSAGE)
 .PHONY: all clean fclean re rm_obj exe SDL2 rm_SDL2 re_SDL2 GLAD\
-		MODE_DEBUG re_MODE_DEBUG change_cflag print_name print_end
+		 re_sanitize sanitize 

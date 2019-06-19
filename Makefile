@@ -23,7 +23,7 @@ ORANGE = [038;2;239;138;5
 ## Sources ##
 SRCS_DIR = srcs
 
-SRCS = main.cpp SdlWindow.cpp
+SRCS =  SdlWindow.cpp main.cpp
 
 HEADER = SdlWindow.hpp
 
@@ -69,12 +69,11 @@ CC = clang++
 
 SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 
-LFLAGS =	-lm \
-			$(GLAD_PATH)/glad.o\
-			-L $(ASSIMP_PATH)/lib -lassimp -lIrrXML\
-			-L $(ASSIMP_PATH)/contrib/zlib/ -lzlibstatic\
+LFLAGS =	$(GLAD_PATH)/glad.o\
+			-L $(ASSIMP_PATH)/lib -lassimp\
 			$(SDL2_LFLAGS)
-	
+
+LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
 
 FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo
 #FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo -lglfw
@@ -93,7 +92,7 @@ all: ASSIMP SDL2 print_name GLAD $(NAME) print_end
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(HEADERS)
 	@echo "\033$(PURPLE)m⧖	Creating	$@\033[0m"
 	@export PKG_CONFIG_PATH=$(PKG_CONFIG_PATH):$(addprefix $(SDL_PATH), /lib/pkgconfig) &&\
-	gcc -c -o $@ $< $(CFLAGS) $(INCS)
+	$(CC) -c -o $@ $< $(CFLAGS) $(INCS)
 
 $(OBJS_DIR):
 	@echo "\033$(CYAN)m➼	\033$(CYAN)mCreating $(NAME)'s objects \
@@ -103,7 +102,7 @@ $(OBJS_DIR):
 
 $(NAME): $(OBJS_DIR) $(OBJS_PRE) $(HEADERS) 
 	@echo "\033$(GREEN)m➼\t\033$(GREEN)32m Creating $(NAME)'s executable\033[0m"
-	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS_PRE) $(LFLAGS) $(FRAMEWORK)
+	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS_PRE) $(LFLAGS) $(LDFLAGS) $(FRAMEWORK)
 	@$(eval MESSAGE = $(DONE_MESSAGE))
 
 rm_obj:
@@ -146,21 +145,16 @@ ASSIMP:
 		cd lib &&\
 		curl -OL https://github.com/assimp/assimp/archive/v4.1.0.tar.gz && \
 		tar -zxvf v$(ASSIMP_VER).tar.gz && \
+		rm v$(ASSIMP_VER).tar.gz && \
 		mkdir -p $(ASSIMP_PATH) && \
 		cd assimp-$(ASSIMP_VER) && \
-			cmake . -DBUILD_SHARED_LIBS=OFF && \
-			make && \
-			cd contrib/zlib &&\
-			cmake . -DBUILD_SHARED_LIBS=OFF && \
+			cmake . && \
 			make && \
 		cd ../.. && \
 		echo "\033$(GREEN)m✓\tassimp-$(ASSIMP_VER)installed !\033[0m"; \
 	else \
 		echo "\033$(GREEN)m✓\tassimp-$(ASSIMP_VER) already installed\033[0m"; \
 	fi
-		#rm v$(ASSIMP_VER).tar.gz && 
-		#curl -OL https://github.com/assimp/assimp/archive/v4.1.0.tar.gz && 
-		#rm -rf assimp-$(ASSIMP_VER);\
 
 SDL2:
 	@if [ ! -d "./lib/sdl2" ]; then \

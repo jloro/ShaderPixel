@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/17 15:36:27 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/19 13:54:28 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/19 16:11:19 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,9 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Camera.hpp"
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 void processInput(GLFWwindow *window, Camera & cam)
 {
@@ -67,6 +70,7 @@ int main()
 	} 
 	glViewport(0, 0, 800, 600);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	Assimp::Importer Importer;
 
 	glEnable(GL_DEPTH_TEST);
 	std::vector<const char *>	t{"shaders/vertex.glsl", "shaders/fragment.glsl"};
@@ -132,18 +136,6 @@ int main()
 	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glm::vec3 cubePositions[] = {
-		glm::vec3( 0.0f,  0.0f,  0.0f), 
-		glm::vec3( 2.0f,  5.0f, -15.0f), 
-		glm::vec3(-1.5f, -2.2f, -2.5f),  
-		glm::vec3(-3.8f, -2.0f, -12.3f),  
-		glm::vec3( 2.4f, -0.4f, -3.5f),  
-		glm::vec3(-1.7f,  3.0f, -7.5f),  
-		glm::vec3( 1.3f, -2.0f, -2.5f),  
-		glm::vec3( 1.5f,  2.0f, -2.5f), 
-		glm::vec3( 1.5f,  0.2f, -1.5f), 
-		glm::vec3(-1.3f,  1.0f, -1.5f)  
-	};
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window, cam);
@@ -154,18 +146,13 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glBindVertexArray(VAO);
-		for (unsigned int i = 0; i < 10; i++)
-		{
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			model = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(0.5f,  1.0f, 0.0f));
+		glm::mat4 model = glm::mat4(1.0f);
 
-			test.use();
-			test.setMat4("model", model);
-			test.setMat4("view", cam.GetMatView());
-			test.setMat4("projection", cam.GetMatProj());
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		test.use();
+		test.setMat4("model", model);
+		test.setMat4("view", cam.GetMatView());
+		test.setMat4("projection", cam.GetMatProj());
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

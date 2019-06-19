@@ -1,7 +1,8 @@
 CC = g++
 FLAGS = -Wall -Wextra -Werror -std=c++11
 GLFLAGS = -framework CoreVideo -framework OpenGL -framework IOKit -framework AppKit
-LIBFLAGS = -lglfw3
+LIBFLAGS = -lglfw3 -lassimp 
+LDFLAGS = "-Wl,-rpath,lib/assimp/lib"
 
 EXEC_NAME = test
 SRC_FILES = main.cpp \
@@ -13,9 +14,9 @@ OBJ_FILES = $(SRC_FILES:.cpp=.o)
 SRC_PATH = ./src/
 OBJ_PATH = ./.obj/
 LIB_PATH = ./lib/
-INC_PATH = ./inc/ $(LIB_PATH)glfw/include/ $(LIB_PATH)/glad/ $(LIB_PATH)/glm/
+INC_PATH = ./inc/ $(LIB_PATH)glfw/include/ $(LIB_PATH)/glad/ $(LIB_PATH)/glm/ $(LIB_PATH)assimp/include $(LIB_PATH)assimp/build/include
 
-LIBS = glfw/build/src
+LIBS = glfw/build/src assimp/build/code
 
 SRCS = $(addprefix $(SRC_PATH),$(SRC_FILES))
 OBJS = $(addprefix $(OBJ_PATH),$(OBJ_FILES))
@@ -27,7 +28,7 @@ LIB = $(addprefix -L$(LIB_PATH),$(LIBS))
 all : $(EXEC_NAME)
 
 $(EXEC_NAME) : $(OBJS)
-	@$(CC) $(FLAGS) $(LIB) $(LIBFLAGS)  $(GLFLAGS) -o $(EXEC_NAME) $(OBJS) $(LIB_PATH)/glad/glad.o
+	@$(CC) $(FLAGS) $(LIB) $(LIBFLAGS) $(LDFLAGS) $(GLFLAGS) -o $(EXEC_NAME) $(OBJS) $(LIB_PATH)/glad/glad.o
 	@echo "$(EXEC_NAME) compiled ✓"
 
 $(OBJ_PATH)%.o : $(SRC_PATH)%.cpp

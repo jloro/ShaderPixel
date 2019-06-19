@@ -15,6 +15,7 @@ public:
     int     GetWidth(void) const;
     int     GetHeight(void) const;
     void    CreateGlContext(int majVersion, int minVersion, bool doublebuffer, int depthSize);
+    void    Swap(void);
     SDL_Window const    *GetWinPtr(void) const;
     SDL_Renderer const  *GetRendererPtr(void) const;
     std::string const   toString(void) const;

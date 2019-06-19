@@ -3,11 +3,15 @@
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
+#include "assimp/Importer.hpp"      // C++ importer interface
+#include "assimp/scene.h"           // Output data structure
+#include "assimp/postprocess.h"     // Post processing flags
 
 int				main(int ac, char **av)
 {
 	if (ac < -1 && av == nullptr)
 		return 1;
+	Assimp::Importer importer;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		std::cout << "Erreur lors de l'initialisation de la SDL : " << std::endl;
@@ -15,7 +19,6 @@ int				main(int ac, char **av)
 		SDL_Quit();
 		return (EXIT_SUCCESS);
 	}
-	SDL_Init(SDL_INIT_VIDEO);
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

@@ -38,11 +38,14 @@ LIB_DIR = ./lib
 
 ## Macros for extern library installation ##
 SDL_VER = 2.0.9
+ASSIMP_VER = 4.1.0
 
 MAIN_DIR_PATH = $(shell pwd)
 SDL_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/sdl2)
 GLAD_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glad)
 GLM_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glm)
+ASSIMP_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/assimp-$(ASSIMP_VER))
+#IRRXML_PATH = $(addprefix $(ASSIMP_PATH), /build/contrib/irrXML)
 
 HEADER_DIR = includes/
 
@@ -53,6 +56,7 @@ SDL2_INC = $(shell sh ./lib/sdl2/bin/sdl2-config --cflags)
 
 LIB_INCS =	-I $(GLM_PATH)/ \
 			$(SDL2_INC) \
+			-I $(ASSIMP_PATH)/include/ \
 			-I $(GLAD_PATH)/includes/ 
 
 
@@ -67,6 +71,8 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 
 LFLAGS =	-lm \
 			$(GLAD_PATH)/glad.o\
+			-L $(ASSIMP_PATH)/lib -lassimp -lIrrXML\
+			-L $(ASSIMP_PATH)/contrib/zlib/ -lzlibstatic\
 			$(SDL2_LFLAGS)
 	
 
@@ -82,7 +88,7 @@ DONE_MESSAGE = "\033$(GREEN)2m✓\t\033$(GREEN)mDONE !\033[0m\
 
 ## RULES ##
 
-all: SDL2 print_name GLAD $(NAME) print_end
+all: ASSIMP SDL2 print_name GLAD $(NAME) print_end
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(HEADERS)
 	@echo "\033$(PURPLE)m⧖	Creating	$@\033[0m"
@@ -132,6 +138,30 @@ sanitize:
 GLAD:
 	make -C $(GLAD_PATH)
 
+ASSIMP:	
+	@if [ ! -d "./lib/assimp-$(ASSIMP_VER)" ]; then \
+		echo "\033$(PINK)m⚠\tAssimp is not installed ! ...\033[0m"; \
+		echo "\033$(CYAN)m➼\tCompiling assimp-$(ASSIMP_VER) ...\033[0m"; \
+		printf "\r\033$(YELLOW)m\tIn 3 ...\033[0m"; sleep 1; \
+		cd lib &&\
+		curl -OL https://github.com/assimp/assimp/archive/v4.1.0.tar.gz && \
+		tar -zxvf v$(ASSIMP_VER).tar.gz && \
+		mkdir -p $(ASSIMP_PATH) && \
+		cd assimp-$(ASSIMP_VER) && \
+			cmake . -DBUILD_SHARED_LIBS=OFF && \
+			make && \
+			cd contrib/zlib &&\
+			cmake . -DBUILD_SHARED_LIBS=OFF && \
+			make && \
+		cd ../.. && \
+		echo "\033$(GREEN)m✓\tassimp-$(ASSIMP_VER)installed !\033[0m"; \
+	else \
+		echo "\033$(GREEN)m✓\tassimp-$(ASSIMP_VER) already installed\033[0m"; \
+	fi
+		#rm v$(ASSIMP_VER).tar.gz && 
+		#curl -OL https://github.com/assimp/assimp/archive/v4.1.0.tar.gz && 
+		#rm -rf assimp-$(ASSIMP_VER);\
+
 SDL2:
 	@if [ ! -d "./lib/sdl2" ]; then \
 		echo "\033$(PINK)m⚠\tSDL2 is not installed ! ...\033[0m"; \
@@ -158,5 +188,5 @@ print_name:
 
 print_end:
 	@echo $(MESSAGE)
-.PHONY: all clean fclean re rm_obj exe SDL2 rm_SDL2 re_SDL2 GLAD\
+.PHONY: all clean fclean re rm_obj exe SDL2 rm_SDL2 re_SDL2 GLAD ASSIMP\
 		 re_sanitize sanitize 

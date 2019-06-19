@@ -26,8 +26,12 @@ ShaderPixel
 # Editor
 .vscode
 
+#temp File
+.DS_Store
+
 # Libs
 sdl2/
+assimp-4.1.0/
 
 # Executables
 *.exe

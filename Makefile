@@ -42,6 +42,7 @@ SDL_VER = 2.0.9
 MAIN_DIR_PATH = $(shell pwd)
 SDL_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/sdl2)
 GLAD_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glad)
+GLM_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glm)
 
 HEADER_DIR = includes/
 
@@ -50,9 +51,7 @@ INC = -I ./$(HEADER_DIR)
 
 SDL2_INC = $(shell sh ./lib/sdl2/bin/sdl2-config --cflags)
 
-LIB_INCS =	-I $(LIBFT_DIR)/includes/ \
-			-I $(LIBMYSDL_DIR)/includes/ \
-			-I $(LIBPT_DIR)/includes/ \
+LIB_INCS =	-I $(GLM_PATH)/ \
 			$(SDL2_INC) \
 			-I $(GLAD_PATH)/includes/ 
 

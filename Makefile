@@ -81,7 +81,7 @@ FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework Core
 #FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo -lglfw
 #LINUX = -lGL -lGLU -lglut
 
-CFLAGS = -Wall -Wextra -Werror -Wno-unknown-pragmas
+CFLAGS = -Wall -Wextra -Werror -std=c++11 -Wno-unknown-pragmas
 
 MESSAGE = "make[1]: Nothing to be done for 'all'"
 DONE_MESSAGE = "\033$(GREEN)2m✓\t\033$(GREEN)mDONE !\033[0m\

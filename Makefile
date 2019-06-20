@@ -38,10 +38,12 @@ LIB_DIR = ./lib
 
 ## Macros for extern library installation ##
 SDL_VER = 2.0.9
+SDL_IMAGE_VER = 2.0.4
 ASSIMP_VER = 4.1.0
 
 MAIN_DIR_PATH = $(shell pwd)
 SDL_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/sdl2)
+SDL_IMAGE_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/sdl2_image)
 GLAD_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glad)
 GLM_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/glm)
 ASSIMP_PATH = $(addprefix $(MAIN_DIR_PATH), /lib/assimp-$(ASSIMP_VER))
@@ -87,7 +89,7 @@ DONE_MESSAGE = "\033$(GREEN)2m✓\t\033$(GREEN)mDONE !\033[0m\
 
 ## RULES ##
 
-all: ASSIMP SDL2 print_name GLAD $(NAME) print_end
+all: ASSIMP SDL2 SDL2_IMAGE print_name GLAD $(NAME) print_end
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.cpp $(HEADERS)
 	@echo "\033$(PURPLE)m⧖	Creating	$@\033[0m"
@@ -176,6 +178,27 @@ SDL2:
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_VER) installed !\033[0m"; \
 	else \
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_VER) already installed\033[0m"; \
+	fi
+SDL2_IMAGE:
+	if [ ! -d "./lib/sdl2_image" ]; then \
+		echo "\033$(PINK)m⚠\tSDL2_image is not installed ! ...\033[0m"; \
+		echo "\033$(CYAN)m➼\tCompiling SDL2_image-$(SDL_IMAGE_VER) ...\033[0m"; \
+		printf "\r\033$(YELLOW)m\tIn 3 ...\033[0m"; sleep 1; \
+		printf "\r\033$(YELLOW)m\tIn 2 ...\033[0m"; sleep 1; \
+		printf "\r\033$(YELLOW)3m\tIn 1 ...\033[0m"; sleep 1; printf "\n"; \
+		curl -OL https://www.libsdl.org/projects/SDL_image/release/SDL2_image-$(SDL_IMAGE_VER).tar.gz && \
+		tar -zxvf SDL2_image-$(SDL_IMAGE_VER).tar.gz && \
+		rm SDL2_image-$(SDL_IMAGE_VER).tar.gz && \
+		mkdir -p $(SDL_IMAGE_PATH) && \
+		cd SDL2_image-$(SDL_IMAGE_VER) && \
+			sh configure --with-sdl-prefix=$(SDL_PATH) --prefix=$(SDL_IMAGE_PATH) && \
+			make && \
+			make install && \
+		cd .. && \
+		rm -rf SDL2_image-$(SDL_IMAGE_VER);\
+		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) installed !\033[0m"; \
+	else \
+		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) already installed\033[0m"; \
 	fi
 print_name:
 	@echo "\033[033m➼\t\033[033mCompiling $(NAME) ...\033[0m"

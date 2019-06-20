@@ -59,7 +59,8 @@ SDL2_INC = $(shell sh ./lib/sdl2/bin/sdl2-config --cflags)
 LIB_INCS =	-I $(GLM_PATH)/ \
 			$(SDL2_INC) \
 			-I $(ASSIMP_PATH)/include/ \
-			-I $(GLAD_PATH)/includes/ 
+			-I $(GLAD_PATH)/includes/ \
+			-I $(SDL2_IMAGE)/include 
 
 
 HEADERS = $(addprefix $(HEADER_DIR), $(HEADER))
@@ -73,7 +74,8 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 
 LFLAGS =	$(GLAD_PATH)/glad.o\
 			-L $(ASSIMP_PATH)/lib -lassimp\
-			$(SDL2_LFLAGS)
+			$(SDL2_LFLAGS) \
+			-L $(SDL2_IMAGE)/lib -lSDL2_image
 
 LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
 

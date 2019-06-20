@@ -31,6 +31,7 @@ ShaderPixel
 
 # Libs
 sdl2/
+sdl2_image/
 assimp-4.1.0/
 
 # Executables

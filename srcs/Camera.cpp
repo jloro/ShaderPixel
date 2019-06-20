@@ -6,16 +6,20 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:50:38 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/19 14:23:19 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/20 12:08:30 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Camera.hpp"
 #include <gtc/matrix_transform.hpp>
 
+Camera		*Camera::instance = nullptr;
+
 Camera::Camera(float width, float height, float posX, float posY) : _deltaTime(0.0f), _lastFrame(0.0f), _moveSpeed(MOVE_SPEED),
 			_mouseSensitivity(MOUSE_SENSITIVITY), _lastPosX(posX), _lastPosY(posY), _pitch(0.0f), _yaw(-90.0f), _width(width), _height(height)
 {
+	if (Camera::instance == nullptr)
+		instance = this;
 	_pos = glm::vec3(0.0f, 0.0f, 3.0f);
 	_up = glm::vec3(0.0f, 1.0f, 0.0f);
 	_dir = glm::vec3(0.0f, 0.0f, -1.0f);

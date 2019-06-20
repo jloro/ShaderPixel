@@ -2,12 +2,14 @@ CC = g++
 FLAGS = -Wall -Wextra -Werror -std=c++11
 GLFLAGS = -framework CoreVideo -framework OpenGL -framework IOKit -framework AppKit
 LIBFLAGS = -lglfw3 -lassimp 
-LDFLAGS = "-Wl,-rpath,lib/assimp/lib"
+LDFLAGS = "-Wl,-rpath,lib/assimp/build/code"
 
 EXEC_NAME = test
 SRC_FILES = main.cpp \
 			Shader.cpp \
 			Camera.cpp \
+			Model.cpp \
+			Mesh.cpp \
 
 OBJ_FILES = $(SRC_FILES:.cpp=.o)
 

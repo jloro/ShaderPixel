@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/19 13:56:04 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/20 12:05:17 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ class Camera
 		void	LookAround(float posX, float posY);
 		void	UpdateFrame();
 		void	ResizeWindow(float newWidth, float newHeight);
+
+		static Camera*	instance;
 	private:
 		void	_CalcMatrix();
 

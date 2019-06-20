@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/17 15:36:27 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/19 16:11:19 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/20 16:39:20 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include "Camera.hpp"
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+#include "Model.hpp"
 
 void processInput(GLFWwindow *window, Camera & cam)
 {
@@ -70,7 +68,6 @@ int main()
 	} 
 	glViewport(0, 0, 800, 600);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	Assimp::Importer Importer;
 
 	glEnable(GL_DEPTH_TEST);
 	std::vector<const char *>	t{"shaders/vertex.glsl", "shaders/fragment.glsl"};
@@ -80,62 +77,9 @@ int main()
 	Shader	test(t, type);
 	Camera	cam(800, 600, tmpx, tmpy);
 
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f, 
-		0.5f,  0.5f, -0.5f, 
-		0.5f,  0.5f, -0.5f, 
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
+	std::string path= "nanosuit/nanosuit.obj";
+	Model crysis(path.c_str());
 
-		-0.5f, -0.5f,  0.5f,
-		0.5f, -0.5f,  0.5f, 
-		0.5f,  0.5f,  0.5f, 
-		0.5f,  0.5f,  0.5f, 
-		-0.5f,  0.5f,  0.5f,
-		-0.5f, -0.5f,  0.5f,
-
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f, -0.5f,
-		-0.5f, -0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
-
-		0.5f,  0.5f,  0.5f, 
-		0.5f,  0.5f, -0.5f, 
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f,  0.5f, 
-		0.5f,  0.5f,  0.5f, 
-
-		-0.5f, -0.5f, -0.5f,
-		0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f,  0.5f, 
-		0.5f, -0.5f,  0.5f, 
-		-0.5f, -0.5f,  0.5f,
-		-0.5f, -0.5f, -0.5f,
-
-		-0.5f,  0.5f, -0.5f,
-		0.5f,  0.5f, -0.5f, 
-		0.5f,  0.5f,  0.5f, 
-		0.5f,  0.5f,  0.5f, 
-		-0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f, -0.5f,
-	};
-
-	GLuint	VBO, VAO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
 	while (!glfwWindowShouldClose(window))
 	{
 		processInput(window, cam);
@@ -145,14 +89,15 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glBindVertexArray(VAO);
-		glm::mat4 model = glm::mat4(1.0f);
-
 		test.use();
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(2.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
 		test.setMat4("model", model);
 		test.setMat4("view", cam.GetMatView());
 		test.setMat4("projection", cam.GetMatProj());
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		crysis.Draw(test);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

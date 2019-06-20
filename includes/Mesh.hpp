@@ -5,6 +5,7 @@
 # define MESH_HPP
 # include "Vertex.hpp"
 # include "Texture.hpp"
+# include "Shader.hpp"
 
 # include <iostream>
 # include <vector>
@@ -15,15 +16,15 @@ class Mesh
 public: 
 /*  constructors / destructors  */
     Mesh(void); 
-    Mesh(vector<Vertex> vert, vector<unsigned int> ind, vector<Texture> texts); 
+    Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> texts); 
     Mesh(Mesh const & src); 
     ~Mesh(void); 
 /*  public variables */
-    vector<Vertex>          vertices;
-    vector<unsigned int>    indices;
-    vector<Texture>         textures;
+    std::vector<Vertex>          vertices;
+    std::vector<unsigned int>    indices;
+    std::vector<Texture>         textures;
 /*  public functions  */
-    void        Draw(Shader shader);
+    void        Draw(const Shader &shader) const;
 	Mesh &		operator=(Mesh const & rhs);
 private:
 /*  private variables  */
@@ -32,32 +33,7 @@ private:
     unsigned int _ebo;
 
 /*  private functions */
-    void setupMesh(void);
+    void _SetupMesh(void);
 };
 
 #endif
-
-
-#include "Mesh.hpp"
-#include <iostream>
-
-Mesh::Mesh(void)
-{
-    
-}
-
-Mesh::Mesh(Mesh const & src) 
-{
-    *this = src;
-    return;
-}
-
-Mesh::~Mesh(void)
-{
-    
-}
-
-Mesh &	Mesh::operator=(Mesh const & rhs)
-{
-    return *this;
-}

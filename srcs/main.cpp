@@ -41,9 +41,7 @@ void			game_loop(SdlWindow &win)
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	myShader(shadersPath, type);
-	int	mouseX, mouseY;
-	SDL_GetRelativeMouseState(&mouseX, &mouseY);
-	Camera cam(800, 400, mouseX, mouseY);
+	Camera cam(800, 400);
 
 	std::string path= "nanosuit/nanosuit.obj";
 	Model crysis(path.c_str());

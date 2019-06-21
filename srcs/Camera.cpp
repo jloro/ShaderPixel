@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:50:38 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 16:01:53 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/21 16:48:28 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 
 Camera		*Camera::instance = nullptr;
 
-Camera::Camera(float width, float height, float posX, float posY) : _moveSpeed(MOVE_SPEED),
-			_mouseSensitivity(MOUSE_SENSITIVITY), _lastPosX(posX), _lastPosY(posY), _pitch(0.0f), _yaw(-90.0f), _width(width), _height(height)
+Camera::Camera(float width, float height) : _moveSpeed(MOVE_SPEED), _mouseSensitivity(MOUSE_SENSITIVITY), _pitch(0.0f), _yaw(-90.0f), _width(width), _height(height)
 {
 	if (Camera::instance == nullptr)
 		instance = this;
@@ -50,6 +49,7 @@ void	Camera::Move(eCameraDirection dir, float deltaTime)
 
 void	Camera::_CalcMatrix()
 {
+	_right = glm::normalize(glm::cross(_dir, _up));
 	_view = glm::lookAt(_pos, _pos + _dir, _up);
 	_projection = glm::perspective(glm::radians(FOV), _width / _height, 0.1f, 100.0f);
 }

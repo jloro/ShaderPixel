@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 14:12:02 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/21 16:46:33 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ enum eCameraDirection { Forward, Backward, Right, Left, Up, Down};
 class Camera
 {
 	public:
-		Camera(float width, float height, float posX, float posY);
+		Camera(float width, float height);
 
 		glm::mat4	GetMatView(void) const;
 		glm::mat4	GetMatProj(void) const;
@@ -49,8 +49,6 @@ class Camera
 		float		_moveSpeed;
 		float		_mouseSensitivity;
 
-		float		_lastPosX;
-		float		_lastPosY;
 		float		_pitch;
 		float		_yaw;
 

@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/05/13 17:01:17 by fchevrey         ###   ########.fr        #
+#    Updated: 2019/06/21 12:42:03 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ ORANGE = [038;2;239;138;5
 ## Sources ##
 SRCS_DIR = srcs
 
-SRCS =  SdlWindow.cpp main.cpp Shader.cpp Mesh.cpp
+SRCS =  SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp
 
@@ -75,7 +75,7 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 LFLAGS =	$(GLAD_PATH)/glad.o\
 			-L $(ASSIMP_PATH)/lib -lassimp\
 			$(SDL2_LFLAGS) \
-			-L $(SDL2_IMAGE)/lib -lSDL2_image
+			-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
 
 LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
 

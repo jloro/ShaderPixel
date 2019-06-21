@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:50:38 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/20 12:08:30 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/21 12:18:14 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ void	Camera::_CalcMatrix()
 
 void	Camera::UpdateFrame()
 {
-	float currentFrame = glfwGetTime();
-	_deltaTime = currentFrame - _lastFrame;
-	_lastFrame = currentFrame;
+	//float currentFrame = glfwGetTime();
+	//_deltaTime = currentFrame - _lastFrame;
+	//_lastFrame = currentFrame;
 }
 
 void	Camera::LookAround(float posX, float posY)

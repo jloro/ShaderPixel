@@ -6,60 +6,49 @@
 #include "assimp/Importer.hpp"      // C++ importer interface
 #include "assimp/scene.h"           // Output data structure
 #include "assimp/postprocess.h"     // Post processing flags
+#include "Shader.hpp"
+#include "Camera.hpp"
+#include "Model.hpp"
 
-static int		ft_event(SDL_Event *event, t_data *data)
-{
-	while (SDL_PollEvent(event))
-	{
-		if (event->type == SDL_QUIT)
-			return (1);
-		else if (event->type == SDL_KEYDOWN || event->type == SDL_KEYUP)
-			ft_keyboard(event->key.keysym.sym, event->key.repeat, event, data);
-		else if (event->type == SDL_MOUSEMOTION)
-			ft_mouse(event->motion.x, event->motion.y, data);
-		else if (event->type == SDL_MOUSEBUTTONDOWN &&
-				event->button.button == SDL_BUTTON_LEFT)
-			play_shot_sound(data);
-		else if (event->type == SDL_WINDOWEVENT && event->window.event
-				== SDL_WINDOWEVENT_CLOSE)
-		{
-			event->type = SDL_KEYDOWN;
-			event->key.keysym.sym = SDLK_ESCAPE;
-			ft_keyboard(event->key.keysym.sym, event->key.repeat, event, data);
-		}
-	}
-	return (0);
-}
 void			game_loop(SdlWindow &win)
 {
-	SDL_Event			event;
-	int					quit;
-	const unsigned int	fixdelta = 20;
-	unsigned int		last_time;
-	unsigned int		delta;
+	bool	quit = false;
+	SDL_Event	event;
 
-	quit = 0;
-	last_time = SDL_GetTicks();
-	delta = 0.0;
+	glEnable(GL_DEPTH_TEST);
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	Shader	myShader(shadersPath, type);
+	Camera cam(800, 600, 0, 0);
+
+	std::string path= "nanosuit/nanosuit.obj";
+	Model crysis(path.c_str());
 	while (!quit)
 	{
-		quit = ft_event(&event, data);
-		delta += SDL_GetTicks() - last_time;
-		if (delta >= fixdelta)
-		{
-			delta = 0.0;
-			rendering(data);
-		}
-		last_time = SDL_GetTicks();
+		SDL_WaitEvent(&event);
+
+		if(event.window.event == SDL_WINDOWEVENT_CLOSE)
+			quit = true;
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		myShader.use();
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
+		myShader.setMat4("model", model);
+		myShader.setMat4("view", cam.GetMatView());
+		myShader.setMat4("projection", cam.GetMatProj());
+
+		crysis.Draw(myShader);
+		win.Swap();
 	}
-	ft_exit(&data);
 }
 
 int				main(int ac, char **av)
 {
 	if (ac < -1 && av == nullptr)
 		return 1;
-	Assimp::Importer importer;
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		std::cout << "Erreur lors de l'initialisation de la SDL : " << std::endl;
@@ -69,12 +58,5 @@ int				main(int ac, char **av)
 	}
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
-	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	win.Swap();
-	glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-	glm::mat4 trans = glm::mat4(1.0f);
-	trans += vec;
-	std::string pouet;
-	std::cin >> pouet;
+	game_loop(win);
 }

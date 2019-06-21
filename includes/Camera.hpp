@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/19 13:56:04 by jloro            ###   ########.fr       */
+/*   Updated: 2019/06/21 12:24:03 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 # define CAMERA_HPP
 
 # include <glm.hpp>
-# include <GLFW/glfw3.h>
 
 # define MOVE_SPEED 2.5f
 # define MOUSE_SENSITIVITY 0.1f
@@ -34,6 +33,8 @@ class Camera
 		void	LookAround(float posX, float posY);
 		void	UpdateFrame();
 		void	ResizeWindow(float newWidth, float newHeight);
+
+		static Camera	*instance;
 	private:
 		void	_CalcMatrix();
 

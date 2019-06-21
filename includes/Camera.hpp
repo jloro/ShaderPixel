@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 12:24:03 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/21 14:12:02 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ class Camera
 		glm::mat4	GetMatView(void) const;
 		glm::mat4	GetMatProj(void) const;
 
-		void	Move(eCameraDirection dir);
+		void	Move(eCameraDirection dir, float deltaTime);
 		void	LookAround(float posX, float posY);
 		void	UpdateFrame();
 		void	ResizeWindow(float newWidth, float newHeight);
@@ -45,9 +45,6 @@ class Camera
 
 		glm::mat4	_view;
 		glm::mat4	_projection;
-
-		float		_deltaTime;
-		float		_lastFrame;
 
 		float		_moveSpeed;
 		float		_mouseSensitivity;

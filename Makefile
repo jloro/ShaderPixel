@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/06/21 12:42:03 by jules            ###   ########.fr        #
+#    Updated: 2019/06/21 14:38:21 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -182,7 +182,7 @@ SDL2:
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_VER) already installed\033[0m"; \
 	fi
 SDL2_IMAGE:
-	if [ ! -d "./lib/sdl2_image" ]; then \
+	@if [ ! -d "./lib/sdl2_image" ]; then \
 		echo "\033$(PINK)m⚠\tSDL2_image is not installed ! ...\033[0m"; \
 		echo "\033$(CYAN)m➼\tCompiling SDL2_image-$(SDL_IMAGE_VER) ...\033[0m"; \
 		printf "\r\033$(YELLOW)m\tIn 3 ...\033[0m"; sleep 1; \

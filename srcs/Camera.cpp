@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:50:38 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 12:18:14 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/21 16:01:53 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 Camera		*Camera::instance = nullptr;
 
-Camera::Camera(float width, float height, float posX, float posY) : _deltaTime(0.0f), _lastFrame(0.0f), _moveSpeed(MOVE_SPEED),
+Camera::Camera(float width, float height, float posX, float posY) : _moveSpeed(MOVE_SPEED),
 			_mouseSensitivity(MOUSE_SENSITIVITY), _lastPosX(posX), _lastPosY(posY), _pitch(0.0f), _yaw(-90.0f), _width(width), _height(height)
 {
 	if (Camera::instance == nullptr)
@@ -30,20 +30,20 @@ Camera::Camera(float width, float height, float posX, float posY) : _deltaTime(0
 glm::mat4	Camera::GetMatView(void) const { return _view; }
 glm::mat4	Camera::GetMatProj(void) const { return _projection; }
 
-void	Camera::Move(eCameraDirection dir)
+void	Camera::Move(eCameraDirection dir, float deltaTime)
 {
 	if (dir == Forward)
-		_pos += _moveSpeed * _deltaTime * _dir;
+		_pos += _moveSpeed * deltaTime * _dir;
 	if (dir == Backward)
-		_pos -= _moveSpeed * _deltaTime * _dir;
+		_pos -= _moveSpeed * deltaTime * _dir;
 	if (dir == Right)
-		_pos += _moveSpeed * _deltaTime * _right;
+		_pos += _moveSpeed * deltaTime * _right;
 	if (dir == Left)
-		_pos -= _moveSpeed * _deltaTime * _right;
+		_pos -= _moveSpeed * deltaTime * _right;
 	if (dir == Up)
-		_pos += _moveSpeed * _deltaTime * _up;
+		_pos += _moveSpeed * deltaTime * _up;
 	if (dir == Down)
-		_pos -= _moveSpeed * _deltaTime * _up;
+		_pos -= _moveSpeed * deltaTime * _up;
 
 	_CalcMatrix();
 }
@@ -54,30 +54,14 @@ void	Camera::_CalcMatrix()
 	_projection = glm::perspective(glm::radians(FOV), _width / _height, 0.1f, 100.0f);
 }
 
-void	Camera::UpdateFrame()
+void	Camera::LookAround(float xoffset, float yoffset)
 {
-	//float currentFrame = glfwGetTime();
-	//_deltaTime = currentFrame - _lastFrame;
-	//_lastFrame = currentFrame;
-}
-
-void	Camera::LookAround(float posX, float posY)
-{
-	float xoffset = posX - _lastPosX;
-	float yoffset = _lastPosY - posY; 
-	_lastPosX = posX;
-	_lastPosY = posY;
 
 	xoffset *= _mouseSensitivity;
 	yoffset *= _mouseSensitivity;
 
 	_yaw   += xoffset;
-	_pitch += yoffset;
-
-	if(_pitch > 89.0f)
-		_pitch = 89.0f;
-	if(_pitch < -89.0f)
-		_pitch = -89.0f;
+	_pitch = glm::clamp(_pitch + yoffset, -89.0f, 89.0f);
 
 	_dir.x = cos(glm::radians(_yaw)) * cos(glm::radians(_pitch));
 	_dir.y = sin(glm::radians(_pitch));

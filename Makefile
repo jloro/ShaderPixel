@@ -60,7 +60,7 @@ LIB_INCS =	-I $(GLM_PATH)/ \
 			$(SDL2_INC) \
 			-I $(ASSIMP_PATH)/include/ \
 			-I $(GLAD_PATH)/includes/ \
-			-I $(SDL2_IMAGE)/include 
+			-I $(SDL_IMAGE_PATH)/include 
 
 
 HEADERS = $(addprefix $(HEADER_DIR), $(HEADER))

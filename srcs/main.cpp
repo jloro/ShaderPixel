@@ -9,6 +9,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
+#include "SDL2/SDL_image.h"
 
 void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
@@ -90,6 +91,13 @@ int				main(int ac, char **av)
 		std::cout << SDL_GetError() << std::endl;;
 		SDL_Quit();
 		return (EXIT_SUCCESS);
+	}
+	int ret;
+	ret = IMG_Init(IMG_INIT_PNG);
+	std::cout << "ret = " << ret << "IMG_INIT_PNG = " << IMG_INIT_PNG << std::endl;
+	if(!(ret & IMG_INIT_PNG)) 
+	{ 
+		std::cout << "SDL_image could not initialize! SDL_image Error: " <<  IMG_GetError() << std::endl; 
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SdlWindow	win(800, 400, false, true, "test");

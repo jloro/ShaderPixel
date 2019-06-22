@@ -5,7 +5,6 @@
 *.slo
 *.lo
 *.o
-ShaderPixel
 
 # Precompiled Headers
 *.gch
@@ -37,3 +36,5 @@ assimp-4.1.0/
 *.exe
 *.out
 *.app
+stubgen
+ShaderPixel

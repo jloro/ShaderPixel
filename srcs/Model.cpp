@@ -16,8 +16,6 @@
 #include <assimp/postprocess.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include "SDL.h"
-#include "SDL2/SDL_image.h"
 
 Model::Model(const char* path)
 {
@@ -109,56 +107,9 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
-	//int width, height, nrComponents;
-	//unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	SDL_Surface		*img = IMG_Load(filename.c_str());
-    // Chargement de l'image dans une surface SDL
-    if(img == nullptr)
-    {
-        std::cout << "Erreuri : " << SDL_GetError() << std::endl;
-        return false;
-    }
-    glBindTexture(GL_TEXTURE_2D, textureID);//
-    // Format de l'image
-    GLenum formatInterne(0);
-    GLenum format(0);
-    // Détermination du format et du format interne pour les images à 3 composantes
-    if(img->format->BytesPerPixel == 3)
-    {
-        // Format interne
-        formatInterne = GL_RGB;
-        // Format
-        if(img->format->Rmask == 0xff)
-            format = GL_RGB;
-        else
-            format = GL_BGR;
-    }
-    // Détermination du format et du format interne pour les images à 4 composantes
-    else if(img->format->BytesPerPixel == 4)
-    {    
-        // Format interne
-        formatInterne = GL_RGBA;
-        // Format
-        if(img->format->Rmask == 0xff)
-            format = GL_RGBA;
-        else
-            format = GL_BGRA;
-    }
-    // Dans les autres cas, on arrête le chargement
-    else
-    {
-        std::cout << "Erreur, format interne de l'image inconnu" << std::endl;
-        SDL_FreeSurface(img);
-        return 0;
-    }
-    // Copie des pixels
-    glTexImage2D(GL_TEXTURE_2D, 0, formatInterne, img->w, img->h, 0, format, GL_UNSIGNED_BYTE, img->pixels);
-    // Déverrouillage
-    //glBindTexture(GL_TEXTURE_2D, 0);
-//
-//
-	//unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-	/*if (data)
+	int width, height, nrComponents;
+	unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+	if (data)
 	{
 		GLenum format;
 		if (nrComponents == 1)
@@ -166,23 +117,24 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 		else if (nrComponents == 3)
 			format = GL_RGB;
 		else
-			format = GL_RGBA;*/
+			format = GL_RGBA;
 
-		//glBindTexture(GL_TEXTURE_2D, textureID);
-		//glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		SDL_FreeSurface(img);
 
-		//stbi_image_free(data);
-	/*else
+		stbi_image_free(data);
+	}
+	else
 	{
 		std::cout << "Texture failed to load at path: " << path << std::endl;
-		//stbi_image_free(data);
-	}*/
+		stbi_image_free(data);
+	}
+
 	return textureID;
 }

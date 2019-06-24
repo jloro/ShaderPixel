@@ -41,7 +41,7 @@ void			game_loop(SdlWindow &win)
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	myShader(shadersPath, type);
-	Camera cam(800, 400);
+	Camera cam(win.GetWidth(), win.GetHeight());
 
 	std::string path= "Pillar/LP_Pillar_Textured.obj";
 	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
@@ -105,7 +105,7 @@ int				main(int ac, char **av)
 		return (EXIT_SUCCESS);
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SdlWindow	win(800, 400, false, true, "test");
+	SdlWindow	win(1600, 900, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
 	game_loop(win);
 }

@@ -1,67 +1,46 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Model.hpp                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/06/20 12:28:53 by jloro             #+#    #+#             */
+/*   Updated: 2019/06/22 17:03:45 by jules            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MODEL_HPP
 # define MODEL_HPP
 
-# include <iostream>
 # include "Mesh.hpp"
+# include <assimp/scene.h>
+# include <glm.hpp>
 
-class Model 
+unsigned int TextureFromFile(const char *path, const std::string &directory);
+class Model
 {
-public: 
-/*  constructors / destructors*/
-    Model(void); 
-    Model(std::string path); 
-    Model(const Model & src); 
-    ~Model(void); 
-/*  public variables    */
+	public:
+/*  constructors / Destructor*/
+		Model(void);
+		Model(const char* path, glm::mat4 model);
+		Model(const Model & rhs);
+		virtual~Model();
 /*  public functions    */
-    void                Draw(const Shader &shader);
-	Model &		        operator=(const Model & rhs);
-    const std::string	toString(void) const;
-private:
-/*  private variables   */
-    std::vector<Mesh>   _meshes;
-    std::string         _directory;
-/*  private functions   */
-    void            _LoadModel(const std::string &path);
-    void            _ProcessNode(aiNode *node, const aiScene *scene);
-    Mesh            _ProcessMesh(aiMesh *mesh, const aiScene *scene);
-    std::vector<Texture> _LoadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
+		void Draw(Shader shader) const;
+        Model & operator=(const Model &rhs);
+		glm::mat4	GetModel(void) const;
+		void		SetModel(glm::mat4 model);
+	private:
+/*  private variables    */
+		std::vector<Mesh>	_meshes;
+		std::string			_dir;
+		glm::mat4			_model;
+/*  private functions    */
+		void					_LoadModel(std::string path);
+		void					_ProcessNode(aiNode *node, const aiScene *scene);
+		Mesh					_ProcessMesh(aiMesh *mesh, const aiScene *scene);
+		std::vector<Texture>	_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName);
 };
 
 #endif
-
-/*
-#include "Model.hpp"
-#include <iostream>
-
-Model::Model(void)
-{
-    
-}
-
-Model::Model(Model const & src) 
-{
-    *this = src;
-    return;
-}
-
-Model::~Model(void)
-{
-    
-}
-
-Model &	Model::operator=(Model const & rhs)
-{
-    return *this;
-}
-
-std::string const Model::toString(void) const
-{
-    
-}
-
-std::ostream &	operator<< (std::ostream & o, Model const & rhs)
-{
-    o << rhs.toString();
-    return o;
-}*/

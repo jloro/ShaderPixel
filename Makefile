@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/05/13 17:01:17 by fchevrey         ###   ########.fr        #
+#    Updated: 2019/06/21 14:38:21 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,7 +23,7 @@ ORANGE = [038;2;239;138;5
 ## Sources ##
 SRCS_DIR = srcs
 
-SRCS =  SdlWindow.cpp main.cpp Shader.cpp Mesh.cpp
+SRCS =  SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp
 
@@ -59,7 +59,8 @@ SDL2_INC = $(shell sh ./lib/sdl2/bin/sdl2-config --cflags)
 LIB_INCS =	-I $(GLM_PATH)/ \
 			$(SDL2_INC) \
 			-I $(ASSIMP_PATH)/include/ \
-			-I $(GLAD_PATH)/includes/ 
+			-I $(GLAD_PATH)/includes/ \
+			-I $(SDL2_IMAGE)/include 
 
 
 HEADERS = $(addprefix $(HEADER_DIR), $(HEADER))
@@ -73,7 +74,8 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 
 LFLAGS =	$(GLAD_PATH)/glad.o\
 			-L $(ASSIMP_PATH)/lib -lassimp\
-			$(SDL2_LFLAGS)
+			$(SDL2_LFLAGS) \
+			-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
 
 LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
 
@@ -180,7 +182,7 @@ SDL2:
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_VER) already installed\033[0m"; \
 	fi
 SDL2_IMAGE:
-	if [ ! -d "./lib/sdl2_image" ]; then \
+	@if [ ! -d "./lib/sdl2_image" ]; then \
 		echo "\033$(PINK)m⚠\tSDL2_image is not installed ! ...\033[0m"; \
 		echo "\033$(CYAN)m➼\tCompiling SDL2_image-$(SDL_IMAGE_VER) ...\033[0m"; \
 		printf "\r\033$(YELLOW)m\tIn 3 ...\033[0m"; sleep 1; \
@@ -198,7 +200,7 @@ SDL2_IMAGE:
 		rm -rf SDL2_image-$(SDL_IMAGE_VER);\
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) installed !\033[0m"; \
 	else \
-		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) already installed\033[0m"; \
+		echo "\033$(GREEN)m✓\tSDl2_image-$(SDL_IMAGE_VER) already installed\033[0m"; \
 	fi
 print_name:
 	@echo "\033[033m➼\t\033[033mCompiling $(NAME) ...\033[0m"

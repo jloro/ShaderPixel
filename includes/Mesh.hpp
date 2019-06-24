@@ -1,42 +1,48 @@
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Mesh.hpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2019/06/20 11:23:36 by jloro             #+#    #+#             */
+/*   Updated: 2019/06/20 16:44:28 by jloro            ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MESH_HPP
 # define MESH_HPP
+
+# include <glm.hpp>
+# include <string>
+# include <vector>
+# include "glad.h"
+# include "Shader.hpp"
 # include "Vertex.hpp"
 # include "Texture.hpp"
-# include "Shader.hpp"
 
-# include <iostream>
-# include <vector>
-# include "assimp/Importer.hpp"
-# include "assimp/scene.h"
-# include "assimp/postprocess.h"
-
-class Mesh 
+class Mesh
 {
-
-public: 
+	public:
 /*  constructors / destructors  */
-    Mesh(void); 
-    Mesh(std::vector<Vertex> vert, std::vector<unsigned int> ind, std::vector<Texture> texts); 
-    Mesh(Mesh const & src); 
-    ~Mesh(void); 
-/*  public variables */
-    std::vector<Vertex>          vertices;
-    std::vector<unsigned int>    indices;
-    std::vector<Texture>         textures;
+		Mesh(void); 
+		Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> faces, std::vector<Texture> textures);
+		Mesh(Mesh const & src); 
+		virtual~Mesh();
+/*  public variables  */
+		std::vector<Vertex>			vertices;
+		std::vector<unsigned int>	faces;
+		std::vector<Texture>		textures;
 /*  public functions  */
-    void        Draw(const Shader &shader) const;
-	Mesh &		operator=(Mesh const & rhs);
-private:
+		Mesh &		operator=(Mesh const & rhs);
+		void		Draw(Shader shader) const;
+	private:
 /*  private variables  */
-    unsigned int _vao;
-    unsigned int _vbo;
-    unsigned int _ebo;
-
+		GLuint						_vao;
+		GLuint						_vbo;
+		GLuint						_ebo;
 /*  private functions */
-    void _SetupMesh(void);
+		void						_SendToOpenGL(void);
 };
 
 #endif

@@ -200,7 +200,7 @@ SDL2_IMAGE:
 		rm -rf SDL2_image-$(SDL_IMAGE_VER);\
 		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) installed !\033[0m"; \
 	else \
-		echo "\033$(GREEN)m✓\tSDl2-$(SDL_IMAGE_VER) already installed\033[0m"; \
+		echo "\033$(GREEN)m✓\tSDl2_image-$(SDL_IMAGE_VER) already installed\033[0m"; \
 	fi
 print_name:
 	@echo "\033[033m➼\t\033[033mCompiling $(NAME) ...\033[0m"

@@ -14,6 +14,7 @@
 # define CAMERA_HPP
 
 # include <glm.hpp>
+# include "IGameObject.hpp"
 
 # define MOVE_SPEED 2.5f
 # define MOUSE_SENSITIVITY 0.1f
@@ -21,18 +22,20 @@
 
 enum eCameraDirection { Forward, Backward, Right, Left, Up, Down};
 
-class Camera
+class Camera : public Engine42::IGameObject
 {
 	public:
 		Camera(float width, float height);
 
-		glm::mat4	GetMatView(void) const;
-		glm::mat4	GetMatProj(void) const;
+		glm::mat4		GetMatView(void) const;
+		glm::mat4		GetMatProj(void) const;
 
-		void	Move(eCameraDirection dir, float deltaTime);
-		void	LookAround(float posX, float posY);
-		void	UpdateFrame();
-		void	ResizeWindow(float newWidth, float newHeight);
+		void			Move(eCameraDirection dir, float deltaTime);
+		void			LookAround(float posX, float posY);
+		void			UpdateFrame();
+		virtual void 	Update(void);
+		virtual void 	FixedUpdate(void);
+		void			ResizeWindow(float newWidth, float newHeight);
 
 		static Camera	*instance;
 	private:

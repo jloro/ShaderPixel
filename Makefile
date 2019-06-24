@@ -23,9 +23,9 @@ ORANGE = [038;2;239;138;5
 ## Sources ##
 SRCS_DIR = srcs
 
-SRCS =  SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp
+SRCS =  SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp Time.cpp
 
-HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp
+HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp Time.hpp
 
 ## Objects ##
 OBJS = $(SRCS:.cpp=.o)

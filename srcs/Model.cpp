@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 12:44:53 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 12:32:30 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/24 11:33:43 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-Model::Model(const char* path)
+Model::Model(const char* path, glm::mat4 model) : _model(model)
 {
 	_LoadModel(path);
 }
@@ -26,6 +26,7 @@ Model::~Model() {}
 
 void	Model::Draw(Shader shader) const
 {
+	shader.setMat4("model", _model);
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);
 }
@@ -62,8 +63,11 @@ Mesh	Model::_ProcessMesh(aiMesh *mesh, const aiScene *scene)
 	{
 		Vertex vertex;
 		vertex.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-		vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-		if (mesh->mTextureCoords[0])
+		if (mesh->HasNormals())
+			vertex.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+		else
+			vertex.normal = glm::vec3(0.0f, 0.0f, 0.0f);
+		if (mesh->HasTextureCoords(0))
 			vertex.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
 		else
 			vertex.texCoord = glm::vec2(0.0f, 0.0f);
@@ -138,3 +142,6 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 
 	return textureID;
 }
+
+void	Model::SetModel(glm::mat4 model) { _model = model; }
+glm::mat4	Model::GetModel(void) const { return _model; }

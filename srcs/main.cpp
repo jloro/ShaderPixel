@@ -43,8 +43,21 @@ void			game_loop(SdlWindow &win)
 	Shader	myShader(shadersPath, type);
 	Camera cam(800, 400);
 
-	std::string path= "nanosuit/nanosuit.obj";
-	Model crysis(path.c_str());
+	std::string path= "Pillar/LP_Pillar_Textured.obj";
+	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	glm::vec3 positions[] = {
+		glm::vec3(-6.0f, 0.0f, 0.0f),
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(3.0f, 0.0f, 0.0f),
+		glm::vec3(6.0f, 0.0f, 0.0f),
+		glm::vec3(-6.0f, 0.0f, 3.0f),
+		glm::vec3(-3.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(3.0f, 0.0f, 3.0f),
+		glm::vec3(6.0f, 0.0f, 3.0f),
+	};
+
 	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
@@ -67,14 +80,14 @@ void			game_loop(SdlWindow &win)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		myShader.use();
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // translate it down so it's at the center of the scene
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));	// it's a bit too big for our scene, so scale it down
-		myShader.setMat4("model", model);
 		myShader.setMat4("view", cam.GetMatView());
 		myShader.setMat4("projection", cam.GetMatProj());
 
-		crysis.Draw(myShader);
+		for (auto pos : positions)
+		{
+			pillar.SetModel(glm::translate(glm::mat4(1.0f), pos));
+			pillar.Draw(myShader);
+		}
 		win.Swap();
 	}
     SDL_Quit();

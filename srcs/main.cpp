@@ -10,7 +10,7 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 
-void			processInput(const Uint8 *state, bool& quit, float deltaTime)
+/*void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
 	if (state[SDL_SCANCODE_ESCAPE])
 		quit = true;
@@ -26,7 +26,7 @@ void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 		Camera::instance->Move(eCameraDirection::Down, deltaTime);
 	if (state[SDL_SCANCODE_SPACE])
 		Camera::instance->Move(eCameraDirection::Up, deltaTime);
-}
+}*/
 
 void			game_loop(SdlWindow &win)
 {
@@ -61,8 +61,8 @@ void			game_loop(SdlWindow &win)
 	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
-			if (e.type == SDL_MOUSEMOTION)
-				cam.LookAround(e.motion.xrel, -e.motion.yrel);
+			/*if (e.type == SDL_MOUSEMOTION)
+				cam.LookAround(e.motion.xrel, -e.motion.yrel);*/
 		state = SDL_GetKeyboardState(NULL);
 
 		delta += SDL_GetTicks() - last_time;

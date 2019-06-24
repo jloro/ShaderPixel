@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "Camera.hpp"
+#include "Engine.hpp"
 #include <gtc/matrix_transform.hpp>
 
 Camera		*Camera::instance = nullptr;
@@ -28,20 +29,43 @@ Camera::Camera(float width, float height) : _moveSpeed(MOVE_SPEED), _mouseSensit
 
 glm::mat4	Camera::GetMatView(void) const { return _view; }
 glm::mat4	Camera::GetMatProj(void) const { return _projection; }
+void 	Camera::Update()
+{
+	SDL_Event	&e = Engine42::Engine::GetInput();
+	if (e.type == SDL_MOUSEMOTION)
+		LookAround(e.motion.xrel, -e.motion.yrel);
+	else if (e->type == SDL_KEYDOWN)
+	{
+		if (event->key.keysym.sym == SDLK_W)
+			Move(eCameDirection::Forward, Engine42::Time::GetDeltaTime());
+		if (event->key.keysym.sym == SDLK_S)
+			Move(eCameDirection::Backward, Engine42::Time::GetDeltaTime());
+		if (event->key.keysym.sym == SDLK_D)
+			Move(eCameDirection::Right, Engine42::Time::GetDeltaTime());
+		if (event->key.keysym.sym == SDLK_A)
+			Move(eCameDirection::Left, Engine42::Time::GetDeltaTime());
+		if (event->key.keysym.sym == SDLK_LCTRL)
+			Move(eCameDirection::Down, Engine42::Time::GetDeltaTime());
+		if (event->key.keysym.sym == SDLK_SPACE)
+			Move(eCameDirection::Up, Engine42::Time::GetDeltaTime());
+
+	}
+}
+void	Camera::FixedUpdate() {}
 
 void	Camera::Move(eCameraDirection dir, float deltaTime)
 {
 	if (dir == Forward)
 		_pos += _moveSpeed * deltaTime * _dir;
-	if (dir == Backward)
+	else if (dir == Backward)
 		_pos -= _moveSpeed * deltaTime * _dir;
-	if (dir == Right)
+	else if (dir == Right)
 		_pos += _moveSpeed * deltaTime * _right;
-	if (dir == Left)
+	else if (dir == Left)
 		_pos -= _moveSpeed * deltaTime * _right;
-	if (dir == Up)
+	else if (dir == Up)
 		_pos += _moveSpeed * deltaTime * _up;
-	if (dir == Down)
+	else if (dir == Down)
 		_pos -= _moveSpeed * deltaTime * _up;
 
 	_CalcMatrix();

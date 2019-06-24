@@ -51,7 +51,7 @@ void    SdlWindow::CreateGlContext(int majVersion, int minVersion, bool doublebu
         throw std::runtime_error("fail to load Glad functions");
     }
 }
-void       SdlWindow::Swap(void)
+void       SdlWindow::Swap(void) const
 {
     SDL_GL_SwapWindow(_winPtr);
 }

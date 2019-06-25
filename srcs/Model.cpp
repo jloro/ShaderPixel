@@ -29,13 +29,6 @@ Model::Model(const Model &src)
 {
     *this = src;
 }
-void Draw(void) 
-{
-	std::cout << "Draw Method not implemented yet" << std::endl;
-	//_shader.setMat4("model", _model)
-	// for (unsigned int i = 0; i < _meshes.size(); i++)
-	// 	_meshes[i].Draw(_shader);
-}
 
 Model::~Model() {}
 

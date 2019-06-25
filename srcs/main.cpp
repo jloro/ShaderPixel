@@ -9,6 +9,7 @@
 #include "Shader.hpp"
 #include "Camera.hpp"
 #include "Model.hpp"
+#include "Engine.hpp"
 
 /*void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
@@ -28,8 +29,8 @@
 		Camera::instance->Move(eCameraDirection::Up, deltaTime);
 }*/
 
-void			game_loop(SdlWindow &win)
-{
+//void			game_loop(SdlWindow &win)
+/*{
 	bool	quit = false;
 	unsigned int		last_time = SDL_GetTicks();
 	unsigned int		delta = 0.0f;
@@ -56,13 +57,13 @@ void			game_loop(SdlWindow &win)
 		glm::vec3(0.0f, 0.0f, 3.0f),
 		glm::vec3(3.0f, 0.0f, 3.0f),
 		glm::vec3(6.0f, 0.0f, 3.0f),
-	};
+	};*/
 
-	while (!quit)
+	/*while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
-			/*if (e.type == SDL_MOUSEMOTION)
-				cam.LookAround(e.motion.xrel, -e.motion.yrel);*/
+			if (e.type == SDL_MOUSEMOTION)
+				cam.LookAround(e.motion.xrel, -e.motion.yrel);
 		state = SDL_GetKeyboardState(NULL);
 
 		delta += SDL_GetTicks() - last_time;
@@ -91,6 +92,40 @@ void			game_loop(SdlWindow &win)
 		win.Swap();
 	}
     SDL_Quit();
+}*/
+
+bool InitModels(SdlWindow &win)
+{
+	glEnable(GL_DEPTH_TEST);
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	Shader	myShader = Shader(shadersPath, type);
+	Camera cam(win.GetWidth(), win.GetHeight());
+
+	Engine42::Engine::SetWindow(&win);
+	Engine42::Engine::AddGameObject(&cam);	
+	std::string path= "Pillar/LP_Pillar_Textured.obj";
+	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	glm::vec3 positions[] = {
+		glm::vec3(-6.0f, 0.0f, 0.0f),
+		glm::vec3(-3.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(3.0f, 0.0f, 0.0f),
+		glm::vec3(6.0f, 0.0f, 0.0f),
+		glm::vec3(-6.0f, 0.0f, 3.0f),
+		glm::vec3(-3.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(3.0f, 0.0f, 3.0f),
+		glm::vec3(6.0f, 0.0f, 3.0f),
+	};
+	for (auto pos : positions)
+	{
+		MeshRenderer *render = new MeshRenderer(pillar, myShader);
+		render->transform.position = pos;
+		Engine42::Engine::AddMeshRenderer(render);
+	}
+	Engine42::Engine::Loop();
+	return true;
 }
 
 int				main(int ac, char **av)
@@ -107,5 +142,7 @@ int				main(int ac, char **av)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SdlWindow	win(1600, 900, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
-	game_loop(win);
+	InitModels(win);
+	SDL_Quit();
+	//game_loop(win);
 }

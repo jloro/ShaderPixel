@@ -28,7 +28,6 @@ class Model
 		virtual~Model();
 /*  public functions    */
 		void Draw(Shader shader) const;
-		void Draw(void) const;
         Model & operator=(const Model &rhs);
 		glm::mat4	GetModel(void) const;
 		void		SetModel(glm::mat4 model);
@@ -37,7 +36,6 @@ class Model
 		std::vector<Mesh>	_meshes;
 		std::string			_dir;
 		glm::mat4			_model;
-		//Shader				&_shader;
 /*  private functions    */
 		void					_LoadModel(std::string path);
 		void					_ProcessNode(aiNode *node, const aiScene *scene);

@@ -31,23 +31,23 @@ glm::mat4	Camera::GetMatView(void) const { return _view; }
 glm::mat4	Camera::GetMatProj(void) const { return _projection; }
 void 	Camera::Update()
 {
-	SDL_Event	&e = Engine42::Engine::GetInput();
-	if (e.type == SDL_MOUSEMOTION)
-		LookAround(e.motion.xrel, -e.motion.yrel);
-	else if (e->type == SDL_KEYDOWN)
+	const SDL_Event	&event = Engine42::Engine::GetInput();
+	if (event.type == SDL_MOUSEMOTION)
+		LookAround(event.motion.xrel, -event.motion.yrel);
+	else if (event.type == SDL_KEYDOWN)
 	{
-		if (event->key.keysym.sym == SDLK_W)
-			Move(eCameDirection::Forward, Engine42::Time::GetDeltaTime());
-		if (event->key.keysym.sym == SDLK_S)
-			Move(eCameDirection::Backward, Engine42::Time::GetDeltaTime());
-		if (event->key.keysym.sym == SDLK_D)
-			Move(eCameDirection::Right, Engine42::Time::GetDeltaTime());
-		if (event->key.keysym.sym == SDLK_A)
-			Move(eCameDirection::Left, Engine42::Time::GetDeltaTime());
-		if (event->key.keysym.sym == SDLK_LCTRL)
-			Move(eCameDirection::Down, Engine42::Time::GetDeltaTime());
-		if (event->key.keysym.sym == SDLK_SPACE)
-			Move(eCameDirection::Up, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_w)
+			Move(eCameraDirection::Forward, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_s)
+			Move(eCameraDirection::Backward, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_d)
+			Move(eCameraDirection::Right, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_a)
+			Move(eCameraDirection::Left, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_LCTRL)
+			Move(eCameraDirection::Down, Engine42::Time::GetDeltaTime());
+		if (event.key.keysym.sym == SDLK_SPACE)
+			Move(eCameraDirection::Up, Engine42::Time::GetDeltaTime());
 
 	}
 }

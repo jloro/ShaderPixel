@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/06/26 20:07:19 by jules            ###   ########.fr        #
+#    Updated: 2019/06/26 20:09:34 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -211,4 +211,3 @@ print_end:
 	@echo $(MESSAGE)
 .PHONY: all clean fclean re rm_obj exe SDL2 rm_SDL2 re_SDL2 GLAD ASSIMP\
 		 re_sanitize sanitize 
->>>>>>> master

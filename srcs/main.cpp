@@ -11,7 +11,7 @@
 #include "Model.hpp"
 #include "Engine.hpp"
 
-/*void			processInput(const Uint8 *state, bool& quit, float deltaTime)
+void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
 	if (state[SDL_SCANCODE_ESCAPE])
 		quit = true;
@@ -27,10 +27,10 @@
 		Camera::instance->Move(eCameraDirection::Down, deltaTime);
 	if (state[SDL_SCANCODE_SPACE])
 		Camera::instance->Move(eCameraDirection::Up, deltaTime);
-}*/
+}
 
-//void			game_loop(SdlWindow &win)
-/*{
+void			game_loop(SdlWindow &win)
+{
 	bool	quit = false;
 	unsigned int		last_time = SDL_GetTicks();
 	unsigned int		delta = 0.0f;
@@ -44,22 +44,12 @@
 	Shader	myShader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
-	std::string path= "Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	glm::vec3 positions[] = {
-		glm::vec3(-6.0f, 0.0f, 0.0f),
-		glm::vec3(-3.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(3.0f, 0.0f, 0.0f),
-		glm::vec3(6.0f, 0.0f, 0.0f),
-		glm::vec3(-6.0f, 0.0f, 3.0f),
-		glm::vec3(-3.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(3.0f, 0.0f, 3.0f),
-		glm::vec3(6.0f, 0.0f, 3.0f),
-	};*/
+	std::string path= "cube.obj";
+	glm::mat4	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0));
+	Model pillar(path.c_str(), glm::scale(glm::mat4(1.0f), glm::vec3(7.0f, 4.0f, 4.0f)));
 
-	/*while (!quit)
+	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
 			if (e.type == SDL_MOUSEMOTION)
@@ -83,17 +73,18 @@
 		myShader.use();
 		myShader.setMat4("view", cam.GetMatView());
 		myShader.setMat4("projection", cam.GetMatProj());
+		myShader.setVec3("camPos", cam._pos);
+		myShader.setFloat("pitch", cam._pitch);
+		myShader.setFloat("yaw", cam._yaw);
+		myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
 
-		for (auto pos : positions)
-		{
-			pillar.SetModel(glm::translate(glm::mat4(1.0f), pos));
-			pillar.Draw(myShader);
-		}
+
+		pillar.Draw(myShader);
 		win.Swap();
 	}
     SDL_Quit();
-}*/
-
+}
+/*
 bool InitModels(SdlWindow &win)
 {
 	glEnable(GL_DEPTH_TEST);
@@ -127,7 +118,7 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::Loop();
 	return true;
 }
-
+*/
 int				main(int ac, char **av)
 {
 	if (ac < -1 && av == nullptr)
@@ -140,9 +131,9 @@ int				main(int ac, char **av)
 		return (EXIT_SUCCESS);
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SdlWindow	win(1600, 900, false, true, "test");
+	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
-	InitModels(win);
+	//InitModels(win);
+	game_loop(win);
 	SDL_Quit();
-	//game_loop(win);
 }

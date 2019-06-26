@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/21 16:46:33 by jules            ###   ########.fr       */
+/*   Updated: 2019/06/26 20:05:35 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,10 +38,14 @@ class Camera : public Engine42::IGameObject
 		void			ResizeWindow(float newWidth, float newHeight);
 
 		static Camera	*instance;
+		glm::vec3	_pos;
+		float		_moveSpeed;
+		float		_mouseSensitivity;
+		float		_pitch;
+		float		_yaw;
 	private:
 		void	_CalcMatrix();
 
-		glm::vec3	_pos;
 		glm::vec3	_right;
 		glm::vec3	_up;
 		glm::vec3	_dir;
@@ -49,11 +53,7 @@ class Camera : public Engine42::IGameObject
 		glm::mat4	_view;
 		glm::mat4	_projection;
 
-		float		_moveSpeed;
-		float		_mouseSensitivity;
 
-		float		_pitch;
-		float		_yaw;
 
 		//Size of window
 		float		_width;

@@ -93,7 +93,20 @@
 	}
     SDL_Quit();
 }*/
+Shader *test_cube(MeshRenderer *render)
+{
+	std::string path = "cube.obj";
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
+	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	Shader	*myShader = new Shader(shadersPath, type);
 
+	Model cube(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	render = new MeshRenderer(cube, *myShader);
+	render->transform.position = glm::vec3(0.0f, 2.0f, 0.0f);
+	Engine42::Engine::AddMeshRenderer(render);
+	return myShader;
+}
 bool InitModels(SdlWindow &win)
 {
 	glEnable(GL_DEPTH_TEST);
@@ -118,13 +131,16 @@ bool InitModels(SdlWindow &win)
 		glm::vec3(3.0f, 0.0f, 3.0f),
 		glm::vec3(6.0f, 0.0f, 3.0f),
 	};
+	MeshRenderer *render;
 	for (auto pos : positions)
 	{
-		MeshRenderer *render = new MeshRenderer(pillar, myShader);
+		render = new MeshRenderer(pillar, myShader);
 		render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
+	Shader *test = test_cube(render);
 	Engine42::Engine::Loop();
+	delete test;
 	return true;
 }
 

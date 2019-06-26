@@ -25,7 +25,8 @@ namespace Engine42
         static void            AddGameObject(Engine42::IGameObject *object);
         static void            AddGameObject(std::list<Engine42::IGameObject*> objects);
         static void            Loop(void);
-        static const SDL_Event &GetInput();
+        static const SDL_Event &GetEvent();
+        static const Uint8     *GetKeyInput();
     private:
     /*  private constructor*/
         Engine(void); 
@@ -34,6 +35,7 @@ namespace Engine42
         std::list<MeshRenderer*>            _meshRenderers;
         std::list<Engine42::IGameObject*>   _gameObjs;
         SDL_Event                           _event;
+        const Uint8                         *_keys;
         const SdlWindow                     *_win;           
     /*	private functions	*/
         void                                _RenderAll(void);

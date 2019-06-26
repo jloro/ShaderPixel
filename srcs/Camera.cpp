@@ -31,31 +31,32 @@ glm::mat4	Camera::GetMatView(void) const { return _view; }
 glm::mat4	Camera::GetMatProj(void) const { return _projection; }
 void 	Camera::Update()
 {
-	const SDL_Event	&event = Engine42::Engine::GetInput();
+	const SDL_Event	&event = Engine42::Engine::GetEvent();
+	
 	if (event.type == SDL_MOUSEMOTION)
 		LookAround(event.motion.xrel, -event.motion.yrel);
-	else if (event.type == SDL_KEYDOWN)
-	{
-		if (event.key.keysym.sym == SDLK_w)
+	/*else if (event.type == SDL_KEYDOWN)
+	{*/
+		const Uint8 	*keys = Engine42::Engine::GetKeyInput();
+		if (keys[SDL_SCANCODE_W])
 			Move(eCameraDirection::Forward, Engine42::Time::GetDeltaTime());
-		if (event.key.keysym.sym == SDLK_s)
+		if (keys[SDL_SCANCODE_S])
 			Move(eCameraDirection::Backward, Engine42::Time::GetDeltaTime());
-		if (event.key.keysym.sym == SDLK_d)
+		if (keys[SDL_SCANCODE_D])
 			Move(eCameraDirection::Right, Engine42::Time::GetDeltaTime());
-		if (event.key.keysym.sym == SDLK_a)
+		if (keys[SDL_SCANCODE_A])
 			Move(eCameraDirection::Left, Engine42::Time::GetDeltaTime());
-		if (event.key.keysym.sym == SDLK_LCTRL)
+		if (keys[SDL_SCANCODE_LCTRL])
 			Move(eCameraDirection::Down, Engine42::Time::GetDeltaTime());
-		if (event.key.keysym.sym == SDLK_SPACE)
+		if (keys[SDL_SCANCODE_SPACE])
 			Move(eCameraDirection::Up, Engine42::Time::GetDeltaTime());
 
-	}
+	//}
 }
 void	Camera::FixedUpdate() {}
 
 void	Camera::Move(eCameraDirection dir, float deltaTime)
 {
-	std::cout << Engine42::Time::GetDeltaTime() << std::endl;
 	if (dir == Forward)
 		_pos += _moveSpeed * deltaTime * _dir;
 	else if (dir == Backward)

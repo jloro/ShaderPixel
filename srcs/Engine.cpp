@@ -24,7 +24,8 @@ void            Engine42::Engine::AddGameObject(std::list<Engine42::IGameObject*
 {
     _inst._gameObjs.insert(_inst._gameObjs.begin(), objs.begin(), objs.end());
 }
-const SDL_Event &Engine42::Engine::GetInput(){ return _inst._event;}
+const SDL_Event &Engine42::Engine::GetEvent(){ return _inst._event;}
+const Uint8 *Engine42::Engine::GetKeyInput(){ return _inst._keys;}
 
 void            Engine42::Engine::Loop(void)
 {
@@ -34,13 +35,9 @@ void            Engine42::Engine::Loop(void)
     const float fixedTimeUpdate = 0.02f;
     float       fixedDelta = 0.02f;
 
-    //lastTime = SDL_GetTicks();
-
     while (!quit)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
-        std::cout << "Ticks = " << (float)SDL_GetTicks() <<"  delta =" 
-        << delta << "  lastime = " << lastTime << std::endl;
         Time::SetDeltaTime(delta);
         while (SDL_PollEvent(&_inst._event) != 0)
         {
@@ -49,9 +46,9 @@ void            Engine42::Engine::Loop(void)
             || (_inst._event.type == SDL_KEYDOWN 
             && _inst._event.key.keysym.sym == SDLK_ESCAPE))
                 quit = true;
+            _inst._keys = SDL_GetKeyboardState(NULL);
             _inst._UpdateAll();
         }
-		//state = SDL_GetKeyboardState(NULL);
         lastTime += delta;
 		fixedDelta += delta;
 		if (fixedDelta >= fixedTimeUpdate)

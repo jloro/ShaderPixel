@@ -29,16 +29,18 @@ const SDL_Event &Engine42::Engine::GetInput(){ return _inst._event;}
 void            Engine42::Engine::Loop(void)
 {
     bool        quit = false;
-    float       delta = ((float)SDL_GetTicks()) / 100;
+    float       delta = ((float)SDL_GetTicks()) / 1000;
     float       lastTime = delta;
     const float fixedTimeUpdate = 0.02f;
     float       fixedDelta = 0.02f;
 
-    lastTime = SDL_GetTicks();
+    //lastTime = SDL_GetTicks();
 
     while (!quit)
     {
-        delta += (((float)SDL_GetTicks()) / 100) - lastTime;
+        delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
+        std::cout << "Ticks = " << (float)SDL_GetTicks() <<"  delta =" 
+        << delta << "  lastime = " << lastTime << std::endl;
         Time::SetDeltaTime(delta);
         while (SDL_PollEvent(&_inst._event) != 0)
         {
@@ -50,7 +52,7 @@ void            Engine42::Engine::Loop(void)
             _inst._UpdateAll();
         }
 		//state = SDL_GetKeyboardState(NULL);
-
+        lastTime += delta;
 		fixedDelta += delta;
 		if (fixedDelta >= fixedTimeUpdate)
 		{

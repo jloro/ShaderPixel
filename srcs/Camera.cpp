@@ -55,6 +55,7 @@ void	Camera::FixedUpdate() {}
 
 void	Camera::Move(eCameraDirection dir, float deltaTime)
 {
+	std::cout << Engine42::Time::GetDeltaTime() << std::endl;
 	if (dir == Forward)
 		_pos += _moveSpeed * deltaTime * _dir;
 	else if (dir == Backward)

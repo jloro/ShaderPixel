@@ -11,7 +11,13 @@
 #include "Model.hpp"
 #include "Engine.hpp"
 
-/*void			processInput(const Uint8 *state, bool& quit, float deltaTime)
+std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
+	return o;
+}
+/*
+void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
 	if (state[SDL_SCANCODE_ESCAPE])
 		quit = true;
@@ -27,10 +33,10 @@
 		Camera::instance->Move(eCameraDirection::Down, deltaTime);
 	if (state[SDL_SCANCODE_SPACE])
 		Camera::instance->Move(eCameraDirection::Up, deltaTime);
-}*/
+}
 
-//void			game_loop(SdlWindow &win)
-/*{
+void			game_loop(SdlWindow &win)
+{
 	bool	quit = false;
 	unsigned int		last_time = SDL_GetTicks();
 	unsigned int		delta = 0.0f;
@@ -44,22 +50,12 @@
 	Shader	myShader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
-	std::string path= "Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	glm::vec3 positions[] = {
-		glm::vec3(-6.0f, 0.0f, 0.0f),
-		glm::vec3(-3.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(3.0f, 0.0f, 0.0f),
-		glm::vec3(6.0f, 0.0f, 0.0f),
-		glm::vec3(-6.0f, 0.0f, 3.0f),
-		glm::vec3(-3.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(3.0f, 0.0f, 3.0f),
-		glm::vec3(6.0f, 0.0f, 3.0f),
-	};*/
+	std::string path= "cube.obj";
+	glm::mat4	model = glm::mat4(1.0f);
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	Model pillar(path.c_str(), glm::scale(model, glm::vec3(7.0f, 4.0f, 4.0f)));
 
-	/*while (!quit)
+	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
 			if (e.type == SDL_MOUSEMOTION)
@@ -83,12 +79,20 @@
 		myShader.use();
 		myShader.setMat4("view", cam.GetMatView());
 		myShader.setMat4("projection", cam.GetMatProj());
+		myShader.setVec3("uCamPos", cam._pos);
+		myShader.setVec3("uDir", cam._dir);
+		myShader.setVec3("uUp", cam._up);
+		myShader.setVec2("uResolution", glm::vec2(800, 400));
+		myShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+		myShader.setFloat("uFov", glm::radians(45.0f));
 
-		for (auto pos : positions)
-		{
-			pillar.SetModel(glm::translate(glm::mat4(1.0f), pos));
-			pillar.Draw(myShader);
-		}
+		std::cout << cam._pos << std::endl;
+		//myShader.setFloat("pitch", cam._pitch);
+		//myShader.setFloat("yaw", cam._yaw);
+		//myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
+
+
+		pillar.Draw(myShader);
 		win.Swap();
 	}
     SDL_Quit();
@@ -96,21 +100,24 @@
 Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
-	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
+	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+//	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
+	myShader->SetIsRayMarching(true);
 
 	(*cube) = new Model(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 	*render = new MeshRenderer(**cube, *myShader);
-	(*render)->transform.position = glm::vec3(-0.5f, 5.5f, -0.5f);
+	(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
 	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
 }
+
 bool InitModels(SdlWindow &win)
 {
 	glEnable(GL_DEPTH_TEST);
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	myShader = Shader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
@@ -142,7 +149,7 @@ bool InitModels(SdlWindow &win)
 	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
 	delete test;
-	delete cube;
+	//delete cube;
 	delete render;
 	return true;
 }
@@ -159,9 +166,12 @@ int				main(int ac, char **av)
 		return (EXIT_SUCCESS);
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SdlWindow	win(1600, 900, false, true, "test");
+	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glViewport(0, 0, 800, 400);
 	InitModels(win);
-	SDL_Quit();
 	//game_loop(win);
+	SDL_Quit();
 }

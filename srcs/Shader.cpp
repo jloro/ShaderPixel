@@ -24,6 +24,7 @@ Shader::Shader(std::vector<const char *> shaderSource, std::vector<GLenum> shade
 	const char *	tmp;
 
 	_program = glCreateProgram();
+	_isRayMarching = false;
 	for (unsigned int i = 0; i < shaderSource.size(); i++)
 	{
 		ifs.open(shaderSource[i], std::ifstream::in);
@@ -55,11 +56,23 @@ void	Shader::_checkCompileError(GLuint shader)
 		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 }
-
+void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win) const
+{
+	setMat4("view", cam.GetMatView());
+	setMat4("projection", cam.GetMatProj());
+	setVec3("uCamPos", cam._pos);
+	setVec3("uDir", cam._dir);
+	setVec3("uUp", cam._up);
+	setVec2("uResolution", glm::vec2(win.GetWidth(), win.GetHeight()));
+	setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+	setFloat("uFov", glm::radians(45.0f));
+}
 void	Shader::use(void) const
 {
 	glUseProgram(_program);
 }
+bool	Shader::GetIsRayMarching(void) { return _isRayMarching; }
+void	Shader::SetIsRayMarching(bool value) { _isRayMarching = value;}
 
 // utility uniform functions
 // ------------------------------------------------------------------------

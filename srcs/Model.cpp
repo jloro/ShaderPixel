@@ -53,9 +53,7 @@ void	Model::_LoadModel(std::string path)
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 	_dir = path.substr(0, path.find_last_of('/'));
-	std::cout << "test" << std::endl;
 	_ProcessNode(scene->mRootNode, scene);
-	std::cout << "Here" << std::endl;
 }
 
 void	Model::_ProcessNode(aiNode *node, const aiScene *scene)

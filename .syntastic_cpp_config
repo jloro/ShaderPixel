@@ -1,0 +1,5 @@
+-I inc/
+-I lib/glad/
+-I lib/glfw/include/
+-I lib/assimp/include/
+-I lib/glm/

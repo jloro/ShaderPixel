@@ -53,8 +53,9 @@ void	Model::_LoadModel(std::string path)
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 	_dir = path.substr(0, path.find_last_of('/'));
-
+	std::cout << "test" << std::endl;
 	_ProcessNode(scene->mRootNode, scene);
+	std::cout << "Here" << std::endl;
 }
 
 void	Model::_ProcessNode(aiNode *node, const aiScene *scene)
@@ -94,11 +95,14 @@ Mesh	Model::_ProcessMesh(aiMesh *mesh, const aiScene *scene)
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			faces.push_back(face.mIndices[j]);
 	}
-	aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture> diffuseMaps = _LoadMaterialTexture(material, aiTextureType_DIFFUSE, Diffuse);
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	std::vector<Texture> specularMaps = _LoadMaterialTexture(material, aiTextureType_SPECULAR, Specular);
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	if (scene->HasMaterials())
+	{
+		aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+		std::vector<Texture> diffuseMaps = _LoadMaterialTexture(material, aiTextureType_DIFFUSE, Diffuse);
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		std::vector<Texture> specularMaps = _LoadMaterialTexture(material, aiTextureType_SPECULAR, Specular);
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
 	return Mesh(vertices, faces, textures);
 }
 

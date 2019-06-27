@@ -93,18 +93,18 @@
 	}
     SDL_Quit();
 }*/
-Shader *test_cube(MeshRenderer *render)
+Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 
-	Model cube(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	render = new MeshRenderer(cube, *myShader);
-	render->transform.position = glm::vec3(0.0f, 2.0f, 0.0f);
-	Engine42::Engine::AddMeshRenderer(render);
+	(*cube) = new Model(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	*render = new MeshRenderer(**cube, *myShader);
+	(*render)->transform.position = glm::vec3(-0.5f, 5.5f, -0.5f);
+	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
 }
 bool InitModels(SdlWindow &win)
@@ -138,9 +138,12 @@ bool InitModels(SdlWindow &win)
 		render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
-	Shader *test = test_cube(render);
+	Model *cube;
+	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
 	delete test;
+	delete cube;
+	delete render;
 	return true;
 }
 

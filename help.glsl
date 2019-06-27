@@ -1,43 +1,27 @@
 #version 330 core
+
 out vec4 FragColor;
 
+uniform vec3 camPos;
+uniform float pitch;
+uniform float yaw;
+uniform float iGlobalTime;
 in mat4 viewMat;
-in mat4 mvp;
 
-uniform vec2	uResolution;//Resolution of screen
-uniform float	uFov;//Fov in radians
-uniform vec3	uCamPos;//Position of camera in world
-uniform vec2	uRotation;//Rotation of the camera
-uniform vec3	uDir;//Dir of the camera
-uniform vec3	uUp;//Dir of the camera
-uniform float	uGlobalTime;
+/**
+ * Part 1 Challenges
+ * - Make the circle yellow
+ * - Make the circle smaller by decreasing its radius
+ * - Make the circle smaller by moving the camera back
+ * - Make the size of the circle oscillate using the sin() function and the iTime
+ *   uniform provided by shadertoy
+ */
 
 const int MAX_MARCHING_STEPS = 255;
 const float MIN_DIST = 0.0f;
-const float MAX_DIST = 100.0f;
-const float EPSILON = 0.0001f;
+const float MAX_DIST = 100.0;
+const float EPSILON = 0.0001;
 
-mat3 rotateY(float theta) {
-    float c = cos(theta);
-    float s = sin(theta);
-
-    return mat3(
-        vec3(c, 0, s),
-        vec3(0, 1, 0),
-        vec3(-s, 0, c)
-    );
-}
-
-mat3 rotateX(float theta) {
-    float c = cos(theta);
-    float s = sin(theta);
-
-    return mat3(
-        vec3(1, 0, 0),
-        vec3(0, c, -s),
-        vec3(0, s, c)
-    );
-}
 float intersectSDF(float distA, float distB) {
     return max(distA, distB);
 }
@@ -50,6 +34,29 @@ float differenceSDF(float distA, float distB) {
     return max(distA, -distB);
 }
 
+mat4 rotateY(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+
+    return mat4(
+        vec4(c, 0, s, 0),
+        vec4(0, 1, 0, 0),
+        vec4(-s, 0, c, 0),
+        vec4(0, 0, 0, 1)
+    );
+}
+
+mat4 rotateX(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+
+    return mat4(
+        vec4(1, 0, 0, 0),
+        vec4(0, c, -s, 0),
+        vec4(0, s, c, 0),
+        vec4(0, 0, 0, 1)
+    );
+}
 float torusSDF(vec3 p, vec2 r)//r = vec2(big radius, little radius)
 {
   vec2 q = vec2(length(p.xz)-r.x,p.y);
@@ -72,8 +79,11 @@ float cubeSDF(vec3 p) {
     return insideDistance + outsideDistance;
 }
 
-float sphereSDF(vec3 samplePoint, vec3 o, float r) {
-    return length(samplePoint - o) - r;
+/**
+ * Signed distance function for a sphere centered at the origin with radius 1.0;
+ */
+float sphereSDF(vec3 samplePoint, vec3 pos, float r) {
+    return length(samplePoint - pos) - r;
 }
 
 /**
@@ -106,10 +116,10 @@ float cappedCylinderSDF(vec3 p, float h, float r) {
  * negative indicating inside.
  */
 float sceneSDF(vec3 samplePoint) {
-	vec3 samplePointCube = rotateX(-uGlobalTime) * samplePoint;
+	vec3 samplePointCube = (rotateX(-iGlobalTime) * vec4(samplePoint, 1.0)).xyz;
     float sphereDist = sphereSDF(samplePoint / 1.2, vec3(0.0f, 0.0f, 0.0f), 1.0f) * 1.2;
     float cubeDist = cubeSDF(samplePointCube);
-    return sphereDist;
+    return cappedCylinderSDF(samplePointCube, 5, 1);
 }
 
 vec3 estimateNormal(vec3 p) {
@@ -188,71 +198,88 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 e
     return color;
 }
 
-float	rayMarche(float start, float end, vec3 ray, vec3 origin)
-{
-	float depth = start;
-	float dist;
-	for (int i = 0; i < MAX_MARCHING_STEPS; i++)
-	{
-		dist = sceneSDF(origin + depth * ray);
-		if (dist < EPSILON)
+/**
+ * Return the shortest distance from the eyepoint to the scene surface along
+ * the marching direction. If no part of the surface is found between start and end,
+ * return end.
+ * 
+ * eye: the eye point, acting as the origin of the ray
+ * marchingDirection: the normalized direction to march in
+ * start: the starting distance away from the eye
+ * end: the max distance away from the ey to march before giving up
+ */
+float shortestDistanceToSurface(vec3 eye, vec3 marchingDirection, float start, float end) {
+    float depth = start;
+    for (int i = 0; i < MAX_MARCHING_STEPS; i++) {
+        float dist = sceneSDF(eye + depth * marchingDirection);
+        if (dist < EPSILON) {
 			return depth;
-		depth += dist;
-		if (depth >= end)
-			return end;
-	}
-	return end;
+        }
+        depth += dist;
+        if (depth >= end) {
+            return end;
+        }
+    }
+    return end;
 }
+            
 
-
-mat4 viewMatrix(vec3 eye, vec3 center, vec3 up) {
-    // Based on gluLookAt man page
-    vec3 f = normalize(center - eye);
-    vec3 s = normalize(cross(f, up));
-    vec3 u = cross(s, f);
-    return mat4(
-        vec4(s, 0.0),
-        vec4(u, 0.0),
-        vec4(-f, 0.0),
-        vec4(0.0, 0.0, 0.0, 1)
-    );
-}
-
-vec3 rotateRay(vec3 ray)
+vec3	rotDir(vec3 dir)
 {
-	mat4 mat = viewMatrix(uCamPos, uCamPos + uDir, uUp);
-	ray = (mat * vec4(ray, 0.0f)).xyz;
-	return ray;
+	mat3 rotX;
+	mat3 rotY;
+
+	rotX[0] = vec3(1.0f, 0.0f, 0.0f);
+	rotX[1] = vec3(0.0f, cos(radians(pitch)), -sin(radians(pitch)));
+	rotX[2] = vec3(0.0f, sin(radians(pitch)), cos(radians(pitch)));
+	dir *= rotX;
+
+	rotY[0] = vec3(cos(radians(yaw + 90.0f)), 0.0f, sin(radians(yaw + 90.0f)));
+	rotY[1] = vec3(0.0f, 1.0f, 0.0f);
+	rotY[2] = vec3(-sin(radians(yaw + 90.0f)), 0.0f, cos(radians(yaw + 90.0f)));
+	dir *= rotY;
+	return normalize(dir);
 }
 
+/**
+ * Return the normalized direction to march in from the eye point for a single pixel.
+ * 
+ * fieldOfView: vertical field of view in degrees
+ * size: resolution of the output image
+ * fragCoord: the x,y coordinate of the pixel in the output image
+ */
 vec3 rayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
     vec2 xy = fragCoord - size / 2.0;
-    float z = size.y / tan(fieldOfView / 2.0);
-    vec3 ray = normalize(vec3(xy, -z));
-	return rotateRay(ray);
+    float z = size.y / tan(radians(fieldOfView) / 2.0);
+    return normalize(vec3(xy, -z));
 }
 
 void main()
 {
-	vec3 ray = rayDirection(uFov, uResolution, gl_FragCoord.xy);
+	vec3 viewDir = rayDirection(45.0, vec2(800, 400), gl_FragCoord.xy);
+    vec3 eye = camPos;
 
-	float dist = rayMarche(MIN_DIST, MAX_DIST, ray, uCamPos);
+
+	viewDir = rotDir(viewDir);
+    vec3 worldDir = (viewMat * vec4(viewDir, 0.0)).xyz;
+
+    float dist = shortestDistanceToSurface(eye, worldDir, MIN_DIST, MAX_DIST);
 
     if (dist > MAX_DIST - EPSILON) {
         // Didn't hit anything
-        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 		return;
     }
 
     // The closest point on the surface to the eyepoint along the view ray
-    vec3 p = uCamPos + dist * ray;
+    vec3 p = eye + dist * worldDir;
 
     vec3 K_a = vec3(0.2, 0.2, 0.2);
     vec3 K_d = vec3(0.7, 0.2, 0.2);
     vec3 K_s = vec3(1.0, 1.0, 1.0);
     float shininess = 10.0;
 
-    vec3 color = phongIllumination(K_a, K_d, K_s, shininess, p, uCamPos);
+    vec3 color = phongIllumination(K_a, K_d, K_s, shininess, p, eye);
 
     FragColor = vec4(color, 1.0);
 }

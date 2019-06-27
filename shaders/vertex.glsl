@@ -10,11 +10,13 @@ uniform mat4 projection;
 out vec2 TexCoords;
 out mat4 viewMat;
 out mat4 invPersMatrix;
+out mat4 mvp;
 
 void main()
 {
 	TexCoords = atexCoord;
 	viewMat = view;
 	invPersMatrix = inverse(projection);
+	mvp = projection * view * model;
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }

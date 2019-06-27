@@ -11,6 +11,12 @@
 #include "Model.hpp"
 #include "Engine.hpp"
 
+std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
+	return o;
+}
+
 void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
 	if (state[SDL_SCANCODE_ESCAPE])
@@ -46,8 +52,8 @@ void			game_loop(SdlWindow &win)
 
 	std::string path= "cube.obj";
 	glm::mat4	model = glm::mat4(1.0f);
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0));
-	Model pillar(path.c_str(), glm::scale(glm::mat4(1.0f), glm::vec3(7.0f, 4.0f, 4.0f)));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+	Model pillar(path.c_str(), glm::scale(model, glm::vec3(7.0f, 4.0f, 4.0f)));
 
 	while (!quit)
 	{
@@ -73,10 +79,17 @@ void			game_loop(SdlWindow &win)
 		myShader.use();
 		myShader.setMat4("view", cam.GetMatView());
 		myShader.setMat4("projection", cam.GetMatProj());
-		myShader.setVec3("camPos", cam._pos);
-		myShader.setFloat("pitch", cam._pitch);
-		myShader.setFloat("yaw", cam._yaw);
-		myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
+		myShader.setVec3("uCamPos", cam._pos);
+		myShader.setVec3("uDir", cam._dir);
+		myShader.setVec3("uUp", cam._up);
+		myShader.setVec2("uResolution", glm::vec2(800, 400));
+		myShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+		myShader.setFloat("uFov", glm::radians(45.0f));
+
+		std::cout << cam._pos << std::endl;
+		//myShader.setFloat("pitch", cam._pitch);
+		//myShader.setFloat("yaw", cam._yaw);
+		//myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
 
 
 		pillar.Draw(myShader);
@@ -133,6 +146,9 @@ int				main(int ac, char **av)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glViewport(0, 0, 800, 400);
 	//InitModels(win);
 	game_loop(win);
 	SDL_Quit();

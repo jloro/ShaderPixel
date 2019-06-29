@@ -11,11 +11,11 @@
 #include "Model.hpp"
 #include "Engine.hpp"
 
-std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
+/*std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
 {
 	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
 	return o;
-}
+}*/
 /*
 void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
@@ -106,10 +106,16 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
-
-	(*cube) = new Model(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	*render = new MeshRenderer(**cube, *myShader);
-	(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
+	//glm::mat4  matModel = glm::mat4(1.0f);
+	//matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, 0.0f));
+	//matModel = glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f));
+	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
+	(*cube) = new Model(path.c_str(), glm::mat4(1.0f));
+	//						position					rotation						scale
+	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(7.0f, 4.0f, 4.0f)};
+	*render = new MeshRenderer(**cube, *myShader, trans);
+	//(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
+//	(*render)->transform.position = glm::vec3(0, 0, 0);
 	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
 }
@@ -139,13 +145,17 @@ bool InitModels(SdlWindow &win)
 		glm::vec3(6.0f, 0.0f, 3.0f),
 	};
 	MeshRenderer *render;
+	Model *cube;
+	Transform transform;
+	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	for (auto pos : positions)
 	{
-		render = new MeshRenderer(pillar, myShader);
-		render->transform.position = pos;
+		transform.position = pos;
+		render = new MeshRenderer(pillar, myShader, transform);
+		//render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
-	Model *cube;
 	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
 	delete test;

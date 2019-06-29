@@ -34,7 +34,7 @@ Model::~Model() {}
 
 void	Model::Draw(Shader shader) const
 {
-	shader.setMat4("model", _model);
+	//shader.setMat4("model", _model);
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);
 }

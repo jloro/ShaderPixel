@@ -56,8 +56,25 @@ void	Shader::_checkCompileError(GLuint shader)
 		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 }
+std::ostream &operator<<(std::ostream &o, const glm::vec3 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
+	return o;
+}
+std::ostream &operator<<(std::ostream &o, const glm::vec2 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y;
+	return o;
+}
 void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win) const
 {
+	/*std::cout << "camPos :" <<  cam._pos << std::endl;
+	std::cout << "camDir "<< cam._dir<< std::endl;
+	std::cout << "camUp " << cam._up<< std::endl;
+	std::cout << "camPitch " << cam._pitch<< std::endl;
+	std::cout << "Cam Yaw " << cam._yaw  << std::endl;
+	std::cout << "width " << win.GetWidth() << std::endl;
+	std::cout << "heihgt " << win.GetHeight() << std::endl;*/
 	setMat4("view", cam.GetMatView());
 	setMat4("projection", cam.GetMatProj());
 	setVec3("uCamPos", cam._pos);

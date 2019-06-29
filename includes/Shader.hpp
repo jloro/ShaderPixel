@@ -49,5 +49,8 @@ class Shader
 
 		GLuint				_program;
 };
+std::ostream &operator<<(std::ostream &o, const glm::vec2 & vec);
+std::ostream &operator<<(std::ostream &o, const glm::vec3 & vec);
+
 
 #endif

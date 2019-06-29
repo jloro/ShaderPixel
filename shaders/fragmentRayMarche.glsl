@@ -109,7 +109,7 @@ float sceneSDF(vec3 samplePoint) {
 	vec3 samplePointCube = rotateX(-uGlobalTime) * samplePoint;
     float sphereDist = sphereSDF(samplePoint / 1.2, vec3(0.0f, 0.0f, 0.0f), 1.0f) * 1.2;
     float cubeDist = cubeSDF(samplePointCube);
-    return sphereDist;
+    return differenceSDF(cubeDist, sphereDist);
 }
 
 vec3 estimateNormal(vec3 p) {

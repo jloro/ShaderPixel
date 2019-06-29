@@ -45,15 +45,18 @@ void			game_loop(SdlWindow &win)
 	SDL_Event e;
 
 	glEnable(GL_DEPTH_TEST);
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragmentAssimp.glsl"};
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/fragmentRayMarche.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-	Shader	myShader(shadersPath, type);
+	Shader	raymarcheShader(shadersPath2, type);
+	Shader	obj(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
 	std::string path= "cube.obj";
 	glm::mat4	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	Model pillar(path.c_str(), glm::scale(model, glm::vec3(7.0f, 4.0f, 4.0f)));
+	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f)));
+	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -30.0f)));
 
 	while (!quit)
 	{
@@ -76,23 +79,24 @@ void			game_loop(SdlWindow &win)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		myShader.use();
-		myShader.setMat4("view", cam.GetMatView());
-		myShader.setMat4("projection", cam.GetMatProj());
-		myShader.setVec3("uCamPos", cam._pos);
-		myShader.setVec3("uDir", cam._dir);
-		myShader.setVec3("uUp", cam._up);
-		myShader.setVec2("uResolution", glm::vec2(800, 400));
-		myShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
-		myShader.setFloat("uFov", glm::radians(45.0f));
+		obj.use();
+		obj.setMat4("view", cam.GetMatView());
+		obj.setMat4("projection", cam.GetMatProj());
 
-		std::cout << cam._pos << std::endl;
-		//myShader.setFloat("pitch", cam._pitch);
-		//myShader.setFloat("yaw", cam._yaw);
-		//myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
+		pillar.Draw(obj);
 
+		raymarcheShader.use();
+		raymarcheShader.setMat4("view", cam.GetMatView());
+		raymarcheShader.setMat4("projection", cam.GetMatProj());
+		raymarcheShader.setVec3("uCamPos", cam._pos);
+		raymarcheShader.setVec3("uDir", cam._dir);
+		raymarcheShader.setVec3("uUp", cam._up);
+		raymarcheShader.setVec2("uResolution", glm::vec2(800, 400));
+		raymarcheShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+		raymarcheShader.setFloat("uFov", glm::radians(45.0f));
+		raymarcheShader.setFloat("uGlobalTime", SDL_GetTicks() / 1000.0f);
 
-		pillar.Draw(myShader);
+		raymarche.Draw(raymarcheShader);
 		win.Swap();
 	}
     SDL_Quit();

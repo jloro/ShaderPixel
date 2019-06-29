@@ -4,7 +4,8 @@
 
 MeshRenderer::MeshRenderer(Model &model, Shader &shader) : _model(model), _shader(shader)
 {
-    _modelMatrix = model.GetModel();
+    transform = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
+    UpdateMatrix();
 }
 MeshRenderer::MeshRenderer(Model &model, Shader &shader, const Transform &trans) : _model(model), _shader(shader)
 {
@@ -44,5 +45,6 @@ MeshRenderer &	MeshRenderer::operator=(MeshRenderer const & rhs)
     this->_model = rhs._model;
     this->_shader = rhs._shader;
     this->transform = rhs.transform;
+    UpdateMatrix();
     return *this;
 }

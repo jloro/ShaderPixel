@@ -110,7 +110,7 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 	//matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, 0.0f));
 	//matModel = glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f));
 	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
-	(*cube) = new Model(path.c_str(), glm::mat4(1.0f));
+	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
 	//						position					rotation						scale
 	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(7.0f, 4.0f, 4.0f)};
 	*render = new MeshRenderer(**cube, *myShader, trans);
@@ -131,7 +131,7 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);	
 	std::string path= "Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 	glm::vec3 positions[] = {
 		glm::vec3(-6.0f, 0.0f, 0.0f),
 		glm::vec3(-3.0f, 0.0f, 0.0f),

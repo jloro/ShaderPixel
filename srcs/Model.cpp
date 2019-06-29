@@ -21,7 +21,7 @@ Model::Model(void)
 {
 }
 
-Model::Model(const char* path, glm::mat4 model) : _model(model)
+Model::Model(const char* path)
 {
 	_LoadModel(path);
 }
@@ -34,7 +34,6 @@ Model::~Model() {}
 
 void	Model::Draw(Shader shader) const
 {
-	//shader.setMat4("model", _model);
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);
 }
@@ -158,6 +157,3 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 
 	return textureID;
 }
-
-void	Model::SetModel(glm::mat4 model) { _model = model; }
-glm::mat4	Model::GetModel(void) const { return _model; }

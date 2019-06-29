@@ -240,8 +240,8 @@ void main()
 
     if (dist > MAX_DIST - EPSILON) {
         // Didn't hit anything
-        //FragColor = vec4(0.0, 0.0, 0.0, 0.0);
-        FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        //FragColor = vec4(0.0, 0.0, 1.0, 1.0);
 		return;
     }
 

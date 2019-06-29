@@ -10,9 +10,10 @@ float distance_from_sphere(in vec3 p, in vec3 c, float r)
 
 float map_the_world(in vec3 p)
 {
+    float displacement = sin(5.0 * p.x) * sin(5.0 * p.y) * sin(5.0 * p.z) * 0.25;
     float sphere_0 = distance_from_sphere(p, vec3(0.0), 1.0);
 
-    return sphere_0;
+    return sphere_0+ displacement;
 }
 
 vec3 calculate_normal(in vec3 p)

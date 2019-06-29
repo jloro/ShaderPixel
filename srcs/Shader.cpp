@@ -66,7 +66,7 @@ std::ostream &operator<<(std::ostream &o, const glm::vec2 & vec)
 	o << "x: " << vec.x << ", y: " << vec.y;
 	return o;
 }
-void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win) const
+void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win, float time) const
 {
 	/*std::cout << "camPos :" <<  cam._pos << std::endl;
 	std::cout << "camDir "<< cam._dir<< std::endl;
@@ -83,6 +83,8 @@ void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win) const
 	setVec2("uResolution", glm::vec2(win.GetWidth(), win.GetHeight()));
 	setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
 	setFloat("uFov", glm::radians(45.0f));
+	setFloat("uGlobalTime", time);
+//	setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
 }
 void	Shader::use(void) const
 {

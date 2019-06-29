@@ -105,11 +105,15 @@ float cappedCylinderSDF(vec3 p, float h, float r) {
  * Sign indicates whether the point is inside or outside the surface,
  * negative indicating inside.
  */
-float sceneSDF(vec3 samplePoint) {
+float sceneSDF(vec3 samplePoint) 
+{
+    float displacement = sin(5.0 * samplePoint.x) 
+    * sin(5.0 * samplePoint.y) * sin(5.0 * samplePoint.z) * (cos(uGlobalTime) / 2.7);
+
 	vec3 samplePointCube = rotateX(-uGlobalTime) * samplePoint;
     float sphereDist = sphereSDF(samplePoint / 1.2, vec3(0.0f, 0.0f, 0.0f), 1.0f) * 1.2;
     float cubeDist = cubeSDF(samplePointCube);
-    return sphereDist;
+    return sphereDist + displacement;
 }
 
 vec3 estimateNormal(vec3 p) {

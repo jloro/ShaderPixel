@@ -5,6 +5,7 @@
 # include "Model.hpp"
 # include "Camera.hpp"
 # include "Transform.hpp"
+# include "Time.hpp"
 
 class MeshRenderer 
 {

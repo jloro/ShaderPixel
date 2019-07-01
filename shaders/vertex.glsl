@@ -11,6 +11,7 @@ out vec2 TexCoords;
 out mat4 viewMat;
 out mat4 invPersMatrix;
 out mat4 mvp;
+out mat4 proj;
 
 void main()
 {
@@ -18,5 +19,6 @@ void main()
 	viewMat = view;
 	invPersMatrix = inverse(projection);
 	mvp = projection * view * model;
+	proj = projection;
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);
 }

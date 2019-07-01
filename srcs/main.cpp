@@ -55,8 +55,8 @@ void			game_loop(SdlWindow &win)
 	std::string path= "cube.obj";
 	glm::mat4	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f)));
-	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -30.0f)));
+	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f)));
+	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -9.5f, 0.0f)));
 
 	while (!quit)
 	{

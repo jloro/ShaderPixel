@@ -3,6 +3,7 @@ out vec4 FragColor;
 
 in mat4 viewMat;
 in mat4 mvp;
+in mat4 proj;
 
 uniform vec2	uResolution;//Resolution of screen
 uniform float	uFov;//Fov in radians
@@ -56,19 +57,14 @@ float torusSDF(vec3 p, vec2 r)//r = vec2(big radius, little radius)
   return length(q)-r.y;
 }
 
-float cubeSDF(vec3 p) {
-    // If d.x < 0, then -1 < p.x < 1, and same logic applies to p.y, p.z
-    // So if all components of d are negative, then p is inside the unit cube
-    vec3 d = abs(p) - vec3(1.0, 1.0, 1.0);
+float opSmoothIntersection( float d1, float d2, float k ) {
+    float h = clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 );
+    return mix( d2, d1, h ) + k*h*(1.0-h); }
 
-    // Assuming p is inside the cube, how far is it from the surface?
-    // Result will be negative or zero.
+float cubeSDF(vec3 p, vec3 size) {
+    vec3 d = abs(p) - size;
     float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
-
-    // Assuming p is outside the cube, how far is it from the surface?
-    // Result will be positive or zero.
     float outsideDistance = length(max(d, 0.0));
-
     return insideDistance + outsideDistance;
 }
 
@@ -76,40 +72,19 @@ float sphereSDF(vec3 samplePoint, vec3 o, float r) {
     return length(samplePoint - o) - r;
 }
 
-/**
- * Signed distance function for an XY aligned cylinder centered at the origin with
- * height h and radius r.
- */
 float cappedCylinderSDF(vec3 p, float h, float r) {
-    // How far inside or outside the cylinder the point is, radially
     float inOutRadius = length(p.xy) - r;
-
-    // How far inside or outside the cylinder is, axially aligned with the cylinder
     float inOutHeight = abs(p.z) - h/2.0;
-
-    // Assuming p is inside the cylinder, how far is it from the surface?
-    // Result will be negative or zero.
     float insideDistance = min(max(inOutRadius, inOutHeight), 0.0);
-
-    // Assuming p is outside the cylinder, how far is it from the surface?
-    // Result will be positive or zero.
     float outsideDistance = length(max(vec2(inOutRadius, inOutHeight), 0.0));
-
     return insideDistance + outsideDistance;
 }
 
-/**
- * Signed distance function describing the scene.
- * 
- * Absolute value of the return value indicates the distance to the surface.
- * Sign indicates whether the point is inside or outside the surface,
- * negative indicating inside.
- */
 float sceneSDF(vec3 samplePoint) {
 	vec3 samplePointCube = rotateX(-uGlobalTime) * samplePoint;
-    float sphereDist = sphereSDF(samplePoint / 1.2, vec3(0.0f, 0.0f, 0.0f), 1.0f) * 1.2;
-    float cubeDist = cubeSDF(samplePointCube);
-    return differenceSDF(cubeDist, sphereDist);
+    float sphereDist = sphereSDF(samplePoint / 1.2f, vec3(0.0f, 0.0f, 0.0f), 1.0f) * 1.2f;
+    float cubeDist = cubeSDF(samplePoint, vec3(1.0f, 1.0f, 1.0f));
+    return opSmoothIntersection(sphereDist, cubeDist, 0);
 }
 
 vec3 estimateNormal(vec3 p) {
@@ -205,31 +180,16 @@ float	rayMarche(float start, float end, vec3 ray, vec3 origin)
 }
 
 
-mat4 viewMatrix(vec3 eye, vec3 center, vec3 up) {
-    // Based on gluLookAt man page
-    vec3 f = normalize(center - eye);
-    vec3 s = normalize(cross(f, up));
-    vec3 u = cross(s, f);
-    return mat4(
-        vec4(s, 0.0),
-        vec4(u, 0.0),
-        vec4(-f, 0.0),
-        vec4(0.0, 0.0, 0.0, 1)
-    );
-}
-
-vec3 rotateRay(vec3 ray)
-{
-	mat4 mat = viewMatrix(uCamPos, uCamPos + uDir, uUp);
-	ray = (mat * vec4(ray, 0.0f)).xyz;
-	return ray;
-}
+//calc NDC from gl_fragCoord : https://www.khronos.org/opengl/wiki/Compute_eye_space_from_window_space
 
 vec3 rayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
-    vec2 xy = fragCoord - size / 2.0;
-    float z = size.y / tan(fieldOfView / 2.0);
-    vec3 ray = normalize(vec3(xy, -z));
-	return rotateRay(ray);
+	float imageAspectRatio = size.x / size.y;
+	vec4 viewport = vec4(0, 0, 800, 400);
+	vec2 ndc = ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1;
+	vec3 ndc3 = vec3(ndc, -1);
+	vec3 ray = (inverse(proj) * vec4(ndc3, 1.0f)).xyz;
+	ray = normalize((inverse(viewMat) * vec4(ray, 0.0f)).xyz);
+	return ray;
 }
 
 void main()

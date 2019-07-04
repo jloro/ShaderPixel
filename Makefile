@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/06/26 20:09:34 by jules            ###   ########.fr        #
+#    Updated: 2019/07/04 17:52:02 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -83,7 +83,7 @@ LDFLAGS = "-Wl,-rpath,lib/assimp-4.1.0/lib"
 
 
 FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo
-FRAMEWORK = -lGL -ldl #-lGLU #-lglut
+#FRAMEWORK = -lGL -ldl #-lGLU #-lglut
 #FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo -lglfw
 
 CFLAGS = -Wall -Wextra -Werror -std=c++11 -Wno-unknown-pragmas

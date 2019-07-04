@@ -77,9 +77,12 @@ float cubeSDF(vec3 p, vec3 size) {
 
 float sdCross(vec3 p, vec2 size)
 {
-  float da = cubeSDF(rotateX(uGlobalTime) * p,vec3(size.y,size.x, size.x));
-  float db = cubeSDF(rotateY(uGlobalTime) * p,vec3(size.x,size.y,size.x));
-  float dc = cubeSDF(rotateZ(uGlobalTime) * p,vec3(size.x,size.x,size.y));
+  float da = cubeSDF(rotateX(-uGlobalTime / 2) * p,vec3(size.y,size.x, size.x));
+  float db = cubeSDF(rotateY(uGlobalTime / 2) * p,vec3(size.x,size.y,size.x));
+  float dc = cubeSDF(rotateZ(-uGlobalTime / 2) * p,vec3(size.x,size.x,size.y));
+  //float da = cubeSDF(p,vec3(size.y,size.x, size.x));
+  //float db = cubeSDF(p,vec3(size.x,size.y,size.x));
+  //float dc = cubeSDF(p,vec3(size.x,size.x,size.y));
   return unionSDF(da, unionSDF(db,dc));
 }
 
@@ -95,45 +98,21 @@ float cappedCylinderSDF(vec3 p, float h, float r) {
     return insideDistance + outsideDistance;
 }
 
-void sphereFold(inout vec3 z, inout float dz)
-{
-	float r2 = dot(z,z);
-	if (r2 < 0.5)
-    {
-		float temp = 2.0;
-		z *= temp;
-		dz*= temp;
-	}
-    else if (r2 < 1.0)
-    {
-		float temp = 1.0 / r2;
-		z *= temp;
-		dz*= temp;
-	}
-}
-
-void boxFold(inout vec3 z, inout float dz)
-{
-	z = clamp(z, -1.0, 1.0) * 2.0 - z;
-}
-
-float DE(vec3 p)
-{
-    float scale = 1;
-	vec3 offset = p;
-	float dr = 1.0;
-	for (int n = 0; n < 3; n++)
-    {
-		boxFold(p, dr);
-		sphereFold(p, dr);
-        p = scale * p + offset;
-        dr = dr * abs(scale) + 1.0;
-	}
-	float r = length(p);
-	return r / abs(dr);
-}
 float sceneSDF(vec3 p) {
-    return DE(p);
+	float d = cubeSDF(p, vec3(1.0f, 1.0f, 1.0f));
+	float s = 1.0;
+	vec3 r;
+	for( int m=0; m<3; m++ )
+	{
+		vec3 a = mod( p*s, 2.0 )-1.0;
+		s *= 3.0;
+		r = 1.0 - 3.0*abs(a);
+
+		float c = sdCross(r, vec2(0.5f, 5.0f))/s;
+		d = max(d,-c);
+	}
+	return d;//unionSDF(d, sphereSDF(p, vec3(0.0f, sin(uGlobalTime) * 2,cos(uGlobalTime) * 2), 0.1f));
+	//return unionSDF(sphereSDF(p, vec3(0.0f, 0.0f, -5.0f), 1.0f), sphereSDF(p, vec3(0.0f, 0.0f, 0.0f), 1.0f));
 }
 
 vec3 estimateNormal(vec3 p) {
@@ -162,20 +141,6 @@ vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
     return lightIntensity * (k_d * dotLN + k_s * pow(dotRV, alpha));
 }
 
-vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) {
-    const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
-    vec3 color = ambientLight * k_a;
-
-    vec3 light1Pos = vec3(0.0f, 4.0f, 7.0f);
-    vec3 light1Intensity = vec3(0.4, 0.4, 0.4);
-
-    color += phongContribForLight(k_d, k_s, alpha, p, eye,
-                                  light1Pos,
-                                  light1Intensity);
-
-    return color;
-}
-
 float	rayMarche(float start, float end, vec3 ray, vec3 origin)
 {
 	float depth = start;
@@ -190,6 +155,38 @@ float	rayMarche(float start, float end, vec3 ray, vec3 origin)
 			return end;
 	}
 	return end;
+}
+bool	rayMarcheShadow(float start, float end, vec3 ray, vec3 origin)
+{
+	float dist;
+	for (float t = start; t < end;)
+	{
+		dist = sceneSDF(origin + t * ray);
+		if (dist < EPSILON)
+			return true;
+		t += dist;
+	}
+	return false;
+}
+
+vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) {
+    const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
+    vec3 color = ambientLight * k_a;
+
+    vec3 N = estimateNormal(p);
+    vec3 light1Pos = vec3(0.0f, 0.0f, 8.0f);
+    vec3 light1Intensity = vec3(0.4, 0.4, 0.4);
+
+    color += phongContribForLight(k_d, k_s, alpha, p, eye,
+                                  light1Pos,
+                                  light1Intensity);
+
+	bool shadow = rayMarcheShadow(EPSILON, length(normalize(light1Pos - p)), normalize(light1Pos - p), p + N * 0.1f);
+
+	if (shadow)
+        color = vec3(0.0, 0.0, 0.0);
+
+    return color;
 }
 
 
@@ -222,7 +219,7 @@ void main()
 
     vec3 K_a = vec3(0.2, 0.2, 0.2);
     vec3 K_d = vec3(0.7, 0.2, 0.2);
-    vec3 K_s = vec3(1.0, 1.0, 1.0);
+    vec3 K_s = vec3(0.0, 0.0, 0.0);
     float shininess = 30.0;
 
     vec3 color = phongIllumination(K_a, K_d, K_s, shininess, p, uCamPos);

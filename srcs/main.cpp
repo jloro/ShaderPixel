@@ -40,13 +40,11 @@ void			game_loop(SdlWindow &win)
 	bool	quit = false;
 	unsigned int		last_time = SDL_GetTicks();
 	unsigned int		delta = 0.0f;
-	const unsigned int fixdelta = 20;
 	const Uint8 *state;
 	SDL_Event e;
 
-	glEnable(GL_DEPTH_TEST);
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragmentAssimp.glsl"};
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/fragmentRayMarche.glsl"};
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/menger.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	raymarcheShader(shadersPath2, type);
 	Shader	obj(shadersPath, type);
@@ -55,22 +53,20 @@ void			game_loop(SdlWindow &win)
 	std::string path= "cube.obj";
 	glm::mat4	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(4.0f, 4.0f, 4.0f)));
-	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -9.5f, 0.0f)));
+	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)));
+	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -7.5f, 0.0f)));
 
 	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
+		{
 			if (e.type == SDL_MOUSEMOTION)
 				cam.LookAround(e.motion.xrel, -e.motion.yrel);
+		}
 		state = SDL_GetKeyboardState(NULL);
 
 		delta += SDL_GetTicks() - last_time;
-		if (delta >= fixdelta)
-		{
-			processInput(state, quit, 0.01f);
-			delta = 0.0f;
-		}
+		processInput(state, quit, 0.01f);
 		last_time = SDL_GetTicks();
 
 		if(e.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -82,9 +78,7 @@ void			game_loop(SdlWindow &win)
 		obj.use();
 		obj.setMat4("view", cam.GetMatView());
 		obj.setMat4("projection", cam.GetMatProj());
-
 		pillar.Draw(obj);
-
 		raymarcheShader.use();
 		raymarcheShader.setMat4("view", cam.GetMatView());
 		raymarcheShader.setMat4("projection", cam.GetMatProj());
@@ -97,6 +91,7 @@ void			game_loop(SdlWindow &win)
 		raymarcheShader.setFloat("uGlobalTime", SDL_GetTicks() / 1000.0f);
 
 		raymarche.Draw(raymarcheShader);
+
 		win.Swap();
 	}
     SDL_Quit();
@@ -150,6 +145,7 @@ int				main(int ac, char **av)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);

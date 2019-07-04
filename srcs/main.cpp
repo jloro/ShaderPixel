@@ -101,7 +101,7 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
 //	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
@@ -122,7 +122,6 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 
 bool InitModels(SdlWindow &win)
 {
-	glEnable(GL_DEPTH_TEST);
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	myShader = Shader(shadersPath, type);
@@ -178,6 +177,7 @@ int				main(int ac, char **av)
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);

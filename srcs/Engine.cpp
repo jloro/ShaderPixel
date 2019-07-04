@@ -41,6 +41,8 @@ void            Engine42::Engine::Loop(void)
         Time::SetDeltaTime(delta);
         while (SDL_PollEvent(&_inst._event) != 0)
         {
+			if (_inst._event.type == SDL_MOUSEMOTION)
+				Camera::instance->LookAround(_inst._event.motion.xrel, -_inst._event.motion.yrel);
             if ((_inst._event.type == SDL_WINDOWEVENT 
             && _inst._event.window.event == SDL_WINDOWEVENT_CLOSE)
             || (_inst._event.type == SDL_KEYDOWN 

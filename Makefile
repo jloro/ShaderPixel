@@ -77,13 +77,14 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 LFLAGS =	$(GLAD_PATH)/glad.o\
 			-L $(ASSIMP_PATH)/lib -lassimp\
 			$(SDL2_LFLAGS) \
-			-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
+			#-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
 
-LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
+LDFLAGS = "-Wl,-rpath,lib/assimp-4.1.0/lib"	
+
 
 FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo
+FRAMEWORK = -lGL -ldl #-lGLU #-lglut
 #FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo -lglfw
-#LINUX = -lGL -lGLU -lglut
 
 CFLAGS = -Wall -Wextra -Werror -std=c++11 -Wno-unknown-pragmas
 
@@ -110,6 +111,13 @@ $(NAME): $(OBJS_DIR) $(OBJS_PRE) $(HEADERS)
 	@echo "\033$(GREEN)m➼\t\033$(GREEN)32m Creating $(NAME)'s executable\033[0m"
 	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS_PRE) $(LFLAGS) $(LDFLAGS) $(FRAMEWORK)
 	@$(eval MESSAGE = $(DONE_MESSAGE))
+
+set_linux :
+	$(FRAMEWORK = -lGL -ldl) 
+
+linux : set_linux all
+
+linux_re: set_linux re
 
 rm_obj:
 	@rm -rf $(OBJS_DIR)

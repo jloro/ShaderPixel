@@ -39,6 +39,7 @@ void            Engine42::Engine::Loop(void)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
         Time::SetDeltaTime(delta);
+        _inst._event.type = SDL_USEREVENT;
         while (SDL_PollEvent(&_inst._event) != 0)
         {
 			if (_inst._event.type == SDL_MOUSEMOTION)

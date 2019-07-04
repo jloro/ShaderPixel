@@ -31,10 +31,10 @@ glm::mat4	Camera::GetMatView(void) const { return _view; }
 glm::mat4	Camera::GetMatProj(void) const { return _projection; }
 void 	Camera::Update()
 {
-	const SDL_Event	&event = Engine42::Engine::GetEvent();
+	//const SDL_Event	&event = Engine42::Engine::GetEvent();
 	
-	if (event.type == SDL_MOUSEMOTION)
-		LookAround(event.motion.xrel, -event.motion.yrel);
+	/* if (event.type == SDL_MOUSEMOTION)
+		LookAround(event.motion.xrel, -event.motion.yrel);*/
 	//else //if (event.type == SDL_KEYDOWN)
 	//{
 		const Uint8 	*keys = Engine42::Engine::GetKeyInput();

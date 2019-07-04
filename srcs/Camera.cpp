@@ -35,8 +35,8 @@ void 	Camera::Update()
 	
 	if (event.type == SDL_MOUSEMOTION)
 		LookAround(event.motion.xrel, -event.motion.yrel);
-	/*else if (event.type == SDL_KEYDOWN)
-	{*/
+	//else //if (event.type == SDL_KEYDOWN)
+	//{
 		const Uint8 	*keys = Engine42::Engine::GetKeyInput();
 		if (keys[SDL_SCANCODE_W])
 			Move(eCameraDirection::Forward, Engine42::Time::GetDeltaTime());

@@ -46,9 +46,9 @@ void            Engine42::Engine::Loop(void)
             || (_inst._event.type == SDL_KEYDOWN 
             && _inst._event.key.keysym.sym == SDLK_ESCAPE))
                 quit = true;
-            _inst._keys = SDL_GetKeyboardState(NULL);
-            _inst._UpdateAll();
         }
+        _inst._keys = SDL_GetKeyboardState(NULL);
+        _inst._UpdateAll();
         lastTime += delta;
 		fixedDelta += delta;
 		if (fixedDelta >= fixedTimeUpdate)

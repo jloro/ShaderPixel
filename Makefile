@@ -113,7 +113,7 @@ $(NAME): $(OBJS_DIR) $(OBJS_PRE) $(HEADERS)
 	@$(eval MESSAGE = $(DONE_MESSAGE))
 
 set_linux :
-	$(FRAMEWORK = -lGL -ldl) 
+	$(eval FRAMEWORK = -lGL -ldl)
 
 linux : set_linux all
 

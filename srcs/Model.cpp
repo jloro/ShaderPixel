@@ -32,7 +32,7 @@ Model::Model(const Model &src)
 
 Model::~Model() {}
 
-void	Model::Draw(Shader shader) const
+void	Model::Draw(const Shader & shader) const
 {
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);
@@ -111,18 +111,28 @@ std::vector<Texture>	Model::_LoadMaterialTexture(aiMaterial *mat, aiTextureType 
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		Texture texture;
-		texture.id = TextureFromFile(str.C_Str(), _dir);
+		texture.id = _TextureFromFile(str.C_Str(), _dir);
 		texture.type = typeName;
 		textures.push_back(texture);
 	}
 	return textures;
 }
 
-unsigned int TextureFromFile(const char *path, const std::string &directory)
+std::string 			Model::_GetFilename(const char *path, const std::string &directory)
 {
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
-
+	return filename;
+}
+unsigned int 			Model::_TextureFromFile(const char *path, const std::string &directory)
+{
+	std::string filename = _GetFilename(path, directory);
+	return (_TextureFromFile(filename));
+	/*/std::string filename = std::string(path);
+	filename = directory + '/' + filename;*/
+}
+unsigned int 			Model::_TextureFromFile(const std::string &filename)
+{
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
@@ -151,7 +161,7 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 	}
 	else
 	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
+		std::cout << "failed to load texture " << filename << std::endl;
 		stbi_image_free(data);
 	}
 

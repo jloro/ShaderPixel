@@ -27,17 +27,20 @@ class Model
 		Model(const Model & rhs);
 		virtual~Model();
 /*  public functions    */
-		void Draw(Shader shader) const;
+		virtual void Draw(const Shader &shader) const;
         Model & operator=(const Model &rhs);
-	private:
-/*  private variables    */
+	protected:
+/*  protected variables    */
 		std::vector<Mesh>	_meshes;
 		std::string			_dir;
-/*  private functions    */
+/*  protected functions    */
 		void					_LoadModel(std::string path);
 		void					_ProcessNode(aiNode *node, const aiScene *scene);
 		Mesh					_ProcessMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName);
+		unsigned int 			_TextureFromFile(const char *path, const std::string &directory);
+		unsigned int 			_TextureFromFile(const std::string &filename);
+		std::string 			_GetFilename(const char *path, const std::string &directory);
 };
 
 #endif

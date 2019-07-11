@@ -19,7 +19,7 @@ Mesh::Mesh(void)
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> faces, std::vector<Texture> textures) : 
 vertices(vertices), faces(faces), textures(textures)
 {
-	_SendToOpenGL();
+	SendToOpenGL();
 }
 Mesh::Mesh(Mesh const & src) 
 {
@@ -42,10 +42,10 @@ Mesh &	Mesh::operator=(Mesh const & rhs)
     glDeleteBuffers(1, &_ebo);
     glDeleteBuffers(1, &_vbo);
     glDeleteBuffers(1, &_vao);
-    this->_SendToOpenGL();
+    this->SendToOpenGL();
     return *this;
 }
-void	Mesh::_SendToOpenGL()
+void	Mesh::SendToOpenGL()
 {
 	glGenBuffers(1, &_vbo);
 	glGenBuffers(1, &_ebo);
@@ -66,6 +66,7 @@ void	Mesh::_SendToOpenGL()
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoord));
 
 	glBindVertexArray(0);
+	std::cout << "send to opengl" << std::endl;
 }
 
 void	Mesh::Draw(Shader shader) const

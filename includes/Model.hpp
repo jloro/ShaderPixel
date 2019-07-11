@@ -38,9 +38,10 @@ class Model
 		void					_ProcessNode(aiNode *node, const aiScene *scene);
 		Mesh					_ProcessMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName);
-		unsigned int 			_TextureFromFile(const char *path, const std::string &directory);
-		unsigned int 			_TextureFromFile(const std::string &filename);
-		std::string 			_GetFilename(const char *path, const std::string &directory);
+		static Texture			_LoadSimpleTexture(eTextureType typeName, const std::string filename);
+		static unsigned int 	_TextureFromFile(const char *path, const std::string &directory);
+		static unsigned int 	_TextureFromFile(const std::string &filename) ;
+		static std::string 		_GetFilename(const char *path, const std::string &directory);
 };
 
 #endif

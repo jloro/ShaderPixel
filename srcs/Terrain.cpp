@@ -1,32 +1,36 @@
 #include "Terrain.hpp"
-const unsigned int Terrain::_size = 800;
-const unsigned int Terrain::_nbVertex = 128;
+const unsigned int Terrain::_size = 10;
+//const unsigned int Terrain::_nbVertex = 128;
 
-Terrain::Terrain() : Model()//protected
+Terrain::Terrain() : Model(), _x(_size), _z(_size)//protected
 {
     _meshes.push_back(Mesh());
     _dir = "";
 }
-Terrain::Terrain(unsigned int x, unsigned int z) : Model()// the mesh will not send his variables to openGL
+Terrain::Terrain(unsigned int x, unsigned int z) : Model(), _x (x * _size), _z(z * _size)// the mesh will not send his variables to openGL
 {
-    _x = x * _size;
-    _z = z * _size;
+    _tilingX = 1.0f;
+    _tilingY = 1.0f;
     _meshes.push_back(_GenerateTerrain(x, z));
 }
-Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path) : Model()
+Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path) : Model(), _x (x * _size), _z(z * _size)
 {
-    _x = x * _size;
-    _z = z * _size;
-    std::cout << "terrain " << std::endl;
+    _tilingX = 1.0f;
+    _tilingY = 1.0f;
     _meshes.push_back(_GenerateTerrain(x, z));
-    std::cout << "terrain2 " << std::endl;
     LoadTexture(path);
-    std::cout << "terrain3 : " << _meshes.size() << "  " << _meshes[0].faces[10] << std::endl;
-
    _meshes[0].SendToOpenGL();
 }
-
-Terrain::Terrain(Terrain const & src) : Model(src)
+Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path, float tilingX, float tilingY) : Model(), _x (x * _size), _z(z * _size)
+{
+    _tilingX = tilingX;
+    _tilingY = tilingY;
+    _meshes.push_back(_GenerateTerrain(x, z));
+    LoadTexture(path);
+    std::cout << "meshes size = " << _meshes.size() << std::endl;
+   _meshes[0].SendToOpenGL();
+}
+Terrain::Terrain(Terrain const & src) : Model(src), _x(src._x), _z(src._z)
 {
     *this = src;
 }
@@ -36,8 +40,6 @@ Terrain::~Terrain(void) {}
 Terrain &	Terrain::operator = (Terrain const & rhs)
 {
     static_cast<Model>(*this) = static_cast<Model>(rhs);
-    _x = rhs._x;
-    _z = rhs._z;
     return *this;
 }
 /*void        Terrain::Draw(const Shader &shader)
@@ -46,22 +48,29 @@ Terrain &	Terrain::operator = (Terrain const & rhs)
 }*/
 Mesh       Terrain::_GenerateTerrain(unsigned int xSize, unsigned int zSize)
 {
-    //const unsigned int nb_vert = (xSize + 1) * (zSize + 1);
+    const unsigned int nb_vert = (xSize) * (zSize);
     std::cout << "xSize =  " << xSize << " zSize =  " << zSize<< std::endl;
-    std::vector<unsigned int>   faces((xSize * zSize)* 6);
+    std::vector<unsigned int>   faces((nb_vert)* 6);
     //std::vector<unsigned int>   faces(nb_vert* 6);
     std::vector<Vertex>     vertices;
+    //const float divider = (float)(nb_vert - 1);
+    /*const float tilingX = 1.0f;
+    const float tilingY = 1.0f;*/
     for (unsigned int i = 0,  z = 0; z <= zSize; z++)
     {
         for (unsigned int x = 0; x <= xSize; x++)
         {
             Vertex vert;
-            vert.position.x = x;
+            vert.position.x = (static_cast<float>(x) *_size);
             vert.position.y = 0;
-            vert.position.z = z;
-            vert.texCoord.x = static_cast<float>(x);
-            vert.texCoord.y = static_cast<float>(z);
+            vert.position.z = static_cast<float>(z) * _size;
+            vert.texCoord.x = static_cast<float>(x) / _tilingX;
+            vert.texCoord.y = static_cast<float>(z) / _tilingY;
+            //vert.texCoord.x = (static_cast<float>(vert.position.x) / divider) *tilingX;
+            //vert.texCoord.y = (static_cast<float>(vert.position.z) / divider) * tilingY;
             vertices.push_back(vert);
+            std::cout << "x = " << vert.position.x << " y = " << vert.position.y << " z = " << vert.position.z << std::endl;
+            //std::cout << "x = " << vert.texCoord.x << " y = " << vert.texCoord.y << std::endl;
             i++;
         }
     }
@@ -166,3 +175,11 @@ bool    Terrain::LoadTexture(const std::string & path)
     _meshes[0].textures.push_back(Model::_LoadSimpleTexture(eTextureType::Specular ,path));
     return true;
 }   
+bool Terrain::LoadTexture(const std::string &path, float tilingX, float tilingY)
+{
+    _tilingX = tilingX;
+    _tilingY = tilingY;
+    _dir  = path.substr(0, path.find_last_of('/'));
+    _meshes[0].textures.push_back(Model::_LoadSimpleTexture(eTextureType::Specular ,path));
+    return true;
+}

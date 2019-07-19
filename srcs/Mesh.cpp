@@ -19,7 +19,7 @@ Mesh::Mesh(void)
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> faces, std::vector<Texture> textures) : 
 vertices(vertices), faces(faces), textures(textures)
 {
-	SendToOpenGL();
+	//SendToOpenGL();
 }
 Mesh::Mesh(Mesh const & src) 
 {
@@ -42,7 +42,7 @@ Mesh &	Mesh::operator=(Mesh const & rhs)
     glDeleteBuffers(1, &_ebo);
     glDeleteBuffers(1, &_vbo);
     glDeleteBuffers(1, &_vao);
-    this->SendToOpenGL();
+    //this->SendToOpenGL();
     return *this;
 }
 void	Mesh::SendToOpenGL()

@@ -17,9 +17,13 @@ Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path) : Mode
 {
     _x = x * _size;
     _z = z * _size;
+    std::cout << "terrain " << std::endl;
     _meshes.push_back(_GenerateTerrain(x, z));
+    std::cout << "terrain2 " << std::endl;
     LoadTexture(path);
-   // _meshes[0].SendToOpenGL();
+    std::cout << "terrain3 : " << _meshes.size() << "  " << _meshes[0].faces[10] << std::endl;
+
+   _meshes[0].SendToOpenGL();
 }
 
 Terrain::Terrain(Terrain const & src) : Model(src)
@@ -40,8 +44,56 @@ Terrain &	Terrain::operator = (Terrain const & rhs)
 {
     Model::Draw(shader);
 }*/
-Mesh       Terrain::_GenerateTerrain(unsigned int x, unsigned int z)
+Mesh       Terrain::_GenerateTerrain(unsigned int xSize, unsigned int zSize)
 {
+    //const unsigned int nb_vert = (xSize + 1) * (zSize + 1);
+    std::cout << "xSize =  " << xSize << " zSize =  " << zSize<< std::endl;
+    std::vector<unsigned int>   faces((xSize * zSize)* 6);
+    //std::vector<unsigned int>   faces(nb_vert* 6);
+    std::vector<Vertex>     vertices;
+    for (unsigned int i = 0,  z = 0; z <= zSize; z++)
+    {
+        for (unsigned int x = 0; x <= xSize; x++)
+        {
+            Vertex vert;
+            vert.position.x = x;
+            vert.position.y = 0;
+            vert.position.z = z;
+            vert.texCoord.x = static_cast<float>(x);
+            vert.texCoord.y = static_cast<float>(z);
+            vertices.push_back(vert);
+            i++;
+        }
+    }
+    unsigned int intVert = 0;
+    unsigned int tris = 0;
+    for (unsigned int z = 0; z < zSize; z++)
+    {
+        for (unsigned int x = 0; x < xSize; x++)
+        {
+            faces[tris + 0] = intVert + 0;
+            faces[tris + 1] = intVert + xSize +1;
+            faces[tris + 2] = intVert + 1;
+            faces[tris + 3] = intVert + 1;
+            faces[tris + 4] = intVert + xSize + 1;
+            faces[tris + 5] = intVert + xSize + 2;
+
+            intVert++;
+            tris += 6;
+        }
+        intVert++;
+    }
+    Mesh mesh = Mesh();
+    mesh.vertices = vertices;
+    mesh.faces = faces;
+    return mesh;
+}
+
+//Mesh       Terrain::GenerateTerrain(unsigned int x, unsigned int z)
+Mesh      _OldGenerateTerrain(unsigned int x, unsigned int z)
+{
+    unsigned int _size = 0; //suppress
+    unsigned int _nbVertex = 0; //suppress
     std::cout << "generate terrain" << std::endl;
     //const unsigned int nb_vert = x * z;
     const unsigned int nb_vert = _nbVertex * _nbVertex;

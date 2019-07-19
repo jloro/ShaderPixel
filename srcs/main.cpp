@@ -154,6 +154,9 @@ bool InitModels(SdlWindow &win)
 	shadersPath.push_back("shaders/vertex.glsl");
 	shadersPath.push_back("shaders/orange.fs.glsl");
 	Shader shader2 = Shader(shadersPath, type);
+	Model *terrain = new Terrain(20, 20, "textures/grass.png");
+	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-3.0f, -0.5f, -3.0f)));
+	Engine42::Engine::AddMeshRenderer(&terrainRenderer);	
 	for (auto pos : positions)
 	{
 		transform.position = pos;
@@ -161,10 +164,9 @@ bool InitModels(SdlWindow &win)
 		//render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
-	Model *terrain = new Terrain(10, 10, "textures/grass.png");
-	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(0.0f, 0.0f, 0.0f)));
-	Engine42::Engine::AddMeshRenderer(&terrainRenderer);	
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	//glPointSize(5);
 	Engine42::Engine::Loop();
 	delete test;
 	//delete cube;

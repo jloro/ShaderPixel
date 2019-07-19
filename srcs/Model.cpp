@@ -24,10 +24,14 @@ Model::Model(void)
 Model::Model(const char* path)
 {
 	_LoadModel(path);
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 Model::Model(const Model &src)
 {
     *this = src;
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 
 Model::~Model() {}

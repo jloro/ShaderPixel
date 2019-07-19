@@ -161,7 +161,6 @@ bool InitModels(SdlWindow &win)
 	{
 		transform.position = pos;
 		render = new MeshRenderer(pillar, myShader, transform);
-		//render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
@@ -169,9 +168,9 @@ bool InitModels(SdlWindow &win)
 	//glPointSize(5);
 	Engine42::Engine::Loop();
 	delete test;
-	//delete cube;
+	delete cube;
 	delete render;
-	//delete terrain;
+	delete terrain;
 	return true;
 }
 

@@ -113,7 +113,7 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
 	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
 	//						position					rotation						scale
-	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(7.0f, 4.0f, 4.0f)};
+	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.5f, 2.5f, 2.5f)};
 	*render = new MeshRenderer(**cube, *myShader, trans);
 	//(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
 //	(*render)->transform.position = glm::vec3(0, 0, 0);
@@ -137,19 +137,9 @@ bool InitModels(SdlWindow &win)
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	/*for (auto pos : positions)
->>>>>>> Stashed changes
-	{
-		transform.position = pos;
-		render = new MeshRenderer(pillar, myShader, transform);
-		Engine42::Engine::AddMeshRenderer(render);
-<<<<<<< Updated upstream
-	}
-	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
-	//glPointSize(5);
-=======
-	}*/
+	transform.position = glm::vec3(0.0f, -7.0f, 0.0f);
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
 	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
 	delete test;

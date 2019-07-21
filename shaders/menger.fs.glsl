@@ -111,8 +111,8 @@ vec2   mandelbulb(vec3 pos) {
 	for (i = 0; i < 8; ++i) {
 		r = length(z);
 		if (r > 2.0) break;
-		float theta = acos(z.z / r);// + uGlobalTime / 2;
-		float phi = atan(z.y, z.x);// + uGlobalTime / 2;
+		float theta = acos(z.z / r) + uGlobalTime / 2;
+		float phi = atan(z.y, z.x) + uGlobalTime / 2;
         float rp = pow(r, Power - 1.0);
 		dr = rp * Power * dr + 1.0;
 		float zr = rp * r;
@@ -140,7 +140,7 @@ vec3 estimateNormal(vec3 p) {
 }
 
 #define OCCLUSION_ITERS 5
-#define OCCLUSION_STRENGTH 64.0
+#define OCCLUSION_STRENGTH 8.0
 #define OCCLUSION_GRANULARITY 1.
 
 float   ambientOcclusion( in vec3 hit, in vec3 normal ) {
@@ -196,7 +196,7 @@ vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
         return vec3(0.0, 0.0, 0.0);
 
 	float ao = ambientOcclusion(p, N);
-    return lightIntensity * k_d * dotLN;// * ao;
+    return lightIntensity * k_d * dotLN * ao;
 }
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) {
@@ -204,8 +204,8 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 e
     vec3 color = ambientLight * k_a;
 
     vec3 N = estimateNormal(p);
-    //vec3 light1Pos = vec3(4 * sin(uGlobalTime), 5 * cos(uGlobalTime), 0.0f);
-    vec3 light1Pos = vec3(0, 5, 0.0f);
+    vec3 light1Pos = vec3(4 * sin(uGlobalTime), 5 * cos(uGlobalTime), 5 * cos(uGlobalTime));
+    //vec3 light1Pos = vec3(0, 5, 0.0f);
     vec3 light1Intensity = vec3(0.8, 0.8, 0.8);
 
     color += phongContribForLight(k_d, k_s, alpha, p, eye,
@@ -213,7 +213,7 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 e
                                   light1Intensity);
 
 	if (shadow(0.0f, length(light1Pos - p), normalize(light1Pos - p), p + N * 0.01))
-		;//color = max(color - 0.2f, vec3(0.0f, 0.0f, 0.0f));
+		color = max(color - 0.2f, vec3(0.0f, 0.0f, 0.0f));
     return color;
 }
 

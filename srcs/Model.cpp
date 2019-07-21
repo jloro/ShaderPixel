@@ -21,20 +21,23 @@ Model::Model(void)
 {
 }
 
-Model::Model(const char* path, glm::mat4 model) : _model(model)
+Model::Model(const char* path)
 {
 	_LoadModel(path);
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 Model::Model(const Model &src)
 {
     *this = src;
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 
 Model::~Model() {}
 
-void	Model::Draw(Shader shader) const
+void	Model::Draw(const Shader & shader) const
 {
-	shader.setMat4("model", _model);
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);
 }
@@ -53,7 +56,6 @@ void	Model::_LoadModel(std::string path)
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
 	_dir = path.substr(0, path.find_last_of('/'));
-
 	_ProcessNode(scene->mRootNode, scene);
 }
 
@@ -94,12 +96,16 @@ Mesh	Model::_ProcessMesh(aiMesh *mesh, const aiScene *scene)
 		for (unsigned int j = 0; j < face.mNumIndices; j++)
 			faces.push_back(face.mIndices[j]);
 	}
-	aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-	std::vector<Texture> diffuseMaps = _LoadMaterialTexture(material, aiTextureType_DIFFUSE, Diffuse);
-	textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-	std::vector<Texture> specularMaps = _LoadMaterialTexture(material, aiTextureType_SPECULAR, Specular);
-	textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-	return Mesh(vertices, faces, textures);
+	if (scene->HasMaterials())
+	{
+		aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+		std::vector<Texture> diffuseMaps = _LoadMaterialTexture(material, aiTextureType_DIFFUSE, Diffuse);
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		std::vector<Texture> specularMaps = _LoadMaterialTexture(material, aiTextureType_SPECULAR, Specular);
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}
+	//std::cout << "nb meshs" << std::endl;
+	return Mesh(vertices, faces, textures);// I think this line force push to timeto openGl, cause it call the constructor 2 times
 }
 
 std::vector<Texture>	Model::_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName)
@@ -110,18 +116,36 @@ std::vector<Texture>	Model::_LoadMaterialTexture(aiMaterial *mat, aiTextureType 
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		Texture texture;
-		texture.id = TextureFromFile(str.C_Str(), _dir);
+		texture.id = _TextureFromFile(str.C_Str(), _dir);
 		texture.type = typeName;
 		textures.push_back(texture);
 	}
 	return textures;
 }
+Texture					Model::_LoadSimpleTexture(eTextureType typeName, const std::string path)
+{
+	Texture texture;
+	texture.id = _TextureFromFile(path);
+	texture.type = typeName;
+	return texture;
+}
 
-unsigned int TextureFromFile(const char *path, const std::string &directory)
+
+std::string 			Model::_GetFilename(const char *path, const std::string &directory)
 {
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
-
+	return filename;
+}
+unsigned int 			Model::_TextureFromFile(const char *path, const std::string &directory)
+{
+	std::string filename = _GetFilename(path, directory);
+	return (_TextureFromFile(filename));
+	/*/std::string filename = std::string(path);
+	filename = directory + '/' + filename;*/
+}
+unsigned int 			Model::_TextureFromFile(const std::string &filename)
+{
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
@@ -150,12 +174,9 @@ unsigned int TextureFromFile(const char *path, const std::string &directory)
 	}
 	else
 	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
+		std::cout << "failed to load texture " << filename << std::endl;
 		stbi_image_free(data);
 	}
 
 	return textureID;
 }
-
-void	Model::SetModel(glm::mat4 model) { _model = model; }
-glm::mat4	Model::GetModel(void) const { return _model; }

@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/06/26 20:09:34 by jules            ###   ########.fr        #
+#    Updated: 2019/07/04 17:52:02 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,10 +24,10 @@ ORANGE = [038;2;239;138;5
 SRCS_DIR = srcs
 
 SRCS =  Time.cpp SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp \
-		Engine.cpp MeshRenderer.cpp
+		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp Time.hpp \
-		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp
+		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp terrain.hpp
 
 ## Objects ##
 OBJS = $(SRCS:.cpp=.o)
@@ -77,13 +77,14 @@ SDL2_LFLAGS = $(shell sh ./lib/sdl2/bin/sdl2-config --libs)
 LFLAGS =	$(GLAD_PATH)/glad.o\
 			-L $(ASSIMP_PATH)/lib -lassimp\
 			$(SDL2_LFLAGS) \
-			-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
+			#-L $(SDL_IMAGE_PATH)/lib -lSDL2_image
 
-LDFLAGS = "-Wl,-rpath,lib/assimp/lib"	
+LDFLAGS = "-Wl,-rpath,lib/assimp-4.1.0/lib"	
+
 
 FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo
+#FRAMEWORK = -lGL -ldl #-lGLU #-lglut
 #FRAMEWORK = -framework Carbon -framework OpenGL -framework IOKit -framework CoreVideo -lglfw
-#LINUX = -lGL -lGLU -lglut
 
 CFLAGS = -Wall -Wextra -Werror -std=c++11 -Wno-unknown-pragmas
 
@@ -110,6 +111,13 @@ $(NAME): $(OBJS_DIR) $(OBJS_PRE) $(HEADERS)
 	@echo "\033$(GREEN)m➼\t\033$(GREEN)32m Creating $(NAME)'s executable\033[0m"
 	@$(CC) -o $(NAME) $(CFLAGS) $(OBJS_PRE) $(LFLAGS) $(LDFLAGS) $(FRAMEWORK)
 	@$(eval MESSAGE = $(DONE_MESSAGE))
+
+set_linux :
+	$(eval FRAMEWORK = -lGL -ldl)
+
+linux : set_linux all
+
+linux_re: set_linux re
 
 rm_obj:
 	@rm -rf $(OBJS_DIR)

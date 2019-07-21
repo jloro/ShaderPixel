@@ -10,13 +10,14 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "Engine.hpp"
+#include "Terrain.hpp"
 
-std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
+/*std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
 {
 	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
 	return o;
-}
-
+}*/
+/*
 void			processInput(const Uint8 *state, bool& quit, float deltaTime)
 {
 	if (state[SDL_SCANCODE_ESCAPE])
@@ -40,33 +41,34 @@ void			game_loop(SdlWindow &win)
 	bool	quit = false;
 	unsigned int		last_time = SDL_GetTicks();
 	unsigned int		delta = 0.0f;
+	const unsigned int fixdelta = 20;
 	const Uint8 *state;
 	SDL_Event e;
 
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragmentAssimp.glsl"};
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/menger.glsl"};
+	glEnable(GL_DEPTH_TEST);
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-	Shader	raymarcheShader(shadersPath2, type);
-	Shader	obj(shadersPath, type);
+	Shader	myShader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
 	std::string path= "cube.obj";
 	glm::mat4	model = glm::mat4(1.0f);
 	model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-	Model raymarche(path.c_str(), glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)));
-	Model pillar("Pillar/LP_Pillar_Textured.obj", glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -7.5f, 0.0f)));
+	Model pillar(path.c_str(), glm::scale(model, glm::vec3(7.0f, 4.0f, 4.0f)));
 
 	while (!quit)
 	{
 		while (SDL_PollEvent(&e) != 0)
-		{
 			if (e.type == SDL_MOUSEMOTION)
 				cam.LookAround(e.motion.xrel, -e.motion.yrel);
-		}
 		state = SDL_GetKeyboardState(NULL);
 
 		delta += SDL_GetTicks() - last_time;
-		processInput(state, quit, 0.01f);
+		if (delta >= fixdelta)
+		{
+			processInput(state, quit, 0.01f);
+			delta = 0.0f;
+		}
 		last_time = SDL_GetTicks();
 
 		if(e.window.event == SDL_WINDOWEVENT_CLOSE)
@@ -75,62 +77,87 @@ void			game_loop(SdlWindow &win)
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		obj.use();
-		obj.setMat4("view", cam.GetMatView());
-		obj.setMat4("projection", cam.GetMatProj());
-		pillar.Draw(obj);
-		raymarcheShader.use();
-		raymarcheShader.setMat4("view", cam.GetMatView());
-		raymarcheShader.setMat4("projection", cam.GetMatProj());
-		raymarcheShader.setVec3("uCamPos", cam._pos);
-		raymarcheShader.setVec3("uDir", cam._dir);
-		raymarcheShader.setVec3("uUp", cam._up);
-		raymarcheShader.setVec2("uResolution", glm::vec2(800, 400));
-		raymarcheShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
-		raymarcheShader.setFloat("uFov", glm::radians(45.0f));
-		raymarcheShader.setFloat("uGlobalTime", SDL_GetTicks() / 1000.0f);
+		myShader.use();
+		myShader.setMat4("view", cam.GetMatView());
+		myShader.setMat4("projection", cam.GetMatProj());
+		myShader.setVec3("uCamPos", cam._pos);
+		myShader.setVec3("uDir", cam._dir);
+		myShader.setVec3("uUp", cam._up);
+		myShader.setVec2("uResolution", glm::vec2(800, 400));
+		myShader.setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+		myShader.setFloat("uFov", glm::radians(45.0f));
 
-		raymarche.Draw(raymarcheShader);
+		std::cout << cam._pos << std::endl;
+		//myShader.setFloat("pitch", cam._pitch);
+		//myShader.setFloat("yaw", cam._yaw);
+		//myShader.setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
 
+
+		pillar.Draw(myShader);
 		win.Swap();
 	}
     SDL_Quit();
+}*/
+Shader *test_cube(MeshRenderer **render, Model **cube)
+{
+	std::string path = "cube.obj";
+	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
+//	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
+	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	Shader	*myShader = new Shader(shadersPath, type);
+	myShader->SetIsRayMarching(true);
+	//glm::mat4  matModel = glm::mat4(1.0f);
+	//matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, 0.0f));
+	//matModel = glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f));
+	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
+	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
+	//						position					rotation						scale
+	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(7.0f, 4.0f, 4.0f)};
+	*render = new MeshRenderer(**cube, *myShader, trans);
+	//(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
+//	(*render)->transform.position = glm::vec3(0, 0, 0);
+	Engine42::Engine::AddMeshRenderer(*render);
+	return myShader;
 }
-/*
+
 bool InitModels(SdlWindow &win)
 {
-	glEnable(GL_DEPTH_TEST);
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	myShader = Shader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
 	Engine42::Engine::SetWindow(&win);
-	Engine42::Engine::AddGameObject(&cam);	
+	Engine42::Engine::AddGameObject(&cam);
 	std::string path= "Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str(), glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	glm::vec3 positions[] = {
-		glm::vec3(-6.0f, 0.0f, 0.0f),
-		glm::vec3(-3.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(3.0f, 0.0f, 0.0f),
-		glm::vec3(6.0f, 0.0f, 0.0f),
-		glm::vec3(-6.0f, 0.0f, 3.0f),
-		glm::vec3(-3.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(3.0f, 0.0f, 3.0f),
-		glm::vec3(6.0f, 0.0f, 3.0f),
-	};
-	for (auto pos : positions)
+	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	MeshRenderer *render;
+	Model *cube;
+	Transform transform;
+	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	/*for (auto pos : positions)
+>>>>>>> Stashed changes
 	{
-		MeshRenderer *render = new MeshRenderer(pillar, myShader);
-		render->transform.position = pos;
+		transform.position = pos;
+		render = new MeshRenderer(pillar, myShader, transform);
 		Engine42::Engine::AddMeshRenderer(render);
+<<<<<<< Updated upstream
 	}
+	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	//glPointSize(5);
+=======
+	}*/
+	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
+	delete test;
+	delete cube;
+	delete render;
 	return true;
 }
-*/
+
 int				main(int ac, char **av)
 {
 	if (ac < -1 && av == nullptr)
@@ -149,7 +176,7 @@ int				main(int ac, char **av)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);
-	//InitModels(win);
-	game_loop(win);
+	InitModels(win);
+	//game_loop(win);
 	SDL_Quit();
 }

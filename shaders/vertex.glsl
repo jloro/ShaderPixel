@@ -18,6 +18,7 @@ void main()
 	TexCoords = atexCoord;
 	viewMat = view;
 	invPersMatrix = inverse(projection);
+	proj = projection;
 	mvp = projection * view * model;
 	proj = projection;
 	gl_Position = projection * view * model * vec4(aPos, 1.0f);

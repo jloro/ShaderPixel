@@ -22,7 +22,7 @@ SdlWindow::SdlWindow(int width, int height, bool isRenderer, bool isOpenGl, std:
     {
         _renPtr = SDL_CreateRenderer(_winPtr, -1, 0);
     }
-    if (SdlWindow::_mainWin != nullptr)
+    if (SdlWindow::_mainWin == nullptr)
         SdlWindow::_mainWin = this;
 }
 
@@ -88,6 +88,7 @@ void    SdlWindow::SetResizable(bool state)
     else
         SDL_SetWindowResizable(_winPtr, SDL_FALSE);
 }
+SdlWindow    *SdlWindow::GetMain(void) { return _mainWin; }
 #pragma endregion Getters_Setters
 std::string const SdlWindow::toString(void) const
 {

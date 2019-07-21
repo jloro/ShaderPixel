@@ -23,24 +23,25 @@ class Model
 	public:
 /*  constructors / Destructor*/
 		Model(void);
-		Model(const char* path, glm::mat4 model);
+		Model(const char* path);
 		Model(const Model & rhs);
 		virtual~Model();
 /*  public functions    */
-		void Draw(Shader shader) const;
+		virtual void Draw(const Shader &shader) const;
         Model & operator=(const Model &rhs);
-		glm::mat4	GetModel(void) const;
-		void		SetModel(glm::mat4 model);
-	private:
-/*  private variables    */
+	protected:
+/*  protected variables    */
 		std::vector<Mesh>	_meshes;
 		std::string			_dir;
-		glm::mat4			_model;
-/*  private functions    */
+/*  protected functions    */
 		void					_LoadModel(std::string path);
 		void					_ProcessNode(aiNode *node, const aiScene *scene);
 		Mesh					_ProcessMesh(aiMesh *mesh, const aiScene *scene);
 		std::vector<Texture>	_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName);
+		static Texture			_LoadSimpleTexture(eTextureType typeName, const std::string filename);
+		static unsigned int 	_TextureFromFile(const char *path, const std::string &directory);
+		static unsigned int 	_TextureFromFile(const std::string &filename) ;
+		static std::string 		_GetFilename(const char *path, const std::string &directory);
 };
 
 #endif

@@ -24,6 +24,7 @@ Shader::Shader(std::vector<const char *> shaderSource, std::vector<GLenum> shade
 	const char *	tmp;
 
 	_program = glCreateProgram();
+	_isRayMarching = false;
 	for (unsigned int i = 0; i < shaderSource.size(); i++)
 	{
 		ifs.open(shaderSource[i], std::ifstream::in);
@@ -55,11 +56,42 @@ void	Shader::_checkCompileError(GLuint shader)
 		std::cout << "ERROR::SHADER::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
 }
-
+std::ostream &operator<<(std::ostream &o, const glm::vec3 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
+	return o;
+}
+std::ostream &operator<<(std::ostream &o, const glm::vec2 & vec)
+{
+	o << "x: " << vec.x << ", y: " << vec.y;
+	return o;
+}
+void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win, float time) const
+{
+	/*std::cout << "camPos :" <<  cam._pos << std::endl;
+	std::cout << "camDir "<< cam._dir<< std::endl;
+	std::cout << "camUp " << cam._up<< std::endl;
+	std::cout << "camPitch " << cam._pitch<< std::endl;
+	std::cout << "Cam Yaw " << cam._yaw  << std::endl;
+	std::cout << "width " << win.GetWidth() << std::endl;
+	std::cout << "heihgt " << win.GetHeight() << std::endl;*/
+	setMat4("view", cam.GetMatView());
+	setMat4("projection", cam.GetMatProj());
+	setVec3("uCamPos", cam._pos);
+	setVec3("uDir", cam._dir);
+	setVec3("uUp", cam._up);
+	setVec2("uResolution", glm::vec2(win.GetWidth(), win.GetHeight()));
+	setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+	setFloat("uFov", glm::radians(45.0f));
+	setFloat("uGlobalTime", time);
+//	setFloat("iGlobalTime", SDL_GetTicks() / 1000.0f);
+}
 void	Shader::use(void) const
 {
 	glUseProgram(_program);
 }
+bool	Shader::GetIsRayMarching(void) { return _isRayMarching; }
+void	Shader::SetIsRayMarching(bool value) { _isRayMarching = value;}
 
 // utility uniform functions
 // ------------------------------------------------------------------------

@@ -39,16 +39,19 @@ void            Engine42::Engine::Loop(void)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
         Time::SetDeltaTime(delta);
+        _inst._event.type = SDL_USEREVENT;
         while (SDL_PollEvent(&_inst._event) != 0)
         {
+			if (_inst._event.type == SDL_MOUSEMOTION)
+				Camera::instance->LookAround(_inst._event.motion.xrel, -_inst._event.motion.yrel);
             if ((_inst._event.type == SDL_WINDOWEVENT 
             && _inst._event.window.event == SDL_WINDOWEVENT_CLOSE)
             || (_inst._event.type == SDL_KEYDOWN 
             && _inst._event.key.keysym.sym == SDLK_ESCAPE))
                 quit = true;
-            _inst._keys = SDL_GetKeyboardState(NULL);
-            _inst._UpdateAll();
         }
+        _inst._keys = SDL_GetKeyboardState(NULL);
+        _inst._UpdateAll();
         lastTime += delta;
 		fixedDelta += delta;
 		if (fixedDelta >= fixedTimeUpdate)

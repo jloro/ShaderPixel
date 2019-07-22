@@ -173,7 +173,7 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
 
 vec3 CalcRayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
 	float imageAspectRatio = size.x / size.y;
-	vec4 viewport = vec4(0, 0, 800, 400);
+	vec4 viewport = vec4(0, 0, size.x, size.y);
 	vec2 ndc = ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1;
 	vec3 ndc3 = vec3(ndc, -1);
 	vec3 ray = (inverse(proj) * vec4(ndc3, 1.0f)).xyz;

@@ -18,12 +18,10 @@ const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
 
-const float minRadius = 0.5f;
+const float minRadius = 0.3f;
 const float minRadius2 = minRadius * minRadius;
-const float fixedRadius = 1.0f;
-const float fixedRadius2 = fixedRadius * fixedRadius;
-const int iter = 20;
-const float scale = 2.0f;
+const int iter = 6;
+const float scale = 3.0f;
 const vec4 scalevec = vec4(scale, scale, scale, abs(scale)) / minRadius2;
 const float C1 = abs(scale - 1.0f), C2 = pow(abs(scale), float(1.0f - iter));
 
@@ -33,19 +31,18 @@ vec4   mandelbox( vec3 pos ) {
 	int i;
 	for (i = 0; i < iter;i++)
 	{
-		p.xyz = clamp(p.xyz, -1.0, 1.0) * 2.0f - p.xyz;
+		p.xyz = clamp(p.xyz, -1.2, 1.2) * 2.0f - p.xyz;
 		float r2 = dot(p.xyz, p.xyz);
 		p *= clamp(max(minRadius2 / r2, minRadius2), 0.0f, 1.0f);
 		p = p * scalevec + p0;
 	}
-	return vec4((length(p.xyz) - C1) / p.w - C2, i / iter, .4, .6);
+	return vec4((length(p.xyz) - C1) / p.w - C2, i / 20, .4, .7);
 }
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	return mandelbox(p * 2.0f) / 2.0f;
+	return mandelbox(p * 1.0f) / 1.0f;
 }
-
 
 vec3 CalcNormal(vec3 p) {
     return normalize(vec3(
@@ -53,22 +50,6 @@ vec3 CalcNormal(vec3 p) {
         SceneSDF(vec3(p.x, p.y + EPSILON, p.z)).x - SceneSDF(vec3(p.x, p.y - EPSILON, p.z)).x,
         SceneSDF(vec3(p.x, p.y, p.z + EPSILON)).x - SceneSDF(vec3(p.x, p.y, p.z - EPSILON)).x
     ));
-}
-
-#define OCCLUSION_ITERS 5
-#define OCCLUSION_STRENGTH 8.0
-#define OCCLUSION_GRANULARITY 1.
-
-float   CalcAO( in vec3 hit, in vec3 normal ) {
-    float k = 1.0;
-    float d = 0.0;
-    float occ = 0.0;
-    for(int i = 0; i < OCCLUSION_ITERS; i++){
-        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
-        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
-        k += 1.0;
-    }
-    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
 }
 
 vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
@@ -88,6 +69,21 @@ vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
 }
 
 
+#define OCCLUSION_ITERS 10
+#define OCCLUSION_STRENGTH 8.0
+#define OCCLUSION_GRANULARITY 1.
+
+float   CalcAO( in vec3 hit, in vec3 normal ) {
+    float k = 1.0;
+    float d = 0.0;
+    float occ = 0.0;
+    for(int i = 0; i < OCCLUSION_ITERS; i++){
+        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
+        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
+        k += 1.0;
+    }
+    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
+}
 vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
                           vec3 lightPos, vec3 lightIntensity, vec3 N, vec3 L) {
     L = normalize(L);
@@ -97,6 +93,7 @@ vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
     if (dotLN < EPSILON)
         return vec3(0.0, 0.0, 0.0);
 
+	//float ao = CalcAO(p, N);
     return lightIntensity * k_d * dotLN;// * ao;
 }
 
@@ -140,8 +137,8 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(dist.y, dist.z, dist.w);
-		vec3 K_a = K_d;
+		vec3 K_d = vec3(.2, .4, .7);
+		vec3 K_a = vec3(.4, .2, .7);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);
 

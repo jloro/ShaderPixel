@@ -22,7 +22,7 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/mandelbulb.fs.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/mandelbox.fs.glsl"};
 //	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
@@ -33,7 +33,7 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
 	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
 	//						position					rotation						scale
-	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f)};
+	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(20.0f, 20.0f, 20.0f)};
 	*render = new MeshRenderer(**cube, *myShader, trans);
 	//(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
 //	(*render)->transform.position = glm::vec3(0, 0, 0);
@@ -58,17 +58,17 @@ bool InitModels(SdlWindow &win)
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	transform.position = glm::vec3(0.0f, -8.0f, 0.0f);
-	render = new MeshRenderer(pillar, myShader, transform);
-	Engine42::Engine::AddMeshRenderer(render);
-	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
-	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
-	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
+	//render = new MeshRenderer(pillar, myShader, transform);
+	//Engine42::Engine::AddMeshRenderer(render);
+	//Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
+	//MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
+	//Engine42::Engine::AddMeshRenderer(&terrainRenderer);
 	Shader *test = test_cube(&render, &cube);
 	Engine42::Engine::Loop();
 	delete test;
 	delete cube;
-	delete render;
-	delete terrain;
+	//delete render;
+	//delete terrain;
 	return true;
 }
 

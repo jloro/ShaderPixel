@@ -43,7 +43,7 @@ vec4   mandelbox( vec3 pos ) {
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	return mandelbox(p * 3.0f) / 3.0f;
+	return mandelbox((p - vec3(8, 0, 0)) * 3.0f) / 3.0f;
 }
 
 vec3 CalcNormal(vec3 p) {
@@ -87,7 +87,8 @@ float   CalcAO( in vec3 hit, in vec3 normal ) {
     return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
 }
 vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity, vec3 N, vec3 L) {
+                          vec3 lightPos, vec3 lightIntensity, vec3 N) {
+	vec3 L = lightPos - p;
     L = normalize(L);
 
     float dotLN = dot(L, N);
@@ -95,21 +96,19 @@ vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
     if (dotLN < EPSILON)
         return vec3(0.0, 0.0, 0.0);
 
-	//float ao = CalcAO(p, N);
-    return lightIntensity * k_d * dotLN;// * ao;
+    return lightIntensity * k_d * dotLN;
 }
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
-    const vec3 ambientLight = .6 * vec3(1.0, 1.0, 1.0);
+    const vec3 ambientLight = .2 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
-    vec3 lightPos = vec3(0, 0, 5);
+    vec3 lightPos = uCamPos;
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
     vec3 N = CalcNormal(p);
-	vec3 L = lightPos - p;
 
-    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N, L);
+    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N);
 
     return color;
 }
@@ -139,7 +138,7 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(dist.y * length(p), dist.z / length(p), dist.w * length(p));
+		vec3 K_d = vec3(dist.y * length(p -vec3(8, 0, 0)), dist.z / length(p -vec3(8, 0, 0)), dist.w * length(p -vec3(8, 0, 0)));
 		vec3 K_a = vec3(.3, .3, .3);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);

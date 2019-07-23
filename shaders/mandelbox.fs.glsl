@@ -18,10 +18,10 @@ const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
 
-const float minRadius = 0.3f;
+const float minRadius = 0.25f;
 const float minRadius2 = minRadius * minRadius;
-const int iter = 6;
-const float scale = 3.0f;
+const int iter = 10;
+const float scale = 2.8f;
 const vec4 scalevec = vec4(scale, scale, scale, abs(scale)) / minRadius2;
 const float C1 = abs(scale - 1.0f), C2 = pow(abs(scale), float(1.0f - iter));
 
@@ -29,19 +29,21 @@ vec4   mandelbox( vec3 pos ) {
 	vec4 p = vec4(pos, 1.0f);
 	vec4 p0 = p;
 	int i;
+	float orbitTrap = 1.0f;
 	for (i = 0; i < iter;i++)
 	{
 		p.xyz = clamp(p.xyz, -1.2, 1.2) * 2.0f - p.xyz;
 		float r2 = dot(p.xyz, p.xyz);
 		p *= clamp(max(minRadius2 / r2, minRadius2), 0.0f, 1.0f);
 		p = p * scalevec + p0;
+		orbitTrap = min(orbitTrap, r2);
 	}
-	return vec4((length(p.xyz) - C1) / p.w - C2, i / 20, .4, .7);
+	return vec4((length(p.xyz) - C1) / p.w - C2, vec3(.8, .4, .5));
 }
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	return mandelbox(p * 1.0f) / 1.0f;
+	return mandelbox(p * 3.0f) / 3.0f;
 }
 
 vec3 CalcNormal(vec3 p) {
@@ -98,10 +100,10 @@ vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
 }
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
-    const vec3 ambientLight = 1 * vec3(1.0, 1.0, 1.0);
+    const vec3 ambientLight = .6 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
-    vec3 lightPos = vec3(0, 5, 0);
+    vec3 lightPos = vec3(0, 0, 5);
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
     vec3 N = CalcNormal(p);
@@ -137,8 +139,8 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(.2, .4, .7);
-		vec3 K_a = vec3(.4, .2, .7);
+		vec3 K_d = vec3(dist.y * length(p), dist.z / length(p), dist.w * length(p));
+		vec3 K_a = vec3(.3, .3, .3);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);
 

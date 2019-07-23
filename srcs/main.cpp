@@ -33,24 +33,32 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 	return myShader;
 }
 
-Shader *test_cube2(MeshRenderer **render, Model **cube)
+Shader *raymarche_cube(MeshRenderer **render, Model **cube, Transform trans, std::string path, std::vector<const char *> shadersPath)
 {
-	std::string path = "cube.obj";
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/mandelbox.fs.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
-	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
-	//						position					rotation						scale
-	Transform trans = {glm::vec3(8.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(4.0f, 4.0f, 4.0f)};
+	(*cube) = new Model(path.c_str());
 	*render = new MeshRenderer(**cube, *myShader, trans);
 	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
 }
+
+void	freeList(std::vector<Shader*>::iterator beg, std::vector<Shader*>::iterator end)
+{
+	for (;beg != end;beg++)
+	{
+		delete *beg;
+	}
+}
+
 bool InitModels(SdlWindow &win)
 {
+	std::vector<Shader*>		shaders;
+	std::vector<Model*>			models;
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
-	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+
 	Shader	myShader = Shader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
@@ -63,20 +71,19 @@ bool InitModels(SdlWindow &win)
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	transform.position = glm::vec3(0.0f, -8.0f, 0.0f);
-	render = new MeshRenderer(pillar, myShader, transform);
-	Engine42::Engine::AddMeshRenderer(render);
 	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
 	render = new MeshRenderer(pillar, myShader, transform);
 	Engine42::Engine::AddMeshRenderer(render);
 	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
 	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
-	Shader *test = test_cube(&render, &cube);
-	Shader *test2 = test_cube2(&render, &cube);
+	Transform trans = {glm::vec3(8.0f, 0.0f, 0.0f),//position
+						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
+						glm::vec3(4.0f, 4.0f, 4.0f)};//scale
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/ALED.fs.glsl"};
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();
-	delete test;
-	delete test2;
+	freeList(shaders.begin(), shaders.end());
 	delete cube;
 	delete render;
 	delete terrain;

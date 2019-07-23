@@ -18,6 +18,7 @@ void        MeshRenderer::Draw(void) const
     _shader.setMat4("view", Camera::instance->GetMatView());
     _shader.setMat4("projection", Camera::instance->GetMatProj());
     _shader.setMat4("model", _modelMatrix);
+	_shader.setVec3("uOrigin", transform.position);
     if (_shader.GetIsRayMarching())
         _shader.SetUpUniforms(*Camera::instance, *SdlWindow::GetMain(), ((float)SDL_GetTicks()) / 1000.f);
     _model.Draw(_shader);

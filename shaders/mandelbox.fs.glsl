@@ -12,6 +12,7 @@ uniform vec2	uRotation;//Rotation of the camera
 uniform vec3	uDir;//Dir of the camera
 uniform vec3	uUp;//Dir of the camera
 uniform float	uGlobalTime;
+uniform vec3	uOrigin;
 
 const int MAX_MARCHING_STEPS = 200;
 const float MIN_DIST = 0.0f;
@@ -43,7 +44,7 @@ vec4   mandelbox( vec3 pos ) {
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	return mandelbox((p - vec3(8, 0, 0)) * 3.0f) / 3.0f;
+	return mandelbox((p - uOrigin) * 3.0f) / 3.0f;
 }
 
 vec3 CalcNormal(vec3 p) {
@@ -138,7 +139,7 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(dist.y * length(p -vec3(8, 0, 0)), dist.z / length(p -vec3(8, 0, 0)), dist.w * length(p -vec3(8, 0, 0)));
+		vec3 K_d = vec3(dist.y * length(p - uOrigin), dist.z / length(p - uOrigin), dist.w * length(p - uOrigin));
 		vec3 K_a = vec3(.3, .3, .3);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);

@@ -81,6 +81,15 @@ bool InitModels(SdlWindow &win)
 	transform.position = glm::vec3(0.0f, 6.3f, 0.0f);
 	render = new MeshRenderer(frame, myShader, transform);
 	Engine42::Engine::AddMeshRenderer(render);
+	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
+	transform.position[0] = 0.0f;
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
+	transform.position[0] = -8.0f;
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
 	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
 	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
@@ -88,6 +97,18 @@ bool InitModels(SdlWindow &win)
 						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
 						glm::vec3(1.4f, 1.9f, 0.0f)};//scale
 	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/window.fs.glsl"};
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	trans = {glm::vec3(8.0f, 0.0f, 0.0f),//position
+						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
+						glm::vec3(4.0f, 4.0f, 4.0f)};//scale
+	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
+	trans.position[0] = 0.0f;
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
+	trans.position[0] = -8.0f;
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	shadersPath2[1] = "shaders/ALED.fs.glsl";
+	trans.position[0] = 8.0f;
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();
 	freeList(shaders.begin(), shaders.end());

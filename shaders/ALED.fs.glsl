@@ -47,17 +47,16 @@ float menger(vec3 p)
 {
 	float speed = cos(uGlobalTime * .1) + 1.0f;
 	float d = cubeSDF(p, vec3(speed, speed, speed));
-	//float d = cubeSDF(p, vec3(1.499999999999, 1.49999999999999, 1.4999999999));
 	float s = 1.0;
 	vec3 r;
-	for( int m=0; m<3; m++ )
+	for(int i = 0; i < 3; i++)
 	{
-		vec3 a = mod( p*s, 2.0 )-1.0;
+		vec3 a = mod(p * s, 2.0f) - 1.0f;
 		s *= 3.0;
-		r = 1.0 - 3.0*abs(a);
+		r = 1.0 - 3.0 * abs(a);
 
-		float c = crossSDF(r, vec2(0.5f, 5.0f))/s;
-		d = differenceSDF(d,c);
+		float c = crossSDF(r, vec2(0.5f, 5.0f)) / s;
+		d = differenceSDF(d, c);
 	}
 	return d;
 }
@@ -144,7 +143,7 @@ void main()
 	{
 		vec3 p = uCamPos + dist * ray;
 
-		vec3 K_d = vec3(.4 * length(p - uOrigin), .1, .8);
+		vec3 K_d = vec3(0.4f * length(p - uOrigin), 0.1f, 0.8f);
 		vec3 K_a = K_d;
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);

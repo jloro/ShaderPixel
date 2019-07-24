@@ -74,13 +74,20 @@ bool InitModels(SdlWindow &win)
 	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
 	render = new MeshRenderer(pillar, myShader, transform);
 	Engine42::Engine::AddMeshRenderer(render);
+	path = "frame/10305_picture_frame_V2_max2011_it2.obj";
+	Model	frame(path.c_str());
+	transform.scale = glm::vec3(0.1f, 0.1f, 0.1f);
+	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+	transform.position = glm::vec3(0.0f, 6.3f, 0.0f);
+	render = new MeshRenderer(frame, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
 	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
 	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
-	Transform trans = {glm::vec3(8.0f, 0.0f, 0.0f),//position
+	Transform trans = {glm::vec3(0.0f, 8.1f, 0.0f),//position
 						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-						glm::vec3(4.0f, 4.0f, 4.0f)};//scale
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/ALED.fs.glsl"};
+						glm::vec3(1.4f, 1.9f, 0.0f)};//scale
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/window.fs.glsl"};
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();
 	freeList(shaders.begin(), shaders.end());

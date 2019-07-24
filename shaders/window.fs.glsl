@@ -109,7 +109,7 @@ vec4 Tree(vec3 p, vec3 origin, float rTrunk, float hTrunk, vec3 colorTrunk, floa
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	vec4 tree = Tree(mod(p, vec3(2, 0, 0)) - 0.5*vec3(2, 0, 0), vec3(0.0f, 0.0f, -20.0f), 0.5f, 3.0f, vec3(0.23f, 0.13f, 0.01f), 1.0f, 1.0f, vec3(0.27, 0.70f, 0.27f));
+	vec4 tree = Tree(mod(p, vec3(4, 0, 4)) - 0.5*vec3(4, 0, 4), vec3(0.0f, 0.0f, 0.0f), 0.5f, 3.0f, vec3(0.23f, 0.13f, 0.01f), 1.0f, 1.0f, vec3(0.27, 0.70f, 0.27f));
 	vec4 plane = vec4(sdPlane(p, vec4(0, 1, 0, 1)) , 0.5, 0.50f, 0.57f);
 	return unionSDF(plane, tree);
 }

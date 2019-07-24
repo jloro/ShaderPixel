@@ -31,9 +31,9 @@ void            MeshRenderer::UpdateMatrix(void)
 {
     _modelMatrix = glm::mat4(1.0f);
     _modelMatrix = glm::translate(_modelMatrix, transform.position);
-    //glm::mat4 rot = glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
-    //_modelMatrix *= rot;//;glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
-    //_modelMatrix = glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     _modelMatrix = glm::scale(_modelMatrix, transform.scale);
 }
 MeshRenderer::MeshRenderer(MeshRenderer const & src) : _model(src._model), _shader(src._shader)

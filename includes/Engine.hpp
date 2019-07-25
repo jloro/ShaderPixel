@@ -7,6 +7,7 @@
 # include "IGameObject.hpp"
 # include "SdlWindow.hpp"
 # include "Time.hpp"
+# include "Skybox.hpp"
 
 namespace Engine42
 {
@@ -24,6 +25,7 @@ namespace Engine42
         static void            SetWindow(const SdlWindow *win);
         static void            AddGameObject(Engine42::IGameObject *object);
         static void            AddGameObject(std::list<Engine42::IGameObject*> objects);
+        static void            SetSkybox(Skybox *skybox);
         static void            Loop(void);
         static const SDL_Event &GetEvent();
         static const Uint8     *GetKeyInput();
@@ -36,7 +38,8 @@ namespace Engine42
         std::list<Engine42::IGameObject*>   _gameObjs;
         SDL_Event                           _event;
         const Uint8                         *_keys;
-        const SdlWindow                     *_win;           
+        const SdlWindow                     *_win;
+        Skybox                              *_skybox;       
     /*	private functions	*/
         void                                _RenderAll(void);
         void                                _UpdateAll(void);

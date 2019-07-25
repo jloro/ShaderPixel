@@ -1,7 +1,9 @@
 #include "Engine.hpp"
 #include <iostream>
 Engine42::Engine          Engine42::Engine::_inst = Engine();
-Engine42::Engine::Engine(void){}
+Engine42::Engine::Engine(void){
+    _skybox = nullptr;
+}
 
 Engine42::Engine::~Engine(void){}
 
@@ -20,10 +22,16 @@ void            Engine42::Engine::AddGameObject(Engine42::IGameObject *object)
     if (object != nullptr)
         _inst._gameObjs.push_back(object);
 }
+void Engine42::Engine::SetSkybox(Skybox *skybox)
+{
+    _inst._skybox = skybox;
+}
+
 void            Engine42::Engine::AddGameObject(std::list<Engine42::IGameObject*> objs)
 {
     _inst._gameObjs.insert(_inst._gameObjs.begin(), objs.begin(), objs.end());
 }
+
 const SDL_Event &Engine42::Engine::GetEvent(){ return _inst._event;}
 const Uint8 *Engine42::Engine::GetKeyInput(){ return _inst._keys;}
 
@@ -69,6 +77,10 @@ void                         Engine42::Engine::_RenderAll(void)
     std::list<MeshRenderer*>::iterator  it;
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (_skybox != nullptr)
+    {
+        _skybox->Draw();
+    }
     for (it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
     {
          (*it)->Draw();

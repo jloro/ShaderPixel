@@ -11,6 +11,7 @@
 #include "Model.hpp"
 #include "Engine.hpp"
 #include "Terrain.hpp"
+#include "Skybox.hpp"
 
 /*std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
 {
@@ -98,7 +99,7 @@ void			game_loop(SdlWindow &win)
 	}
     SDL_Quit();
 }*/
-Shader *test_cube(MeshRenderer **render, Model **cube)
+/* Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
@@ -119,8 +120,25 @@ Shader *test_cube(MeshRenderer **render, Model **cube)
 //	(*render)->transform.position = glm::vec3(0, 0, 0);
 	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
-}
+}*/
+Skybox *TestSkyBox()
+{
+	std::cout << "test SKy" << std::endl;
+	std::vector<std::string>	texturesPath{
+	"textures/craterlake_ft.tga",
+	"textures/craterlake_bk.tga",
+	"textures/craterlake_up.tga",
+	"textures/craterlake_dn.tga",
+	"textures/craterlake_rt.tga",
+	"textures/craterlake_lf.tga", 
+	};
+	std::vector<const char *>	shadersPath{"shaders/skybox.vs.glsl", "shaders/skybox.fs.glsl"};
+	//std::vector<const char *>	shadersPath{"shaders/skybox.vs.glsl", "shaders/orange.fs.glsl"};
+	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+	Skybox *skybox = new Skybox(texturesPath, shadersPath, type);
 
+	return skybox;
+}
 bool InitModels(SdlWindow &win)
 {
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
@@ -145,18 +163,22 @@ bool InitModels(SdlWindow &win)
 		glm::vec3(6.0f, 0.0f, 3.0f),
 	};
 	MeshRenderer *render;
-	Model *cube;
+	//Model *cube;
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	Shader *test = test_cube(&render, &cube);
+	//Shader *test = test_cube(&render, &cube);
+	Skybox *sky = TestSkyBox();
+	std::cout << "after SKy" << std::endl;
 	shadersPath.clear();
 	shadersPath.push_back("shaders/vertex.glsl");
 	shadersPath.push_back("shaders/orange.fs.glsl");
 	Shader shader2 = Shader(shadersPath, type);
+	std::cout << "b4 terrain" << std::endl;
 	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
 	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -0.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);	
+	std::cout << "autopos" << std::endl;
 	for (auto pos : positions)
 	{
 		transform.position = pos;
@@ -166,9 +188,11 @@ bool InitModels(SdlWindow &win)
 	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
 	//glPointSize(5);
+	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();
-	delete test;
-	delete cube;
+	delete sky;
+	//delete test;
+	//delete cube;
 	delete render;
 	delete terrain;
 	return true;

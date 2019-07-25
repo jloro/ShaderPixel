@@ -5,9 +5,19 @@
 Skybox::Skybox(const std::vector<std::string> &texFilenames,  const std::vector< const char *> &shadersFilenames, 
 const std::vector<GLenum> &shaderType)
 {
+
+    Texture texture;
     _shader = new Shader(shadersFilenames, shaderType);
     _cubeMap = _LoadCubeMap(texFilenames);
-    return;
+    texture.id = _cubeMap;
+    texture.type =  eTextureType::Cubemap;
+    _LoadModel("cube.obj");
+    if (_meshes.size() == 0)
+    {
+        throw std::runtime_error("Skybox runmesh error");
+    }
+    _meshes[0].textures.push_back(texture);
+    _meshes[0].SendToOpenGL();
 }
 
 /*Skybox::Skybox(Skybox const & src) 
@@ -19,22 +29,33 @@ Skybox::~Skybox(void)
 {
     if (_shader != nullptr)
         delete _shader;   
+    if (_model != nullptr)
+        delete _model;
 }
-void    Skybox::Draw(void)
+void    Skybox::Draw(void) const
 {
     //glm::mat4   view = cam.GetViewMatrix();
+    glDepthFunc(GL_LEQUAL); 
     glDepthMask(GL_FALSE);
     _shader->use();
     _shader->setMat4("view",glm::mat4(glm::mat3(Camera::instance->GetViewMatrix())));  
     _shader->setMat4("projection", Camera::instance->GetMatProj());
-    _shader->setMat4("model", glm::mat4(1.0f));
+    //_shader->setMat4("model", glm::mat4(1.0f));
     // ... set view and projection matrix
-    glBindVertexArray(_vbo);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, _cubeMap);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    /*glBindVertexArray(_vbo);*/
+    /* glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, _cubeMap);*/
+    /* glDrawArrays(GL_TRIANGLES, 0, 36);*/
+    _meshes[0].Draw(*_shader);
+    glBindVertexArray(0);
     glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    //std::cout << "skybox draw" << std::endl;
 }
-
+void    Skybox::Draw(const Shader &shader) const
+{
+    _model->Draw(shader);
+}
 /* Skybox &	Skybox::operator=(Skybox const & rhs)
 {
     return *this;
@@ -123,4 +144,6 @@ void    Skybox::_CreateCube(void)
 	glBindVertexArray(_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);  
 }

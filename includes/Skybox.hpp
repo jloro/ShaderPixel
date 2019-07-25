@@ -10,8 +10,9 @@
 # include "glad.h"
 # include "Shader.hpp"
 # include "Camera.hpp"
+# include "Model.hpp"
 
-class Skybox 
+class Skybox : Model
 {
 
 public: 
@@ -21,7 +22,8 @@ public:
     ~Skybox(void); 
 /*	public variables*/	
 /*	public functions*/	
-    void            Draw();
+    void            Draw() const;
+    virtual void    Draw(const Shader &shader) const ;
 
     std::string const	toString(void) const;
 
@@ -31,6 +33,7 @@ protected:
     unsigned int _cubeMap;
 /*	protected variables*/
     Shader         *_shader;
+    Model           *_model;
 /*	protected functions*/
     void _CreateCube(void);
 

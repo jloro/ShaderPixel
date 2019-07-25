@@ -36,6 +36,7 @@ class Camera : public Engine42::IGameObject
 		virtual void 	Update(void);
 		virtual void 	FixedUpdate(void);
 		void			ResizeWindow(float newWidth, float newHeight);
+		glm::mat4		GetViewMatrix(void) const;
 
 		static Camera	*instance;
 		glm::vec3	_pos;

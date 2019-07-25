@@ -96,4 +96,7 @@ void	Camera::LookAround(float xoffset, float yoffset)
 	_CalcMatrix();
 }
 
-
+glm::mat4	Camera::GetViewMatrix(void) const
+{
+	return _view;
+}

@@ -20,6 +20,9 @@ const int MAX_MARCHING_STEPS = 300;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
+const float VOLUME_STEP_LIGHT = 0.1;
+const float VOLUME_DENSITY = 0.04;
+const float LIGHT_INTESITY = 0.03;
 
 float hash( float n ) { return fract(sin(n)*753.5453123); }
 float noise( in vec3 x )
@@ -44,11 +47,9 @@ float cloudNoise(float scale,in vec3 p, in vec3 dir)
     return f;
 }
 
-vec4 unionSDF(vec4 distA, vec4 distB) {
-	if (distA.x < distB.x)
-		return distA;
-	else
-		return distB;
+
+float unionSDF(float distA, float distB) {
+    return min(distA, distB);
 }
 
 float sphereSDF(vec3 samplePoint, vec3 o, float r) {
@@ -62,13 +63,10 @@ float sdBox( vec3 p, vec3 b )
 }
 
 
-//return vec4(dist, vec3(color))
 float SceneSDF(vec3 p) {
 	p -= uOrigin;
-	float noise = cloudNoise(1.0, p, vec3(0.0f, 0.25f, 0.125f) * uGlobalTime); 
-	//float d = -sphereSDF(p, vec3(0, 0, 0), 1.0f);
-	float d = -sdBox(p, vec3(0.5, 0.5, 0.5));
-	return clamp(d + 2.0f * noise, 0.0f, 1.0f);
+	float d = sphereSDF(p, vec3(0, 0, 0), 2.0f);
+	return d;
 }
 
 vec3 CalcNormal(vec3 p) {
@@ -79,28 +77,72 @@ vec3 CalcNormal(vec3 p) {
     ));
 }
 
-const int maxStep = 100;
-const float step = 0.05f;
-vec4	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
+float layeredNoise(in vec3 x) {
+    //x += vec3(10.0, 5.0, 6.0);
+    return 0.6*noise(x*5.0) + 0.4*noise(x*10.0) + 0.2*noise(x*16.0) - 0.2;
+}
+
+float sampleVolume(vec3 p, float mult)
 {
-	vec4 sum = vec4(0.0f), col;
-	float t = 0.0f;
-	float d;
+	return cloudNoise(2.0f, p, vec3(0, 0, 0));
+}
+
+float volumeAbsorption(float lightIntensity, float accumDensityToPoint) {
+    return max(0.0, lightIntensity - accumDensityToPoint);
+}
+
+const int maxStep = 50;
+const float step = 0.05f;
+float	RayMarchToLight(vec3 ray, vec3 origin)
+{
+	float density = 0.0f;
+	float d, t;
 	vec3 pos;
+
+	for (int i = 0; i < maxStep;i++)
+	{
+		pos = origin + ray * t;
+		d = SceneSDF(pos);
+
+		if (d < EPSILON)
+		{
+			density += sampleVolume(pos, VOLUME_DENSITY) * min(-d, VOLUME_STEP_LIGHT);
+			t += VOLUME_STEP_LIGHT;
+		}
+		else
+			t += d;
+	}
+	return density;
+}
+float	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
+{
+	vec3 lightPos = vec3(1.2*cos(uGlobalTime), 1.0, 1.2*sin(uGlobalTime));
+	vec4 sum = vec4(0.0f), col;
+	float t = 0.0f, d;
+	vec3 pos;
+	float accumDensity = 0.0f;
+	float brightness = 0.0f;
 	for (int i = 0; i < maxStep; i++)
 	{
-		if (sum.a > 0.99f)
+		if (brightness > 0.99f)
 			break;
 		pos = origin + ray * t;
 		d = SceneSDF(pos);
 
-		col = vec4(mix(vec3(1.0f), vec3(0.0f), d), 1.0f);
-
-		col *= d;
-		sum += col * (1.0f - sum.a);
-		t += step;
+		if (d < EPSILON)
+		{
+			float densityAtPos = sampleVolume(pos, VOLUME_DENSITY);
+			accumDensity += densityAtPos * min(-d, step);
+			vec3 lightDir = vec3(lightPos - pos);
+			float accumDensityToLight = RayMarchToLight(lightPos, pos);
+			float pointBrightness = volumeAbsorption(LIGHT_INTESITY, accumDensityToLight);
+			brightness += volumeAbsorption(pointBrightness, accumDensity);
+			t += step;
+		}
+		else
+			t += d;
 	}
-	return clamp(sum, 0.0f, 1.0f);
+	return brightness;
 }
 
 vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
@@ -152,9 +194,9 @@ void main()
 {
 	vec3 ray = CalcRayDirection(uFov, uResolution, gl_FragCoord.xy);
 
-	vec4 dist = RayMarche(ray, uCamPos);
+	float dist = RayMarche(ray, uCamPos);
 
-	FragColor = dist;
+	FragColor = vec4(1.0f) * dist;
 	return;
     /*if (dist.x == 0.0f)
         FragColor = vec4(0.0, 0.0, 0.0, 0.0);

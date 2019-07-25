@@ -24,10 +24,11 @@ ORANGE = [038;2;239;138;5
 SRCS_DIR = srcs
 
 SRCS =  Time.cpp SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp \
-		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp
+		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp Skybox.cpp
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp Time.hpp \
-		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp Terrain.hpp
+		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp Skybox.hpp \
+		Terrain.hpp
 
 ## Objects ##
 OBJS = $(SRCS:.cpp=.o)

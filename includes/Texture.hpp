@@ -15,7 +15,7 @@
 
 # include "glad.h"
 
-enum eTextureType {Diffuse, Specular};
+enum eTextureType {Diffuse, Specular, Cubemap};
 
 struct Texture 
 {

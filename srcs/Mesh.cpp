@@ -73,6 +73,7 @@ void	Mesh::Draw(Shader shader) const
 {
 	unsigned int	diffuseNb = 0;
 	unsigned int	specularNb = 0;
+	unsigned int	cubeMapNb = 0;
 	std::string		name;
 	//std::string		number;
 
@@ -89,8 +90,15 @@ void	Mesh::Draw(Shader shader) const
 			//number = ;
 			name = "texture_specular" + std::to_string(specularNb++);
 		}
+		else if (textures[i].type == eTextureType::Cubemap)
+		{
+			name = "cubeMap" + std::to_string(cubeMapNb++);
+		}
 		shader.setInt(name.c_str(), i);
-		glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		if (textures[i].type != eTextureType::Cubemap)
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		else 
+			glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i].id);
 	}
 
 	glBindVertexArray(_vao);

@@ -2,7 +2,10 @@
 #include "gtc/matrix_transform.hpp"
 #include <iostream>
 #include "stb_image.h"
-
+#include <cstdlib>
+#include <time.h>
+#include "glm.hpp"
+#include <gtc/random.hpp>
 MeshRenderer::MeshRenderer(Model &model, Shader &shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
@@ -61,37 +64,58 @@ MeshRenderer &	MeshRenderer::operator=(MeshRenderer const & rhs)
     return *this;
 }
 
-void flipInPlace(unsigned char* data, int width, int height) {
-   size_t line_size = width * 4;
-   unsigned char* line_buffer = new unsigned char[line_size];
-   int half_height = height / 2;
-   for (int y = 0; y < half_height;y++) {
-     void* top_line = data + y * line_size;
-     void* bottom_line = data + (height - y - 1) * line_size;
-     memcpy(line_buffer, top_line, line_size);
-     memcpy(top_line, bottom_line, line_size);
-     memcpy(bottom_line, line_buffer, line_size);
-   }
-   delete [] line_buffer;
- }
+struct color
+{
+	unsigned char	r;
+	unsigned char	g;
+	unsigned char	b;
+	unsigned char	a;
+};
+color *	genNoiseTex()
+{
+	srand (time(NULL));
+	color * tex = (color *)malloc(sizeof(unsigned char) * 256 * 256 * 4);
+	for (unsigned int y = 0; y < 256; y++)
+	{
+		for (unsigned int x = 0; x < 256; x++)
+		{
+			int idx = y * 256 + x;
+			tex[idx].r = rand() % 255;
+			tex[idx].b = rand() % 255;
+		}
+	}
+	
+	for (unsigned int y = 0; y < 256; y++)
+	{
+		for (unsigned int x = 0; x < 256; x++)
+		{
+			int x2 = (x - 37) & 255;
+			int y2 = (y - 17) & 255;
+			unsigned int idx2 = y2 * 256 + x2;
+			unsigned int idx = y * 256 + x;
+			tex[idx].g = tex[idx2].r;
+			tex[idx].a = tex[idx2].b;
+		}
+	}
+	return tex;
+}
 
 void		MeshRenderer::InitNoiseText(void)
 {
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
 
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load("textures/noise 512.png", &width, &height, &nrComponents, 0);
+	int width = 256, height=256;
+	color *data = genNoiseTex();//stbi_load("textures/noise 512.png", &width, &height, &nrComponents, 0);
 	if (data)
 	{
-		flipInPlace(data, width, height);
-		GLenum format;
+		/*GLenum format;
 		if (nrComponents == 1)
 			format = GL_RED;
 		else if (nrComponents == 3)
 			format = GL_RGB;
-		else
-			format = GL_RGBA;
+		else*/
+			GLenum format = GL_RGBA;
 
 		glBindTexture(GL_TEXTURE_2D, textureID);
 		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -99,15 +123,15 @@ void		MeshRenderer::InitNoiseText(void)
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		stbi_image_free(data);
+		//stbi_image_free(data);
 	}
 	else
 	{
 		std::cout << "failed to load texture noise" << std::endl;
-		stbi_image_free(data);
+		//stbi_image_free(data);
 	}
 	_noiseID = textureID;
 }

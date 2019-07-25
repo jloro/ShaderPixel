@@ -4,6 +4,7 @@ out vec4 FragColor;
 in mat4 viewMat;
 in mat4 mvp;
 in mat4 proj;
+in vec3 tt;
 
 uniform vec2	uResolution;//Resolution of screen
 uniform float	uFov;//Fov in radians
@@ -23,25 +24,23 @@ const float EPSILON = 0.001f;
 float hash( float n ) { return fract(sin(n)*753.5453123); }
 float noise( in vec3 x )
 {
-    vec3 p = floor(x);
+	   vec3 p = floor(x);
     vec3 f = fract(x);
-    f = f*f*(3.0-2.0*f);
-	
-    float n = p.x + p.y*157.0 + 113.0*p.z;
-    return mix(mix(mix( hash(n+  0.0), hash(n+  1.0),f.x),
-                   mix( hash(n+157.0), hash(n+158.0),f.x),f.y),
-               mix(mix( hash(n+113.0), hash(n+114.0),f.x),
-                   mix( hash(n+270.0), hash(n+271.0),f.x),f.y),f.z);
+	f = f*f*(3.0-2.0*f);
+
+	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
+	vec2 rg = texture( uNoise, (uv+0.5)/256.0, -100.0 ).yx;
+	return mix( rg.x, rg.y, f.z );
 }
 float cloudNoise(float scale,in vec3 p, in vec3 dir)
 {
 	vec3 q = p + dir;
     float f;
 	f  = 0.50000*noise( q ); q = q*scale*2.02 + dir;
-	//f += 0.25000*noise( q ); q = q*2.03 + dir;
-    //f += 0.12500*noise( q ); q = q*2.01 + dir;
-    //f += 0.06250*noise( q ); q = q*2.02 + dir;
-    //f += 0.03125*noise( q );
+	f += 0.25000*noise( q ); q = q*2.03 + dir;
+    f += 0.12500*noise( q ); q = q*2.01 + dir;
+    f += 0.06250*noise( q ); q = q*2.02 + dir;
+    f += 0.03125*noise( q );
     return f;
 }
 
@@ -56,11 +55,19 @@ float sphereSDF(vec3 samplePoint, vec3 o, float r) {
     return length(samplePoint - o) - r;
 }
 
+float sdBox( vec3 p, vec3 b )
+{
+  vec3 d = abs(p) - b;
+  return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
+}
+
+
 //return vec4(dist, vec3(color))
 float SceneSDF(vec3 p) {
 	p -= uOrigin;
-	float noise = cloudNoise(2.0, p, vec3(0.0f, 0.25f, 0.10f) * uGlobalTime); 
-	float d = -sphereSDF(p, vec3(0, 0, 0), 1.0f);
+	float noise = cloudNoise(1.0, p, vec3(0.0f, 0.25f, 0.125f) * uGlobalTime); 
+	//float d = -sphereSDF(p, vec3(0, 0, 0), 1.0f);
+	float d = -sdBox(p, vec3(0.5, 0.5, 0.5));
 	return clamp(d + 2.0f * noise, 0.0f, 1.0f);
 }
 

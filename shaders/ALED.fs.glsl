@@ -84,7 +84,7 @@ float layeredNoise(in vec3 x) {
 
 float sampleVolume(vec3 p, float mult)
 {
-	return cloudNoise(2.0f, p, vec3(0, 0, 0));
+	return layeredNoise(p) * mult;
 }
 
 float volumeAbsorption(float lightIntensity, float accumDensityToPoint) {
@@ -92,14 +92,14 @@ float volumeAbsorption(float lightIntensity, float accumDensityToPoint) {
 }
 
 const int maxStep = 50;
-const float step = 0.05f;
+const float step = 0.03f;
 float	RayMarchToLight(vec3 ray, vec3 origin)
 {
 	float density = 0.0f;
-	float d, t;
+	float d, t =0.0f;
 	vec3 pos;
 
-	for (int i = 0; i < maxStep;i++)
+	for (int i = 0; i < 50;i++)
 	{
 		pos = origin + ray * t;
 		d = SceneSDF(pos);
@@ -111,12 +111,15 @@ float	RayMarchToLight(vec3 ray, vec3 origin)
 		}
 		else
 			t += d;
+
+		if (density >= 1.0f)
+			return 1.0f;
 	}
 	return density;
 }
 float	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
 {
-	vec3 lightPos = vec3(1.2*cos(uGlobalTime), 1.0, 1.2*sin(uGlobalTime));
+	vec3 lightPos = vec3(2*cos(uGlobalTime), 3.0, 2*sin(uGlobalTime));
 	vec4 sum = vec4(0.0f), col;
 	float t = 0.0f, d;
 	vec3 pos;
@@ -124,8 +127,6 @@ float	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
 	float brightness = 0.0f;
 	for (int i = 0; i < maxStep; i++)
 	{
-		if (brightness > 0.99f)
-			break;
 		pos = origin + ray * t;
 		d = SceneSDF(pos);
 
@@ -141,42 +142,12 @@ float	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
 		}
 		else
 			t += d;
+		if (brightness >= 1.0f)
+			return 1.0f;
 	}
 	return brightness;
 }
 
-vec3 phongContribForLight(vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity) {
-    vec3 N = CalcNormal(p);
-    vec3 L = normalize(lightPos - p);
-    vec3 V = normalize(eye - p);
-    vec3 R = normalize(reflect(-L, N));
-    
-    float dotLN = dot(L, N);
-    float dotRV = dot(R, V);
-    
-    if (dotLN < 0.0)
-        return vec3(0.0, 0.0, 0.0);
-    
-    if (dotRV < 0.0)
-        return lightIntensity * (k_d * dotLN);
-   
-    return lightIntensity * (k_d * dotLN + k_s * pow(dotRV, alpha));
-}
-
-vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 k_s, float alpha, vec3 p, vec3 eye) {
-    const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
-    vec3 color = ambientLight * k_a;
-    
-    vec3 light1Pos = vec3(0, 0, 5);
-    vec3 light1Intensity = vec3(0.4, 0.4, 0.4);
-    
-    color += phongContribForLight(k_d, k_s, alpha, p, eye,
-                                  light1Pos,
-                                  light1Intensity);
-    
-    return color;
-}
 
 //calc NDC from gl_fragCoord : https://www.khronos.org/opengl/wiki/Compute_eye_space_from_window_space
 
@@ -196,7 +167,7 @@ void main()
 
 	float dist = RayMarche(ray, uCamPos);
 
-	FragColor = vec4(1.0f) * dist;
+	FragColor = vec4(vec3(1.0f) * dist, 1.0f);
 	return;
     /*if (dist.x == 0.0f)
         FragColor = vec4(0.0, 0.0, 0.0, 0.0);

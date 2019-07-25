@@ -82,7 +82,7 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
 	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f),//position
 						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-						glm::vec3(5.0f, 5.0f, 5.0f)};//scale
+						glm::vec3(8.0f, 8.0f, 8.0f)};//scale
 	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/ALED.fs.glsl"};
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();

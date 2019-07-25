@@ -10,6 +10,7 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "Engine.hpp"
+#include "Terrain.hpp"
 
 /*std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
 {
@@ -148,18 +149,28 @@ bool InitModels(SdlWindow &win)
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	Shader *test = test_cube(&render, &cube);
+	shadersPath.clear();
+	shadersPath.push_back("shaders/vertex.glsl");
+	shadersPath.push_back("shaders/orange.fs.glsl");
+	Shader shader2 = Shader(shadersPath, type);
+	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
+	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -0.5f, -50.0f)));
+	Engine42::Engine::AddMeshRenderer(&terrainRenderer);	
 	for (auto pos : positions)
 	{
 		transform.position = pos;
 		render = new MeshRenderer(pillar, myShader, transform);
-		//render->transform.position = pos;
 		Engine42::Engine::AddMeshRenderer(render);
 	}
-	Shader *test = test_cube(&render, &cube);
+	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/menger.fs.glsl"};
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	//glPointSize(5);
 	Engine42::Engine::Loop();
 	delete test;
-	//delete cube;
+	delete cube;
 	delete render;
+	delete terrain;
 	return true;
 }
 
@@ -175,7 +186,7 @@ int				main(int ac, char **av)
 		return (EXIT_SUCCESS);
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SdlWindow	win(800, 400, false, true, "test");
+	SdlWindow	win(1600, 900, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);

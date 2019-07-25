@@ -26,10 +26,14 @@ Model::Model(void)
 Model::Model(const char* path)
 {
 	_LoadModel(path);
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 Model::Model(const Model &src)
 {
     *this = src;
+	for (unsigned int i = 0; i < _meshes.size(); i++)
+		_meshes[i].SendToOpenGL();
 }
 
 Model::~Model() {}
@@ -102,7 +106,8 @@ Mesh	Model::_ProcessMesh(aiMesh *mesh, const aiScene *scene)
 		std::vector<Texture> specularMaps = _LoadMaterialTexture(material, aiTextureType_SPECULAR, Specular);
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
-	return Mesh(vertices, faces, textures);
+	//std::cout << "nb meshs" << std::endl;
+	return Mesh(vertices, faces, textures);// I think this line force push to timeto openGl, cause it call the constructor 2 times
 }
 
 std::vector<Texture>	Model::_LoadMaterialTexture(aiMaterial *mat, aiTextureType type, eTextureType typeName)
@@ -119,6 +124,14 @@ std::vector<Texture>	Model::_LoadMaterialTexture(aiMaterial *mat, aiTextureType 
 	}
 	return textures;
 }
+Texture					Model::_LoadSimpleTexture(eTextureType typeName, const std::string path)
+{
+	Texture texture;
+	texture.id = _TextureFromFile(path);
+	texture.type = typeName;
+	return texture;
+}
+
 
 std::string 			Model::_GetFilename(const char *path, const std::string &directory)
 {

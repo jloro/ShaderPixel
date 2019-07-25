@@ -36,13 +36,13 @@ class Mesh
 /*  public functions  */
 		Mesh &		operator=(Mesh const & rhs);
 		void		Draw(Shader shader) const;
+		void		SendToOpenGL(void);
 	private:
 /*  private variables  */
 		GLuint						_vao;
 		GLuint						_vbo;
 		GLuint						_ebo;
 /*  private functions */
-		void						_SendToOpenGL(void);
 };
 
 #endif

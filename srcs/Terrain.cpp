@@ -1,11 +1,34 @@
 #include "Terrain.hpp"
+const unsigned int Terrain::_size = 10;
 
-Terrain::Terrain(unsigned int x, unsigned int z)
+Terrain::Terrain() : Model(), _x(_size), _z(_size)//protected
 {
+    _meshes.push_back(Mesh());
+    _dir = "";
+}
+Terrain::Terrain(unsigned int x, unsigned int z) : Model(), _x (x * _size), _z(z * _size)// the mesh will not send his variables to openGL
+{
+    _tilingX = 1.0f;
+    _tilingY = 1.0f;
     _meshes.push_back(_GenerateTerrain(x, z));
 }
-
-Terrain::Terrain(Terrain const & src) 
+Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path) : Model(), _x (x * _size), _z(z * _size)
+{
+    _tilingX = 1.0f;
+    _tilingY = 1.0f;
+    _meshes.push_back(_GenerateTerrain(x, z));
+    LoadTexture(path);
+   _meshes[0].SendToOpenGL();
+}
+Terrain::Terrain(unsigned int x, unsigned int z, const std::string &path, float tilingX, float tilingY) : Model(), _x (x * _size), _z(z * _size)
+{
+    _tilingX = tilingX;
+    _tilingY = tilingY;
+    _meshes.push_back(_GenerateTerrain(x, z));
+    LoadTexture(path);
+   _meshes[0].SendToOpenGL();
+}
+Terrain::Terrain(Terrain const & src) : Model(src), _x(src._x), _z(src._z)
 {
     *this = src;
 }
@@ -17,61 +40,60 @@ Terrain &	Terrain::operator = (Terrain const & rhs)
     static_cast<Model>(*this) = static_cast<Model>(rhs);
     return *this;
 }
-void        Terrain::Draw(const Shader &shader)
+Mesh       Terrain::_GenerateTerrain(unsigned int xSize, unsigned int zSize)
 {
-    Model::Draw(shader);
-}
-Mesh       Terrain::_GenerateTerrain(unsigned int x, unsigned int z)
-{
-    int count = _nbVertex * _nbVertex;
-    float vertices[count * 3];// = new float[count * 3];
-    //float[] normals = new float[count * 3];
-    float textureCoords[count * 2];// = new float[count * 2];
-    int indices[6 * (_nbVertex - 1) * (_nbVertex - 1)]; //= new int[6*(_nbVertex-1)*(_nbVertex-1)];
-    int index = 0;
-    for(int i = 0; i < _nbVertex; i++)
+    const unsigned int nb_vert = (xSize) * (zSize);
+    std::vector<unsigned int>   faces((nb_vert)* 6);
+    std::vector<Vertex>     vertices;
+    for (unsigned int i = 0,  z = 0; z <= zSize; z++)
     {
-        for(int j = 0; j < _nbVertex; j++)
+        for (unsigned int x = 0; x <= xSize; x++)
         {
-            vertices[index * 3] = (float)j / ((float)_nbVertex - 1) * _size;
-            vertices[index * 3 + 1] = 0;
-            vertices[index * 3 + 2] = (float)i / ((float)_nbVertex - 1) * _size;
-            /* normals[index * 3] = 0;
-            normals[index * 3 + 1] = 1;
-            normals[index * 3 + 2] = 0;*/
-            textureCoords[index * 2] = (float)j / ((float)_nbVertex - 1);
-            textureCoords[index * 2 + 1] = (float)i / ((float)_nbVertex - 1);
-            index++;
+            Vertex vert;
+            vert.position.x = (static_cast<float>(x) *_size);
+            vert.position.y = 0;
+            vert.position.z = static_cast<float>(z) * _size;
+            vert.texCoord.x = static_cast<float>(x) / _tilingX;
+            vert.texCoord.y = static_cast<float>(z) / _tilingY;
+            vertices.push_back(vert);
+            i++;
         }
     }
-    index = 0;
-    for(int gz = 0; gz < _nbVertex-1; gz++)
+    unsigned int intVert = 0;
+    unsigned int tris = 0;
+    for (unsigned int z = 0; z < zSize; z++)
     {
-        for(int gx = 0; gx < _nbVertex-1; gx++)
+        for (unsigned int x = 0; x < xSize; x++)
         {
-            int topLeft = (gz * _nbVertex) + gx;
-            int topRight = topLeft + 1;
-            int bottomLeft = ((gz + 1) * _nbVertex) + gx;
-            int bottomRight = bottomLeft + 1;
-            indices[index++] = topLeft;
-            indices[index++] = bottomLeft;
-            indices[index++] = topRight;
-            indices[index++] = topRight;
-            indices[index++] = bottomLeft;
-            indices[index++] = bottomRight;
+            faces[tris + 0] = intVert + 0;
+            faces[tris + 1] = intVert + xSize +1;
+            faces[tris + 2] = intVert + 1;
+            faces[tris + 3] = intVert + 1;
+            faces[tris + 4] = intVert + xSize + 1;
+            faces[tris + 5] = intVert + xSize + 2;
+
+            intVert++;
+            tris += 6;
         }
+        intVert++;
     }
-		//return loader.loadToVAO(vertices, textureCoords, normals, indices);
+    Mesh mesh = Mesh();
+    mesh.vertices = vertices;
+    mesh.faces = faces;
+    return mesh;
 }
 
 bool    Terrain::LoadTexture(const std::string & path) 
 {
-    std::string dir = path.substr(0, path.find_last_of('/'));
-    std::string filename = 
-    Texture texture;
-    texture.id = Model::_TextureFromFile(filename.c_str(), Model::_dir);
-	texture.type = typeName;
-	textures.push_back(texture);
-    
+    _dir  = path.substr(0, path.find_last_of('/'));
+    _meshes[0].textures.push_back(Model::_LoadSimpleTexture(eTextureType::Specular ,path));
     return true;
 }   
+bool Terrain::LoadTexture(const std::string &path, float tilingX, float tilingY)
+{
+    _tilingX = tilingX;
+    _tilingY = tilingY;
+    _dir  = path.substr(0, path.find_last_of('/'));
+    _meshes[0].textures.push_back(Model::_LoadSimpleTexture(eTextureType::Specular ,path));
+    return true;
+}

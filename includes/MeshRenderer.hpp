@@ -11,8 +11,8 @@ class MeshRenderer
 {
 public: 
 /*	constructors / destrucors	*/
-    MeshRenderer(Model &model, Shader &shader); 
-    MeshRenderer(Model &model, Shader &shader, const Transform &transform); 
+    MeshRenderer(Model &model, Shader &shader, bool useNoise = false); 
+    MeshRenderer(Model &model, Shader &shader, const Transform &transform, bool useNoise = false); 
     MeshRenderer(const MeshRenderer & src); 
     virtual ~MeshRenderer(void); 
 
@@ -30,6 +30,9 @@ protected:
     glm::mat4           _modelMatrix;
 private:
 /*	private variables	*/
+	bool				_noise;
+	GLuint				_noiseID;
 /*	private functions	*/
+	void				InitNoiseText(void);
 };
 #endif

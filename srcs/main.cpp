@@ -58,7 +58,6 @@ bool InitModels(SdlWindow &win)
 {
 	std::vector<Shader*>		shaders;
 	std::vector<Model*>			models;
-	std::vector<MeshRenderer*>	meshRenderer;
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
@@ -74,21 +73,49 @@ bool InitModels(SdlWindow &win)
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	transform.position = glm::vec3(0.0f, -8.0f, 0.0f);
-	meshRenderer.push_back(new MeshRenderer(pillar, myShader, transform));
-	Engine42::Engine::AddMeshRenderer(meshRenderer.back());
+	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
+	path = "frame/10305_picture_frame_V2_max2011_it2.obj";
+	Model	frame(path.c_str());
+	transform.scale = glm::vec3(0.1f, 0.1f, 0.1f);
+	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
+	transform.position = glm::vec3(0.0f, 6.3f, 0.0f);
+	render = new MeshRenderer(frame, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
+	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
+	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
+	transform.position[0] = 0.0f;
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
+	transform.position[0] = -8.0f;
+	render = new MeshRenderer(pillar, myShader, transform);
+	Engine42::Engine::AddMeshRenderer(render);
 	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
 	MeshRenderer terrainRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(&terrainRenderer);
-	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f),//position
-						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-						glm::vec3(8.0f, 8.0f, 8.0f)};//scale
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/ALED.fs.glsl"};
+	Transform trans = {glm::vec3(0.0f, 8.1f, 0.0f),//position
+		glm::vec3(0.0f, 0.0f, 0.0f),//rotation
+		glm::vec3(1.4f, 1.9f, 0.0f)};//scale
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/window.fs.glsl"};
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	trans = {glm::vec3(8.0f, 0.0f, 0.0f),//position
+		glm::vec3(0.0f, 0.0f, 0.0f),//rotation
+		glm::vec3(4.0f, 4.0f, 4.0f)};//scale
+	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
+	trans.position[0] = 0.0f;
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
+	trans.position[0] = -8.0f;
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	shadersPath2[1] = "shaders/menger.fs.glsl";
+	trans.position[0] = 8.0f;
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();
 	freeList<Shader*>(shaders.begin(), shaders.end());
-	freeList<MeshRenderer*>(meshRenderer.begin(), meshRenderer.end());
 	delete cube;
+	delete render;
 	delete terrain;
 	return true;
 }

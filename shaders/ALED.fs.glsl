@@ -20,7 +20,7 @@ const int MAX_MARCHING_STEPS = 300;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
-const float VOLUME_STEP_LIGHT = 0.1;
+const float VOLUME_STEP_LIGHT = 0.03;
 const float VOLUME_DENSITY = 0.04;
 const float LIGHT_INTESITY = 0.03;
 
@@ -111,7 +111,7 @@ float	RayMarchToLight(vec3 ray, vec3 origin)
 
 		if (d < EPSILON)
 		{
-			density += sampleVolume(pos, .03);
+			density += sampleVolume(pos, .3)* min(-d, VOLUME_STEP_LIGHT);
 			t += VOLUME_STEP_LIGHT;
 		}
 		else

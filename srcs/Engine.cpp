@@ -1,7 +1,8 @@
 #include "Engine.hpp"
 #include <iostream>
 #include <algorithm>
-# include <vector>
+#include <vector>
+#include <map>
 
 
 Engine42::Engine          Engine42::Engine::_inst = Engine();
@@ -9,7 +10,25 @@ Engine42::Engine::Engine(void){
     _skybox = nullptr;
 }
 
-Engine42::Engine::~Engine(void){}
+Engine42::Engine::~Engine(void)
+{
+    std::list<Shader *> shaders;
+    Shader *shader = nullptr;
+
+    if (_skybox)
+        delete _skybox;
+    
+    std::for_each(_inst._meshRenderers.begin(), _inst._meshRenderers.end(),[&shaders] (MeshRenderer *x) -> void {
+        shaders.push_back(x->GetShader());
+        });
+    shaders.sort();
+    shaders.unique();
+    while ((shader = shaders.front()) != nullptr)
+    {
+        shaders.pop_front();
+        delete shader;
+    }
+}
 
 void            Engine42::Engine::SetWindow(const SdlWindow *win) {_inst._win = win;}
 void            Engine42::Engine::AddMeshRenderer(std::list<MeshRenderer*> meshRenderers)
@@ -88,13 +107,12 @@ bool      Engine42::Engine::Destroy(MeshRenderer *meshRenderer)
         if (it == _inst._meshRenderers.end())
         {
             delete shader;
-            std::cout << "delete" << std::endl;
         }
     }
     delete meshRenderer;
     return true;
 }
-bool						_sort(const MeshRenderer* first, const MeshRenderer* sec)
+bool		_sort(const MeshRenderer* first, const MeshRenderer* sec)
 {
 	float d1 = glm::distance(first->transform.position, Camera::instance->_pos);
 	float d2 = glm::distance(sec->transform.position, Camera::instance->_pos);

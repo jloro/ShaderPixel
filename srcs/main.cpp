@@ -18,17 +18,14 @@ std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
 	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
 	return o;
 }
-Shader *raymarche_cube(MeshRenderer **render, Model **cube, Transform trans, std::string path, std::vector<const char *> shadersPath)
+void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath)
 {
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
-	(*cube) = new Model(path.c_str());
-	*render = new MeshRenderer(**cube, myShader, trans);
-	Engine42::Engine::AddMeshRenderer(*render);
-	return myShader;
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(model, myShader, trans));
 }
-Skybox *TestSkyBox()
+Skybox *CreateSkyBox()
 {
 	std::vector<std::string>	texturesPath{
 	"textures/craterlake_ft.tga",
@@ -39,26 +36,13 @@ Skybox *TestSkyBox()
 	"textures/craterlake_lf.tga", 
 	};
 	std::vector<const char *>	shadersPath{"shaders/skybox.vs.glsl", "shaders/skybox.fs.glsl"};
-	//std::vector<const char *>	shadersPath{"shaders/skybox.vs.glsl", "shaders/orange.fs.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Skybox *skybox = new Skybox(texturesPath, shadersPath, type);
-
 	return skybox;
-}
-
-template<typename T>
-void	freeList(typename std::vector<T>::iterator beg, typename std::vector<T>::iterator end)
-{
-	for (;beg != end;beg++)
-	{
-		delete *beg;
-	}
 }
 
 bool InitModels(SdlWindow &win)
 {
-	std::vector<Shader*>		shaders;
-	std::vector<Model*>			models;
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
@@ -69,69 +53,34 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::AddGameObject(&cam);
 	std::string path= "Pillar/LP_Pillar_Textured.obj";
 	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	MeshRenderer *render;
-	MeshRenderer *render1;
-	MeshRenderer *render2;
-	MeshRenderer *render3;
-	MeshRenderer *render4;
-	Model *cube;
-	Transform transform;
-	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
-	render = new MeshRenderer(pillar, myShader, transform);
-	render1 = render;
-	Engine42::Engine::AddMeshRenderer(render);
+	Model cube = Model("cube.obj");
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, 0.0f))));
 	path = "frame/10305_picture_frame_V2_max2011_it2.obj";
-	Model	frame(path.c_str());
-	transform.scale = glm::vec3(0.1f, 0.1f, 0.1f);
-	transform.rotation = glm::vec3(-90.0f, 0.0f, 0.0f);
-	transform.position = glm::vec3(0.0f, 6.3f, 0.0f);
-	render = new MeshRenderer(frame, myShader, transform);
-	render4 = render;
-	Engine42::Engine::AddMeshRenderer(render);
-	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
-	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
-	transform.position = glm::vec3(8.0f, -8.0f, 0.0f);
-	transform.position[0] = 0.0f;
-	render = new MeshRenderer(pillar, myShader, transform);
-	Engine42::Engine::AddMeshRenderer(render);
-	render2 = render;
-	transform.position[0] = -8.0f;
-	render = new MeshRenderer(pillar, myShader, transform);
-	render3 = render;
-	Engine42::Engine::AddMeshRenderer(render);
-	Model *terrain = new Terrain(10, 10, "textures/grass.png", 1, 1);
-	MeshRenderer *terrainRenderer = new MeshRenderer((*terrain), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
+	Model	frame(path.c_str());													//position						rotation					scale		
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, 6.3f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, 0.0f))));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, 0.0f))));
+	Terrain terrain(10, 10, "textures/grass.png", 1, 1);
+	Model *terrainModel = &terrain;
+	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);
-	Transform trans = {glm::vec3(0.0f, 8.1f, 0.0f),//position
-						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-						glm::vec3(1.4f, 1.9f, 0.0f)};//scale
 	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/window.fs.glsl"};
-	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
-	trans = {glm::vec3(8.0f, 0.0f, 0.0f),//position
-						glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-						glm::vec3(4.0f, 4.0f, 4.0f)};//scale
+	raymarche_cube(cube, Transform(glm::vec3(0.0f, 8.1f, 0.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
+	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
+						glm::vec3(4.0f, 4.0f, 4.0f));//scale
 	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
-	trans.position[0] = 0.0f;
-	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	raymarche_cube(cube, trans, shadersPath2);
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
 	trans.position[0] = -8.0f;
-	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
+	raymarche_cube(cube, trans, shadersPath2);
 	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 8.0f;
-	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
-	Skybox *sky = TestSkyBox();
+	raymarche_cube(cube, trans, shadersPath2);
+	Skybox *sky = CreateSkyBox();
 	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();
-	freeList<Shader*>(shaders.begin(), shaders.end());
-	delete sky;
-	delete cube;
-	delete render;
-	delete terrain;
 	return true;
 }
-
 int				main(int ac, char **av)
 {
 	if (ac < -1 && av == nullptr)
@@ -151,6 +100,5 @@ int				main(int ac, char **av)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);
 	InitModels(win);
-	//game_loop(win);
 	SDL_Quit();
 }

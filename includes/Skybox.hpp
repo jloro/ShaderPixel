@@ -35,7 +35,7 @@ protected:
     Shader         *_shader;
     Model           *_model;
 /*	protected functions*/
-    void _CreateCube(void);
+    //void _CreateCube(void);
 
     static unsigned int _LoadCubeMap(const std::vector<std::string> &filenames);
 

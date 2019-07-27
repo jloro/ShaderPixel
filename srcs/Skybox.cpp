@@ -32,23 +32,15 @@ Skybox::~Skybox(void)
 }
 void    Skybox::Draw(void) const
 {
-    //glm::mat4   view = cam.GetViewMatrix();
     glDepthFunc(GL_LEQUAL); 
     glDepthMask(GL_FALSE);
     _shader->use();
     _shader->setMat4("view",glm::mat4(glm::mat3(Camera::instance->GetViewMatrix())));  
     _shader->setMat4("projection", Camera::instance->GetMatProj());
-    //_shader->setMat4("model", glm::mat4(1.0f));
-    // ... set view and projection matrix
-    /*glBindVertexArray(_vbo);*/
-    /* glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, _cubeMap);*/
-    /* glDrawArrays(GL_TRIANGLES, 0, 36);*/
     _meshes[0].Draw(*_shader);
     glBindVertexArray(0);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
-    //std::cout << "skybox draw" << std::endl;
 }
 void    Skybox::Draw(const Shader &shader) const
 {
@@ -89,59 +81,4 @@ unsigned int Skybox::_LoadCubeMap(const std::vector<std::string> &filenames)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return textureID;
-}
-void    Skybox::_CreateCube(void)
-{
-
-    float vertices[] = {
-    // positions          
-    -1.0f,  1.0f, -1.0f,
-    -1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f, -1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-
-    -1.0f, -1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f, -1.0f,  1.0f,
-    -1.0f, -1.0f,  1.0f,
-
-    -1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f, -1.0f,
-     1.0f,  1.0f,  1.0f,
-     1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f,  1.0f,
-    -1.0f,  1.0f, -1.0f,
-
-    -1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-     1.0f, -1.0f, -1.0f,
-     1.0f, -1.0f, -1.0f,
-    -1.0f, -1.0f,  1.0f,
-     1.0f, -1.0f,  1.0f
-};
-	glGenBuffers(1, &_vbo);
-
-	glBindVertexArray(_vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);  
 }

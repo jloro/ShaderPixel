@@ -31,22 +31,14 @@ Shader *raymarche_cube(MeshRenderer **render, Model **cube, Transform trans, std
 /* Shader *test_cube(MeshRenderer **render, Model **cube)
 {
 	std::string path = "cube.obj";
-	//std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/fragment.glsl"};
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/mandelbulb.fs.glsl"};
-//	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/test_sphere_raymarching.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
-	//glm::mat4  matModel = glm::mat4(1.0f);
-	//matModel = glm::translate(matModel, glm::vec3(0.0f, 0.0f, 0.0f));
-	//matModel = glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f));
-	//(*cube) = new Model(path.c_str(), glm::scale(matModel, glm::vec3(7.0f, 4.0f, 4.0f)));
 	(*cube) = new Model(path.c_str());//, glm::mat4(1.0f));
 	//						position					rotation						scale
-	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(5.0f, 5.0f, 5.0f)};
-	*render = new MeshRenderer(**cube, *myShader, trans);
-	//(*render)->transform.position = glm::vec3(-3.5f, 5.5f, -0.5f);
-//	(*render)->transform.position = glm::vec3(0, 0, 0);
+	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(4.0f, 4.0f, 4.0f)};
+	*render = new MeshRenderer(**cube, *myShader, trans, true);
 	Engine42::Engine::AddMeshRenderer(*render);
 	return myShader;
 }*/
@@ -68,7 +60,9 @@ Skybox *TestSkyBox()
 
 	return skybox;
 }
-void	freeList(std::vector<Shader*>::iterator beg, std::vector<Shader*>::iterator end)
+
+template<typename T>
+void	freeList(typename std::vector<T>::iterator beg, typename std::vector<T>::iterator end)
 {
 	for (;beg != end;beg++)
 	{
@@ -131,16 +125,15 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
 	trans.position[0] = -8.0f;
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
-	shadersPath2[1] = "shaders/ALED.fs.glsl";
+	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 8.0f;
 	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Skybox *sky = TestSkyBox();
 	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();
-	freeList(shaders.begin(), shaders.end());
+	freeList<Shader*>(shaders.begin(), shaders.end());
 	delete sky;
-	//delete test;
-	//delete cube;
+	delete cube;
 	delete render;
 	delete terrain;
 	return true;

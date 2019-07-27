@@ -72,8 +72,16 @@ void            Engine42::Engine::Loop(void)
     }
 }
 
+bool						_sort(const MeshRenderer* first, const MeshRenderer* sec)
+{
+	float d1 = glm::distance(first->transform.position, Camera::instance->_pos);
+	float d2 = glm::distance(sec->transform.position, Camera::instance->_pos);
+	return d2 < d1;
+}
+
 void                         Engine42::Engine::_RenderAll(void)
 {
+	_meshRenderers.sort(_sort);
     std::list<MeshRenderer*>::iterator  it;
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

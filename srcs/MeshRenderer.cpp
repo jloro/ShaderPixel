@@ -1,16 +1,24 @@
 #include "MeshRenderer.hpp"
 #include "gtc/matrix_transform.hpp"
 #include <iostream>
-
-MeshRenderer::MeshRenderer(Model &model, Shader &shader) : _model(model), _shader(shader)
+#include "stb_image.h"
+#include <cstdlib>
+#include <time.h>
+#include "glm.hpp"
+#include <gtc/random.hpp>
+MeshRenderer::MeshRenderer(Model &model, Shader &shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
     UpdateMatrix();
+	if (useNoise)
+		InitNoiseText();
 }
-MeshRenderer::MeshRenderer(Model &model, Shader &shader, const Transform &trans) : _model(model), _shader(shader)
+MeshRenderer::MeshRenderer(Model &model, Shader &shader, const Transform &trans, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = trans;
     UpdateMatrix();
+	if (useNoise)
+		InitNoiseText();
 }
 void        MeshRenderer::Draw(void) const
 {
@@ -18,6 +26,13 @@ void        MeshRenderer::Draw(void) const
     _shader.setMat4("view", Camera::instance->GetMatView());
     _shader.setMat4("projection", Camera::instance->GetMatProj());
     _shader.setMat4("model", _modelMatrix);
+	_shader.setVec3("uOrigin", transform.position);
+	if (_noise)
+	{
+		glActiveTexture(GL_TEXTURE10);
+		_shader.setInt("uNoise", 10);
+		glBindTexture(GL_TEXTURE_2D, _noiseID);
+	}
     if (_shader.GetIsRayMarching())
         _shader.SetUpUniforms(*Camera::instance, *SdlWindow::GetMain(), ((float)SDL_GetTicks()) / 1000.f);
     _model.Draw(_shader);
@@ -30,9 +45,9 @@ void            MeshRenderer::UpdateMatrix(void)
 {
     _modelMatrix = glm::mat4(1.0f);
     _modelMatrix = glm::translate(_modelMatrix, transform.position);
-    //glm::mat4 rot = glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
-    //_modelMatrix *= rot;//;glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
-    //_modelMatrix = glm::rotate(_modelMatrix, glm::radians(90.0f),transform.rotation);
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    _modelMatrix = glm::rotate(_modelMatrix, glm::radians(transform.rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     _modelMatrix = glm::scale(_modelMatrix, transform.scale);
 }
 MeshRenderer::MeshRenderer(MeshRenderer const & src) : _model(src._model), _shader(src._shader)
@@ -47,4 +62,76 @@ MeshRenderer &	MeshRenderer::operator=(MeshRenderer const & rhs)
     this->transform = rhs.transform;
     UpdateMatrix();
     return *this;
+}
+
+struct color
+{
+	unsigned char	r;
+	unsigned char	g;
+	unsigned char	b;
+	unsigned char	a;
+};
+color *	genNoiseTex()
+{
+	srand (time(NULL));
+	color * tex = (color *)malloc(sizeof(unsigned char) * 256 * 256 * 4);
+	for (unsigned int y = 0; y < 256; y++)
+	{
+		for (unsigned int x = 0; x < 256; x++)
+		{
+			int idx = y * 256 + x;
+			tex[idx].r = rand() % 255;
+			tex[idx].b = rand() % 255;
+		}
+	}
+	
+	for (unsigned int y = 0; y < 256; y++)
+	{
+		for (unsigned int x = 0; x < 256; x++)
+		{
+			int x2 = (x - 37) & 255;
+			int y2 = (y - 17) & 255;
+			unsigned int idx2 = y2 * 256 + x2;
+			unsigned int idx = y * 256 + x;
+			tex[idx].g = tex[idx2].r;
+			tex[idx].a = tex[idx2].b;
+		}
+	}
+	return tex;
+}
+
+void		MeshRenderer::InitNoiseText(void)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+
+	int width = 256, height=256;
+	color *data = genNoiseTex();//stbi_load("textures/noise 512.png", &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		/*GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else*/
+			GLenum format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		//stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "failed to load texture noise" << std::endl;
+		//stbi_image_free(data);
+	}
+	_noiseID = textureID;
 }

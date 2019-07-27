@@ -14,57 +14,37 @@ uniform vec3	uUp;//Dir of the camera
 uniform float	uGlobalTime;
 uniform vec3	uOrigin;
 
-const int MAX_MARCHING_STEPS = 300;
+const int MAX_MARCHING_STEPS = 200;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
 
-//Mandelbulb variables
-const float power = 8.0f;
-const int iter = 8;
-const float bailOut = 2.0f;
+const float minRadius = 0.25f;
+const float minRadius2 = minRadius * minRadius;
+const int iter = 10;
+const float scale = 2.8f;
+const vec4 scalevec = vec4(scale, scale, scale, abs(scale)) / minRadius2;
+const float C1 = abs(scale - 1.0f), C2 = pow(abs(scale), float(1.0f - iter));
 
-vec4 unionSDF(vec4 distA, vec4 distB) {
-	if (distA.x < distB.x)
-		return distA;
-	else
-		return distB;
-}
-
-float sphereSDF(vec3 samplePoint, vec3 o, float r) {
-    return length(samplePoint - o) - r;
-}
-
-vec4   Mandelbulb(vec3 pos) {
-	vec3 z = pos;
-	float dr = 1.0;
-	float r = 0.0;
+vec4   mandelbox( vec3 pos ) {
+	vec4 p = vec4(pos, 1.0f);
+	vec4 p0 = p;
 	int i;
-	for (i = 0; i < iter; ++i) {
-		r = length(z);
-		if (r > bailOut) break;
-		float theta = acos(z.z / r) + uGlobalTime / 2;
-		float phi = atan(z.y, z.x) + uGlobalTime / 2;
-        float rp = pow(r, power - 1.0);
-		dr = rp * power * dr + 1.0;
-		float zr = rp * r;
-        theta = theta * power;
-		phi = phi * power;
-		float sinTheta = sin(theta);
-		z = zr * vec3(sinTheta * cos(phi), sin(phi) * sinTheta, cos(theta));
-		z += pos;
+	float orbitTrap = 1.0f;
+	for (i = 0; i < iter;i++)
+	{
+		p.xyz = clamp(p.xyz, -1.2, 1.2) * 2.0f - p.xyz;
+		float r2 = dot(p.xyz, p.xyz);
+		p *= clamp(max(minRadius2 / r2, minRadius2), 0.0f, 1.0f);
+		p = p * scalevec + p0;
+		orbitTrap = min(orbitTrap, r2);
 	}
-	return vec4(0.25 * log(r) * r / dr, i / 10.0f, 0.4, 0.6);
+	return vec4((length(p.xyz) - C1) / p.w - C2, vec3(.8, .4, .5));
 }
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	p -= uOrigin;
-	return unionSDF(Mandelbulb(p), vec4(sphereSDF(p, vec3(2 * sin(uGlobalTime), 2 * cos(uGlobalTime), 3 * cos(uGlobalTime)), 0.2f), 1.0f, 1.0f, 0.5f));
-}
-
-vec4 ShadowSceneSDF(vec3 p) {
-	return Mandelbulb(p - uOrigin);
+	return mandelbox((p - uOrigin) * 3.0f) / 3.0f;
 }
 
 vec3 CalcNormal(vec3 p) {
@@ -73,22 +53,6 @@ vec3 CalcNormal(vec3 p) {
         SceneSDF(vec3(p.x, p.y + EPSILON, p.z)).x - SceneSDF(vec3(p.x, p.y - EPSILON, p.z)).x,
         SceneSDF(vec3(p.x, p.y, p.z + EPSILON)).x - SceneSDF(vec3(p.x, p.y, p.z - EPSILON)).x
     ));
-}
-
-#define OCCLUSION_ITERS 5
-#define OCCLUSION_STRENGTH 8.0
-#define OCCLUSION_GRANULARITY 1.
-
-float   CalcAO( in vec3 hit, in vec3 normal ) {
-    float k = 1.0;
-    float d = 0.0;
-    float occ = 0.0;
-    for(int i = 0; i < OCCLUSION_ITERS; i++){
-        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
-        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
-        k += 1.0;
-    }
-    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
 }
 
 vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
@@ -107,21 +71,25 @@ vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
 	return vec4(end, dist.yzw);
 }
 
-bool CalcShadow(float start, float end, vec3 ray, vec3 origin)
-{
-	float res = 1.0f;
-	for (float t = start; t < end;)
-	{
-		float h = ShadowSceneSDF(origin + t * ray).x;
-		if (h < EPSILON)
-			return true;
-		t += h;
-	}
-	return false;
-}
 
+#define OCCLUSION_ITERS 10
+#define OCCLUSION_STRENGTH 8.0
+#define OCCLUSION_GRANULARITY 1.
+
+float   CalcAO( in vec3 hit, in vec3 normal ) {
+    float k = 1.0;
+    float d = 0.0;
+    float occ = 0.0;
+    for(int i = 0; i < OCCLUSION_ITERS; i++){
+        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
+        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
+        k += 1.0;
+    }
+    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
+}
 vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity, vec3 N, vec3 L) {
+                          vec3 lightPos, vec3 lightIntensity, vec3 N) {
+	vec3 L = lightPos - p;
     L = normalize(L);
 
     float dotLN = dot(L, N);
@@ -129,25 +97,20 @@ vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
     if (dotLN < EPSILON)
         return vec3(0.0, 0.0, 0.0);
 
-	float ao = CalcAO(p, N);
-    return lightIntensity * k_d * dotLN * ao;
+    return lightIntensity * k_d * dotLN;
 }
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
-    const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
+    const vec3 ambientLight = .2 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
-    vec3 lightPos = vec3(2 * sin(uGlobalTime), 2 * cos(uGlobalTime), 3 * cos(uGlobalTime));
-	lightPos += uOrigin;
+    vec3 lightPos = uCamPos;
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
     vec3 N = CalcNormal(p);
-	vec3 L = lightPos - p;
 
-    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N, L);
+    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N);
 
-	if (CalcShadow(0.0f, length(L), normalize(L), p + N * 0.01))
-		color = max(color - 0.2f, vec3(0.0f, 0.0f, 0.0f));
     return color;
 }
 
@@ -176,8 +139,8 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(dist.y, dist.z, dist.w);
-		vec3 K_a = K_d;
+		vec3 K_d = vec3(dist.y * length(p - uOrigin), dist.z / length(p - uOrigin), dist.w * length(p - uOrigin));
+		vec3 K_a = vec3(.3, .3, .3);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);
 

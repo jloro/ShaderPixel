@@ -29,8 +29,6 @@ Skybox::~Skybox(void)
 {
     if (_shader != nullptr)
         delete _shader;   
-    if (_model != nullptr)
-        delete _model;
 }
 void    Skybox::Draw(void) const
 {

@@ -35,7 +35,7 @@ class Mesh
 		std::vector<Texture>		textures;
 /*  public functions  */
 		Mesh &		operator=(Mesh const & rhs);
-		void		Draw(Shader shader) const;
+		void		Draw(const Shader &shader) const;
 		void		SendToOpenGL(void);
 	private:
 /*  private variables  */

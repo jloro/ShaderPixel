@@ -29,6 +29,7 @@ class Shader
 		void	setBool(const std::string &name, bool value) const;
 		bool	GetIsRayMarching(void);
 		void	SetIsRayMarching(bool value);
+		void	Reload(void);
 
 		void setInt(const std::string &name, int value) const;
 		void setFloat(const std::string &name, float value) const;
@@ -43,9 +44,12 @@ class Shader
 		void setMat4(const std::string &name, const glm::mat4 &mat) const;
 		void SetUpUniforms(const Camera &cam, const SdlWindow &win, float time) const ;
 
-	private:
+	protected:
+		std::vector<const char *> 	_shaderSource;
+		std::vector<GLenum> 	 	_shaderType;
 		void	_checkCompileError(GLuint shader);
 		bool	_isRayMarching;
+		void	_LoadShader(void);
 
 		GLuint				_program;
 };

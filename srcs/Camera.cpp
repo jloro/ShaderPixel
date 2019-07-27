@@ -50,6 +50,8 @@ void 	Camera::Update()
 			Move(eCameraDirection::Down, Engine42::Time::GetDeltaTime());
 		if (keys[SDL_SCANCODE_SPACE])
 			Move(eCameraDirection::Up, Engine42::Time::GetDeltaTime());
+		if (keys[SDL_SCANCODE_R])
+			Engine42::Engine::ReloadShaders();
 
 	//}
 }

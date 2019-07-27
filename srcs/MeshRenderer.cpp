@@ -6,14 +6,17 @@
 #include <time.h>
 #include "glm.hpp"
 #include <gtc/random.hpp>
-MeshRenderer::MeshRenderer(Model &model, Shader &shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
+# include "Engine.hpp"
+
+
+MeshRenderer::MeshRenderer(Model &model, Shader *shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
     UpdateMatrix();
 	if (useNoise)
 		InitNoiseText();
 }
-MeshRenderer::MeshRenderer(Model &model, Shader &shader, const Transform &trans, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
+MeshRenderer::MeshRenderer(Model &model, Shader *shader, const Transform &trans, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = trans;
     UpdateMatrix();
@@ -22,20 +25,25 @@ MeshRenderer::MeshRenderer(Model &model, Shader &shader, const Transform &trans,
 }
 void        MeshRenderer::Draw(void) const
 {
-    _shader.use();
-    _shader.setMat4("view", Camera::instance->GetMatView());
-    _shader.setMat4("projection", Camera::instance->GetMatProj());
-    _shader.setMat4("model", _modelMatrix);
-	_shader.setVec3("uOrigin", transform.position);
+	if (_shader == nullptr)
+	{
+		std::cout << "MeshRenderer : Cannot Draw with whitout shader" << std::endl;
+		return;
+	}
+    _shader->use();
+    _shader->setMat4("view", Camera::instance->GetMatView());
+    _shader->setMat4("projection", Camera::instance->GetMatProj());
+    _shader->setMat4("model", _modelMatrix);
+	_shader->setVec3("uOrigin", transform.position);
 	if (_noise)
 	{
 		glActiveTexture(GL_TEXTURE10);
-		_shader.setInt("uNoise", 10);
+		_shader->setInt("uNoise", 10);
 		glBindTexture(GL_TEXTURE_2D, _noiseID);
 	}
-    if (_shader.GetIsRayMarching())
-        _shader.SetUpUniforms(*Camera::instance, *SdlWindow::GetMain(), ((float)SDL_GetTicks()) / 1000.f);
-    _model.Draw(_shader);
+    if (_shader->GetIsRayMarching())
+        _shader->SetUpUniforms(*Camera::instance, *SdlWindow::GetMain(), ((float)SDL_GetTicks()) / 1000.f);
+	_model.Draw(*_shader);
 }
 
 glm::mat4       MeshRenderer::GetModelMatrix(void) const {return _modelMatrix;}
@@ -134,4 +142,17 @@ void		MeshRenderer::InitNoiseText(void)
 		//stbi_image_free(data);
 	}
 	_noiseID = textureID;
+}
+void MeshRenderer::Destroy(void)
+{
+	Engine42::Engine::Destroy(this);
+}
+void MeshRenderer::SetShader(Shader *shader)
+{
+	_shader = shader;
+}
+
+Shader *MeshRenderer::GetShader(void) const
+{
+	return _shader;
 }

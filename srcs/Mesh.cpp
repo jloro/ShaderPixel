@@ -69,7 +69,7 @@ void	Mesh::SendToOpenGL()
 	std::cout << "send to opengl" << std::endl;
 }
 
-void	Mesh::Draw(Shader shader) const
+void	Mesh::Draw(const Shader &shader) const
 {
 	unsigned int	diffuseNb = 0;
 	unsigned int	specularNb = 0;

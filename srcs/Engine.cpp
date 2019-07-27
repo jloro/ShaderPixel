@@ -1,5 +1,9 @@
 #include "Engine.hpp"
 #include <iostream>
+#include <algorithm>
+# include <vector>
+
+
 Engine42::Engine          Engine42::Engine::_inst = Engine();
 Engine42::Engine::Engine(void){
     _skybox = nullptr;
@@ -72,6 +76,24 @@ void            Engine42::Engine::Loop(void)
     }
 }
 
+bool      Engine42::Engine::Destroy(MeshRenderer *meshRenderer)
+{
+    if (meshRenderer == nullptr)
+        return false;
+    Shader *shader = meshRenderer->GetShader();
+    _inst._meshRenderers.remove(meshRenderer);
+    if (shader != nullptr)
+    {
+        auto it = std::find_if(_inst._meshRenderers.begin(), _inst._meshRenderers.end(),[shader] (MeshRenderer *x) -> bool {return x->GetShader() == shader;});
+        if (it == _inst._meshRenderers.end())
+        {
+            delete shader;
+            std::cout << "delete" << std::endl;
+        }
+    }
+    delete meshRenderer;
+    return true;
+}
 bool						_sort(const MeshRenderer* first, const MeshRenderer* sec)
 {
 	float d1 = glm::distance(first->transform.position, Camera::instance->_pos);
@@ -104,7 +126,15 @@ void                          Engine42::Engine::_UpdateAll(void)
         (*it)->Update();
     }
 }
-void                           Engine42::Engine::_FixedUpdateAll(void) 
+void                       Engine42::Engine::ReloadShaders(void)
+{
+    std::for_each(_inst._meshRenderers.begin(), _inst._meshRenderers.end(), [] (MeshRenderer *x) -> void { 
+        Shader *shader = x->GetShader(); 
+        if (shader)
+            shader->Reload();
+        });
+}
+void                       Engine42::Engine::_FixedUpdateAll(void) 
 {
     std::list<IGameObject*>::iterator  it;
 

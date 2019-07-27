@@ -3,11 +3,12 @@
 
 # include <iostream>
 # include <list>
-# include "MeshRenderer.hpp"
+
 # include "IGameObject.hpp"
 # include "SdlWindow.hpp"
 # include "Time.hpp"
 # include "Skybox.hpp"
+# include "MeshRenderer.hpp"
 
 namespace Engine42
 {
@@ -29,12 +30,15 @@ namespace Engine42
         static void            Loop(void);
         static const SDL_Event &GetEvent();
         static const Uint8     *GetKeyInput();
+        static bool             Destroy(MeshRenderer *meshRenderer);
+        static void             ReloadShaders(void);
     private:
     /*  private constructor*/
         Engine(void); 
     /*	private variables	*/
         static Engine                       _inst;
-        std::list<MeshRenderer*>            _meshRenderers;
+        std::list<MeshRenderer *>            _meshRenderers;
+        std::list<Shader*>                  _shaders;
         std::list<Engine42::IGameObject*>   _gameObjs;
         SDL_Event                           _event;
         const Uint8                         *_keys;

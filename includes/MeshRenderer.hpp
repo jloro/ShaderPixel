@@ -11,8 +11,8 @@ class MeshRenderer
 {
 public: 
 /*	constructors / destrucors	*/
-    MeshRenderer(Model &model, Shader &shader, bool useNoise = false); 
-    MeshRenderer(Model &model, Shader &shader, const Transform &transform, bool useNoise = false); 
+    MeshRenderer(Model &model, Shader *shader, bool useNoise = false); 
+    MeshRenderer(Model &model, Shader *shader, const Transform &transform, bool useNoise = false); 
     MeshRenderer(const MeshRenderer & src); 
     virtual ~MeshRenderer(void); 
 
@@ -22,11 +22,14 @@ public:
     glm::mat4           GetModelMatrix(void) const;
     void                SetModelMatrix(glm::mat4 matrix);
     void                UpdateMatrix(void);
+    Shader              *GetShader(void) const;
+    void                Destroy(void);
+    void                SetShader(Shader *shader);
 	MeshRenderer &		operator=(const MeshRenderer & rhs);
     virtual void        Draw() const;
 protected:
     Model               &_model;
-    Shader              &_shader;
+    Shader              *_shader;
     glm::mat4           _modelMatrix;
 private:
 /*	private variables	*/

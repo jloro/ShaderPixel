@@ -65,10 +65,15 @@ float sdBox( vec3 p, vec3 b )
 
 float SceneSDF(vec3 p) {
 	p -= uOrigin;
-	float d = sphereSDF(p, vec3(0, 0, 0), 2.0f);
+	float d = sphereSDF(p, vec3(0, 0, 0), 1.0f);
 	return d;
 }
 
+float SceneSDFf(vec3 p) {
+	p -= uOrigin;
+	float d = sphereSDF(p, vec3(0, 0, 0), 0.5f);
+	return d;
+}
 vec3 CalcNormal(vec3 p) {
     return normalize(vec3(
         SceneSDF(vec3(p.x + EPSILON, p.y, p.z)) - SceneSDF(vec3(p.x - EPSILON, p.y, p.z)),
@@ -78,7 +83,7 @@ vec3 CalcNormal(vec3 p) {
 }
 
 float layeredNoise(in vec3 x) {
-    //x += vec3(10.0, 5.0, 6.0);
+	//x += vec3(10.0 + cos(uGlobalTime * .1) * 5.0, 5.0* sin(uGlobalTime * .01), 6.0* -cos(uGlobalTime * .01));
     return 0.6*noise(x*5.0) + 0.4*noise(x*10.0) + 0.2*noise(x*16.0) - 0.2;
 }
 
@@ -102,11 +107,11 @@ float	RayMarchToLight(vec3 ray, vec3 origin)
 	for (int i = 0; i < 50;i++)
 	{
 		pos = origin + ray * t;
-		d = SceneSDF(pos);
+		d = SceneSDFf(pos);
 
 		if (d < EPSILON)
 		{
-			density += sampleVolume(pos, VOLUME_DENSITY) * min(-d, VOLUME_STEP_LIGHT);
+			density += sampleVolume(pos, .03);
 			t += VOLUME_STEP_LIGHT;
 		}
 		else
@@ -120,6 +125,7 @@ float	RayMarchToLight(vec3 ray, vec3 origin)
 float	RayMarche(vec3 ray, vec3 origin)//vec2(distAccum, 1st p)
 {
 	vec3 lightPos = vec3(2*cos(uGlobalTime), 3.0, 2*sin(uGlobalTime));
+	//vec3 lightPos = vec3(2, 3.0, 2);
 	vec4 sum = vec4(0.0f), col;
 	float t = 0.0f, d;
 	vec3 pos;
@@ -167,6 +173,7 @@ void main()
 
 	float dist = RayMarche(ray, uCamPos);
 
+//	FragColor = vec4(1.0f) * dist;
 	FragColor = vec4(vec3(1.0f) * dist, 1.0f);
 	return;
     /*if (dist.x == 0.0f)

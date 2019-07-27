@@ -79,10 +79,9 @@ float sphereSDF(vec3 samplePoint, vec3 o, float r) {
     return length(samplePoint - o) - r;
 }
 
-float sdPlane(vec3 p, vec4 n)
+float sdPlane(vec3 p, float h)
 {
-  // n must be normalized
-  return dot(p,n.xyz) + n.w;
+	return p.y + h;
 }
 
 float sdCappedCone( in vec3 p, in float h, in float r1, in float r2 )
@@ -110,7 +109,7 @@ vec4 Tree(vec3 p, vec3 origin, float rTrunk, float hTrunk, vec3 colorTrunk, floa
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
 	vec4 tree = Tree(mod(p, vec3(4, 0, 4)) - 0.5*vec3(4, 0, 4), vec3(0.0f, 0.0f, 0.0f), 0.5f, 3.0f, vec3(0.23f, 0.13f, 0.01f), 1.0f, 1.0f, vec3(0.27, 0.70f, 0.27f));
-	vec4 plane = vec4(sdPlane(p, vec4(0, 1, 0, 1)) , 0.5, 0.50f, 0.57f);
+	vec4 plane = vec4(sdPlane(p, 4) , 0.5, 0.50f, 0.57f);
 	return unionSDF(plane, tree);
 }
 

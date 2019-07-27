@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/07/04 17:52:02 by jules            ###   ########.fr        #
+#    Updated: 2019/07/27 19:18:13 by jloro            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,10 +24,11 @@ ORANGE = [038;2;239;138;5
 SRCS_DIR = srcs
 
 SRCS =  Time.cpp SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp \
-		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp
+		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp PrintGlm.cpp \
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp Time.hpp \
-		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp terrain.hpp
+		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp terrain.hpp \
+		PrintGlm.hpp 
 
 ## Objects ##
 OBJS = $(SRCS:.cpp=.o)

@@ -109,7 +109,6 @@ vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
 
 bool CalcShadow(float start, float end, vec3 ray, vec3 origin)
 {
-	float res = 1.0f;
 	for (float t = start; t < end;)
 	{
 		float h = ShadowSceneSDF(origin + t * ray).x;

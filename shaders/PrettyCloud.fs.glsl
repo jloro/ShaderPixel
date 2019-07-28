@@ -19,7 +19,6 @@ const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
 
-float hash( float n ) { return fract(sin(n)*753.5453123); }
 float noise( in vec3 x )
 {
 	vec3 p = floor(x);
@@ -42,17 +41,6 @@ float cloudNoise(float scale,in vec3 p, in vec3 dir)
 	return f;
 }
 
-vec4 unionSDF(vec4 distA, vec4 distB) {
-	if (distA.x < distB.x)
-		return distA;
-	else
-		return distB;
-}
-
-float sphereSDF(vec3 samplePoint, vec3 o, float r) {
-	return length(samplePoint - o) - r;
-}
-
 float sdBox( vec3 p, vec3 b )
 {
 	vec3 d = abs(p) - b;
@@ -63,7 +51,6 @@ float sdBox( vec3 p, vec3 b )
 float SceneSDF(vec3 p) {
 	p -= uOrigin;
 	float noise = cloudNoise(1.0, p, vec3(0.0f, 0.25f, 0.125f) * uGlobalTime); 
-	//float d = -sphereSDF(p, vec3(0, 0, 0), 1.0f);
 	float d = -sdBox(p, vec3(0.5, 0.5, 0.5));
 	return clamp(d + 2.0f * noise, 0.0f, 1.0f);
 }

@@ -29,14 +29,12 @@ vec4   mandelbox( vec3 pos ) {
 	vec4 p = vec4(pos, 1.0f);
 	vec4 p0 = p;
 	int i;
-	float orbitTrap = 1.0f;
 	for (i = 0; i < iter;i++)
 	{
 		p.xyz = clamp(p.xyz, -1.2, 1.2) * 2.0f - p.xyz;
 		float r2 = dot(p.xyz, p.xyz);
 		p *= clamp(max(minRadius2 / r2, minRadius2), 0.0f, 1.0f);
 		p = p * scalevec + p0;
-		orbitTrap = min(orbitTrap, r2);
 	}
 	return vec4((length(p.xyz) - C1) / p.w - C2, vec3(.8, .4, .5));
 }

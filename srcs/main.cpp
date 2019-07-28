@@ -69,6 +69,7 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, 0.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, 0.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, -10.0f))));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, -10.0f))));
 	Terrain terrain(10, 10, "textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
@@ -85,8 +86,11 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 8.0f;
 	raymarche_cube(cube, trans, shadersPath2);
-	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
+	shadersPath2[1] = "shaders/PrettyCloud.fs.glsl";
 	trans.position = glm::vec3(0.0f, 0.0f, -10.0f);
+	raymarche_cube(cube, trans, shadersPath2, true);
+	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
+	trans.position = glm::vec3(8.0f, 0.0f, -10.0f);
 	raymarche_cube(cube, trans, shadersPath2, true);
 	Skybox *sky = CreateSkyBox();
 	Engine42::Engine::SetSkybox(sky);

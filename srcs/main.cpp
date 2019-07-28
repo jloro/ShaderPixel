@@ -63,20 +63,20 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
 	std::string path= "Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	//Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 	MeshRenderer *render;
 	Model *cube;
 	Transform transform;
 	transform.scale = glm::vec3(1.0f, 1.0f, 1.0f);
 	transform.rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	transform.position = glm::vec3(0.0f, -8.0f, 0.0f);
-	meshRenderer.push_back(new MeshRenderer(pillar, myShader, transform));
+	//meshRenderer.push_back(new MeshRenderer(pillar, myShader, transform));
 	//Engine42::Engine::AddMeshRenderer(meshRenderer.back());
 	Transform trans = {glm::vec3(0.0f, 0.0f, 0.0f),//position
 		glm::vec3(0.0f, 0.0f, 0.0f),//rotation
-		glm::vec3(0.5f, 0.5f, 0.5f)};//scale
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/ALED.fs.glsl"};
-	shaders.push_back(raymarche_cube(&render, &cube, trans, "sphere.obj", shadersPath2));
+		glm::vec3(6.f, 6.f, 6.f)};//scale
+	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/CloudLight.fs.glsl"};
+	shaders.push_back(raymarche_cube(&render, &cube, trans, "cube.obj", shadersPath2));
 	Engine42::Engine::Loop();
 	freeList<Shader*>(shaders.begin(), shaders.end());
 	freeList<MeshRenderer*>(meshRenderer.begin(), meshRenderer.end());
@@ -100,6 +100,8 @@ int				main(int ac, char **av)
 	win.CreateGlContext(4, 1, true, 24);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);  
+	glCullFace(GL_FRONT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);
 	InitModels(win);

@@ -1,9 +1,8 @@
 #version 330 core
 out vec4 FragColor;
 
-in mat4 viewMat;
-in mat4 mvp;
-in mat4 proj;
+in mat4 invertViewMat;
+in mat4 invertProjMat;
 
 uniform vec2	uResolution;//Resolution of screen
 uniform float	uFov;//Fov in radians
@@ -175,8 +174,8 @@ vec3 CalcRayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
 	vec4 viewport = vec4(0, 0, size.x, size.y);
 	vec2 ndc = ((2.0 * gl_FragCoord.xy) - (2.0 * viewport.xy)) / (viewport.zw) - 1;
 	vec3 ndc3 = vec3(ndc, -1);
-	vec3 ray = (inverse(proj) * vec4(ndc3, 1.0f)).xyz;
-	ray = normalize((inverse(viewMat) * vec4(ray, 0.0f)).xyz);
+	vec3 ray = (invertProjMat * vec4(ndc3, 1.0f)).xyz;
+	ray = normalize((invertViewMat * vec4(ray, 0.0f)).xyz);
 	return ray;
 }
 

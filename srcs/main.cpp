@@ -12,18 +12,14 @@
 #include "Engine.hpp"
 #include "Terrain.hpp"
 #include "Skybox.hpp"
+#include "PrintGlm.hpp"
 
-std::ostream &operator<<(std::ostream &o, glm::vec3 & vec)
-{
-	o << "x: " << vec.x << ", y: " << vec.y << ", z: " << vec.z;
-	return o;
-}
-void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath)
+void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath, bool useNoise = false)
 {
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(model, myShader, trans));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(model, myShader, trans, useNoise));
 }
 Skybox *CreateSkyBox()
 {
@@ -41,8 +37,20 @@ Skybox *CreateSkyBox()
 	return skybox;
 }
 
+	template<typename T>
+void	freeList(typename std::vector<T>::iterator beg, typename std::vector<T>::iterator end)
+{
+	for (;beg != end;beg++)
+	{
+		delete *beg;
+	}
+}
+
 bool InitModels(SdlWindow &win)
 {
+	std::vector<Shader*>		shaders;
+	std::vector<Model*>			models;
+	std::vector<MeshRenderer*>	meshRenderer;
 	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
@@ -60,6 +68,7 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, 6.3f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, 0.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, 0.0f))));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, -10.0f))));
 	Terrain terrain(10, 10, "textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
@@ -76,6 +85,9 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 8.0f;
 	raymarche_cube(cube, trans, shadersPath2);
+	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
+	trans.position = glm::vec3(0.0f, 0.0f, -10.0f);
+	raymarche_cube(cube, trans, shadersPath2, true);
 	Skybox *sky = CreateSkyBox();
 	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();
@@ -97,6 +109,7 @@ int				main(int ac, char **av)
 	win.CreateGlContext(4, 1, true, 24);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	glEnable(GL_CULL_FACE);  
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);
 	InitModels(win);

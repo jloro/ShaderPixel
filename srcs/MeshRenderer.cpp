@@ -6,7 +6,7 @@
 #include <time.h>
 #include "glm.hpp"
 #include <gtc/random.hpp>
-# include "Engine.hpp"
+#include "Engine.hpp"
 
 
 MeshRenderer::MeshRenderer(Model &model, Shader *shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
@@ -42,7 +42,12 @@ void        MeshRenderer::Draw(void) const
 		glBindTexture(GL_TEXTURE_2D, _noiseID);
 	}
     if (_shader->GetIsRayMarching())
+	{
         _shader->SetUpUniforms(*Camera::instance, *SdlWindow::GetMain(), ((float)SDL_GetTicks()) / 1000.f);
+		glCullFace(GL_FRONT);
+	}
+	else
+		glCullFace(GL_BACK);
 	_model.Draw(*_shader);
 }
 

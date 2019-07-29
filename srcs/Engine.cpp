@@ -65,10 +65,13 @@ void            Engine42::Engine::Loop(void)
     float       lastTime = delta;
     const float fixedTimeUpdate = 0.02f;
     float       fixedDelta = 0.02f;
+	float		LastTime = 0.0f;
+	int nbFrame = 0;
 
     while (!quit)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
+		nbFrame++;
         Time::SetDeltaTime(delta);
         _inst._event.type = SDL_USEREVENT;
         while (SDL_PollEvent(&_inst._event) != 0)
@@ -90,6 +93,13 @@ void            Engine42::Engine::Loop(void)
             Time::SetFixedDeltaTime(fixedDelta);
             _inst._FixedUpdateAll();
 			fixedDelta = 0.0f;
+		}
+		if ((((float)SDL_GetTicks()) / 1000) - LastTime >= 1.0f)
+		{
+			std::cout << "\r                     ";//clean line
+			std::cout << "\rFPS: "<< nbFrame << std::flush;
+			nbFrame = 0;
+			LastTime += 1.0f;
 		}
         _inst._RenderAll();
     }

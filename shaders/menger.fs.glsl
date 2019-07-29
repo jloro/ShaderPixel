@@ -44,7 +44,7 @@ float crossSDF(vec3 p, vec2 size)
 
 float menger(vec3 p)
 {
-	float speed = cos(uGlobalTime * .1) + 1.0f;
+	float speed = 2.0f;//cos(uGlobalTime * .1) + 1.0f;
 	float d = cubeSDF(p, vec3(speed, speed, speed));
 	float s = 1.0;
 	vec3 r;

@@ -13,7 +13,7 @@ uniform vec3	uUp;//Dir of the camera
 uniform float	uGlobalTime;
 uniform vec3	uOrigin;
 
-const int MAX_MARCHING_STEPS = 200;
+const int MAX_MARCHING_STEPS = 400;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
@@ -21,9 +21,10 @@ const float EPSILON = 0.001f;
 const float minRadius = 0.25f;
 const float minRadius2 = minRadius * minRadius;
 const int iter = 10;
-const float scale = 2.8f;
+const float scale = 2.5f;
 const vec4 scalevec = vec4(scale, scale, scale, abs(scale)) / minRadius2;
 const float C1 = abs(scale - 1.0f), C2 = pow(abs(scale), float(1.0f - iter));
+const float foldingLimit = 1.2f;
 
 vec4   mandelbox( vec3 pos ) {
 	vec4 p = vec4(pos, 1.0f);
@@ -31,7 +32,7 @@ vec4   mandelbox( vec3 pos ) {
 	int i;
 	for (i = 0; i < iter;i++)
 	{
-		p.xyz = clamp(p.xyz, -1.2, 1.2) * 2.0f - p.xyz;
+		p.xyz = clamp(p.xyz, -foldingLimit, foldingLimit) * 2.0f - p.xyz;
 		float r2 = dot(p.xyz, p.xyz);
 		p *= clamp(max(minRadius2 / r2, minRadius2), 0.0f, 1.0f);
 		p = p * scalevec + p0;
@@ -69,21 +70,6 @@ vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
 }
 
 
-#define OCCLUSION_ITERS 10
-#define OCCLUSION_STRENGTH 8.0
-#define OCCLUSION_GRANULARITY 1.
-
-float   CalcAO( in vec3 hit, in vec3 normal ) {
-    float k = 1.0;
-    float d = 0.0;
-    float occ = 0.0;
-    for(int i = 0; i < OCCLUSION_ITERS; i++){
-        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
-        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
-        k += 1.0;
-    }
-    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
-}
 vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
                           vec3 lightPos, vec3 lightIntensity, vec3 N) {
 	vec3 L = lightPos - p;
@@ -104,8 +90,7 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
     vec3 lightPos = uCamPos;
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
-    vec3 N = CalcNormal(p);
-
+	vec3 N = CalcNormal(p);
     color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N);
 
     return color;

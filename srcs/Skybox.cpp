@@ -32,6 +32,7 @@ Skybox::~Skybox(void)
 }
 void    Skybox::Draw(void) const
 {
+	glCullFace(GL_FRONT);
     glDepthFunc(GL_LEQUAL); 
     glDepthMask(GL_FALSE);
     _shader->use();

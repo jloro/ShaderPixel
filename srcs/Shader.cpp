@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 14:24:02 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/18 16:22:46 by jloro            ###   ########.fr       */
+/*   Updated: 2019/07/29 12:08:30 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,11 +83,11 @@ void 	Shader::SetUpUniforms(const Camera &cam, const SdlWindow &win, float time)
 {
 	setMat4("view", cam.GetMatView());
 	setMat4("projection", cam.GetMatProj());
-	setVec3("uCamPos", cam._pos);
-	setVec3("uDir", cam._dir);
-	setVec3("uUp", cam._up);
+	setVec3("uCamPos", cam.GetPos());
+	setVec3("uDir", cam.GetDir());
+	setVec3("uUp", cam.GetUp());
 	setVec2("uResolution", glm::vec2(win.GetWidth(), win.GetHeight()));
-	setVec2("uRotation", glm::vec2(cam._pitch, cam._yaw));
+	setVec2("uRotation", glm::vec2(cam.GetXRotation(), cam.GetYRotation()));
 	setFloat("uFov", glm::radians(45.0f));
 	setFloat("uGlobalTime", time);
 }

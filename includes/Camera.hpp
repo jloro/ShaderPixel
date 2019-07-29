@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 16:47:43 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/27 16:29:44 by jules            ###   ########.fr       */
+/*   Updated: 2019/07/29 12:10:15 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,23 +36,32 @@ class Camera : public Engine42::IGameObject
 		virtual void 	Update(void);
 		virtual void 	FixedUpdate(void);
 		void			ResizeWindow(float newWidth, float newHeight);
+
 		glm::mat4		GetViewMatrix(void) const;
+		glm::vec3		GetPos(void) const;
+		glm::vec3		GetUp(void) const;
+		glm::vec3		GetDir(void) const;
+		float			GetMoveSpeed(void) const;
+		float			GetXRotation(void) const;
+		float			GetYRotation(void) const;
+
 
 		static Camera	*instance;
+	private:
+		void	_CalcMatrix();
+
 		glm::vec3	_pos;
 		glm::vec3	_up;
 		glm::vec3	_dir;
+		glm::vec3	_right;
 		float		_moveSpeed;
 		float		_mouseSensitivity;
 		float		_pitch;
 		float		_yaw;
-	private:
-		void	_CalcMatrix();
-
-		glm::vec3	_right;
 
 		glm::mat4	_view;
 		glm::mat4	_projection;
+		bool		_sprint;
 
 
 

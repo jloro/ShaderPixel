@@ -114,8 +114,8 @@ bool      Engine42::Engine::Destroy(MeshRenderer *meshRenderer)
 }
 bool		_sort(const MeshRenderer* first, const MeshRenderer* sec)
 {
-	float d1 = glm::distance(first->transform.position, Camera::instance->_pos);
-	float d2 = glm::distance(sec->transform.position, Camera::instance->_pos);
+	float d1 = glm::distance(first->transform.position, Camera::instance->GetPos());
+	float d2 = glm::distance(sec->transform.position, Camera::instance->GetPos());
 	return d2 < d1;
 }
 

@@ -11,7 +11,7 @@ const std::vector<GLenum> &shaderType)
     _cubeMap = _LoadCubeMap(texFilenames);
     texture.id = _cubeMap;
     texture.type =  eTextureType::Cubemap;
-    _LoadModel("cube.obj");
+    _LoadModel("ressources/obj/cube.obj");
     if (_meshes.size() == 0)
     {
         throw std::runtime_error("Skybox runmesh error");

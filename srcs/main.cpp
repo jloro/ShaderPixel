@@ -24,12 +24,12 @@ void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char
 Skybox *CreateSkyBox()
 {
 	std::vector<std::string>	texturesPath{
-	"textures/craterlake_ft.tga",
-	"textures/craterlake_bk.tga",
-	"textures/craterlake_up.tga",
-	"textures/craterlake_dn.tga",
-	"textures/craterlake_rt.tga",
-	"textures/craterlake_lf.tga", 
+	"ressources/textures/craterlake_ft.tga",
+	"ressources/textures/craterlake_bk.tga",
+	"ressources/textures/craterlake_up.tga",
+	"ressources/textures/craterlake_dn.tga",
+	"ressources/textures/craterlake_rt.tga",
+	"ressources/textures/craterlake_lf.tga", 
 	};
 	std::vector<const char *>	shadersPath{"shaders/skybox.vs.glsl", "shaders/skybox.fs.glsl"};
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
@@ -59,18 +59,18 @@ bool InitModels(SdlWindow &win)
 
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
-	std::string path= "Pillar/LP_Pillar_Textured.obj";
+	std::string path= "ressources/obj/Pillar/LP_Pillar_Textured.obj";
 	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-	Model cube = Model("cube.obj");
+	Model cube = Model("ressources/obj/cube.obj");
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, 0.0f))));
-	path = "frame/10305_picture_frame_V2_max2011_it2.obj";
+	path = "ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj";
 	Model	frame(path.c_str());													//position						rotation					scale		
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, 6.3f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, 0.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, 0.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, -10.0f))));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, -10.0f))));
-	Terrain terrain(10, 10, "textures/grass.png", 1, 1);
+	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);

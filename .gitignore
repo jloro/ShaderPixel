@@ -37,6 +37,5 @@ assimp-4.1.0/
 *.exe
 *.out
 *.app
-test
 
 .DS_Store

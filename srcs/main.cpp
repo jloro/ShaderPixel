@@ -48,10 +48,7 @@ void	freeList(typename std::vector<T>::iterator beg, typename std::vector<T>::it
 
 bool InitModels(SdlWindow &win)
 {
-	std::vector<Shader*>		shaders;
-	std::vector<Model*>			models;
-	std::vector<MeshRenderer*>	meshRenderer;
-	std::vector<const char *>	shadersPath{"shaders/vertex.glsl", "shaders/base_fragment.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/Vertex.vs.glsl", "shaders/Assimp.fs.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
 	Shader	*myShader = new Shader(shadersPath, type);
@@ -74,7 +71,7 @@ bool InitModels(SdlWindow &win)
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);
-	std::vector<const char *>	shadersPath2{"shaders/vertex.glsl", "shaders/window.fs.glsl"};
+	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/window.fs.glsl"};
 	raymarche_cube(cube, Transform(glm::vec3(0.0f, 8.1f, 0.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
 	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
 						glm::vec3(4.0f, 4.0f, 4.0f));//scale

@@ -10,6 +10,7 @@ uniform vec3	uCamPos;//Position of camera in world
 uniform vec2	uRotation;//Rotation of the camera
 uniform vec3	uDir;//Dir of the camera
 uniform vec3	uUp;//Dir of the camera
+uniform vec3	uOrigin;//Dir of the camera
 uniform float	uGlobalTime;
 
 const int MAX_MARCHING_STEPS = 300;
@@ -19,22 +20,12 @@ const float EPSILON = 0.001f;
 
 # define M_PI 3.1415926535897932384626433832795
 
+
 vec4 unionSDF(vec4 distA, vec4 distB) {
 	if (distA.x < distB.x)
 		return distA;
 	else
 		return distB;
-}
-
-mat3 rotateY(float theta) {
-    float c = cos(theta);
-    float s = sin(theta);
-
-    return mat3(
-        vec3(c, 0, s),
-        vec3(0, 1, 0),
-        vec3(-s, 0, c)
-    );
 }
 
 mat3 rotateX(float theta) {
@@ -46,24 +37,6 @@ mat3 rotateX(float theta) {
         vec3(0, c, -s),
         vec3(0, s, c)
     );
-}
-
-mat3 rotateZ(float theta) {
-    float c = cos(theta);
-    float s = sin(theta);
-
-    return mat3(
-        vec3(c, -s, 0),
-        vec3(s, c, 0),
-        vec3(0, 0, 1)
-    );
-}
-
-float cubeSDF(vec3 p, vec3 size) {
-    vec3 d = abs(p) - size;
-    float insideDistance = min(max(d.x, max(d.y, d.z)), 0.0);
-    float outsideDistance = length(max(d, 0.0));
-    return insideDistance + outsideDistance;
 }
 
 float cappedCylinderSDF(vec3 p, float h, float r) {
@@ -78,11 +51,10 @@ float sphereSDF(vec3 samplePoint, vec3 o, float r) {
     return length(samplePoint - o) - r;
 }
 
-float sdPlane(vec3 p, float h)
+float sdPlane(vec3 p, vec4 n)
 {
-	return p.y + h;
+    return dot(p, n.xyz) + n.w;
 }
-
 float sdCappedCone( in vec3 p, in float h, in float r1, in float r2 )
 {
     vec2 q = vec2( length(p.xz), p.y );
@@ -107,8 +79,9 @@ vec4 Tree(vec3 p, vec3 origin, float rTrunk, float hTrunk, vec3 colorTrunk, floa
 
 //return vec4(dist, vec3(color))
 vec4 SceneSDF(vec3 p) {
-	vec4 tree = Tree(mod(p, vec3(4, 0, 4)) - 0.5*vec3(4, 0, 4), vec3(0.0f, 0.0f, 0.0f), 0.5f, 3.0f, vec3(0.23f, 0.13f, 0.01f), 1.0f, 1.0f, vec3(0.27, 0.70f, 0.27f));
-	vec4 plane = vec4(sdPlane(p, 4) , 0.5, 0.50f, 0.57f);
+	p -= uOrigin;
+	vec4 tree = Tree(mod(p, vec3(4, 0, 4)) - 0.5*vec3(4, 0, 4), vec3(0.0f, -4.0f, 0.0f), 0.5f, 3.0f, vec3(0.23f, 0.13f, 0.01f), 1.0f, 1.0f, vec3(0.27, 0.70f, 0.27f));
+	vec4 plane = vec4(sdPlane(p, vec4(0.0f, 1.0f, 0.0f, 4.0f)) , 0.5, 0.50f, 0.57f);
 	return unionSDF(plane, tree);
 }
 
@@ -145,8 +118,7 @@ vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
     if (dotLN < EPSILON)
         return vec3(0.0, 0.0, 0.0);
 
-	//float ao = CalcAO(p, N);
-    return lightIntensity * k_d * dotLN;// * ao;
+    return lightIntensity * k_d * dotLN;
 }
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
@@ -161,8 +133,6 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
 
     color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N, L);
 
-	//if (CalcShadow(0.0f, length(L), normalize(L), p + N * 0.01))
-	//	color = max(color - 0.2f, vec3(0.0f, 0.0f, 0.0f));
     return color;
 }
 
@@ -183,7 +153,7 @@ void main()
 {
 	vec3 ray = CalcRayDirection(uFov, uResolution, gl_FragCoord.xy);
 
-	vec4 dist = RayMarche(MIN_DIST, MAX_DIST, ray, uCamPos);
+	vec4 dist = RayMarche(length(uCamPos - uOrigin), MAX_DIST, ray, uCamPos);
 
     if (dist.x > MAX_DIST - EPSILON)
         FragColor = vec4(0.0, 1.0, 1.0, 1.0);

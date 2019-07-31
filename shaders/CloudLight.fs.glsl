@@ -119,14 +119,11 @@ float RayMarchToLight(vec3 ray, vec3 origin, float end)
 
 		if (d < EPSILON)
 		{
-			return 1.0f;
 			density += sampleVolume(pos, 5) * min(-d, VOLUME_STEP_LIGHT);
 			t += VOLUME_STEP_LIGHT;
 		}
 		else
-		{
 			t += d;
-		}
 
 		if (density >= 1.0) return 1.0;
 	}

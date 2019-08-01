@@ -199,8 +199,7 @@ void main()
         nor = reflect(ray, nor);
         float fre = pow(.3+ clamp(dot(nor,ray),0.0,1.0), 3. )*0.6;
         color += texture(skybox, nor).rgb * fre;
-		//FragColor = vec4(color, t.w == res.y - res.x ? opacity : 1.0f);
-		FragColor = vec4(color, false ? opacity : 1.0f);
+		FragColor = vec4(color, 1.0f);
 	}
 	else
 		FragColor = vec4(0.0);

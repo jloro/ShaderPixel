@@ -47,11 +47,14 @@ float sdBox( vec3 p, vec3 b )
 	return min(max(d.x,max(d.y,d.z)),0.0) + length(max(d,0.0));
 }
 
+float sphereSDF(vec3 samplePoint, vec3 o, float r) {
+	return length(samplePoint - o) - r;
+}
 
 float SceneSDF(vec3 p) {
 	p -= uOrigin;
 	float noise = cloudNoise(1.0, p, vec3(0.0f, 0.25f, 0.125f) * uGlobalTime); 
-	float d = -sdBox(p, vec3(0.5, 0.5, 0.5));
+	float d = -sphereSDF(p, vec3(0), 0.5f);
 	return clamp(d + 2.0f * noise, 0.0f, 1.0f);
 }
 
@@ -91,13 +94,29 @@ vec3 CalcRayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
 	return ray;
 }
 
+vec2 sphereIntersect(in vec3 origin, in vec3 ray, in vec3 o, float r)
+{
+    vec3 oc = origin - o;
+    float b = dot( oc, ray );
+    float c = dot( oc, oc ) - r*r;
+    float h = b*b - c;
+    if( h<0.0 ) return vec2(-1.0);
+    h = sqrt( h );
+    return vec2( -b-h, -b+h );
+}
+
 void main()
 {
 	vec3 ray = CalcRayDirection(uFov, uResolution, gl_FragCoord.xy);
 
-	vec4 dist = RayMarche(ray, uCamPos);
+	vec2 rayHit = sphereIntersect(uCamPos, ray, vec3(0) + uOrigin, 2.0f);
+	vec4 col;
+	if (rayHit.x >= 0 || rayHit.y >= 0)
+		col = RayMarche(ray, rayHit.x > 0 ? uCamPos + ray * rayHit.x : uCamPos);
+	else
+		col = vec4(0.0f);
 
-	FragColor = dist;
+	FragColor = col;
 	return;
 }
 

@@ -14,12 +14,14 @@
 #include "Skybox.hpp"
 #include "PrintGlm.hpp"
 
-void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath, bool useNoise = false)
+void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath, bool useNoise = false, bool usePillar = false, float pillarOffset = 8.0f, Model *pillar = nullptr, Shader *shaderPillar = nullptr)
 {
 	std::vector<GLenum> type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 	Shader	*myShader = new Shader(shadersPath, type);
 	myShader->SetIsRayMarching(true);
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(model, myShader, trans, useNoise));
+	if (usePillar)
+		Engine42::Engine::AddMeshRenderer(new MeshRenderer(*pillar, shaderPillar, Transform(glm::vec3(trans.position.x, trans.position.y - pillarOffset, trans.position.z))));
 }
 Skybox *CreateSkyBox()
 {
@@ -37,15 +39,6 @@ Skybox *CreateSkyBox()
 	return skybox;
 }
 
-	template<typename T>
-void	freeList(typename std::vector<T>::iterator beg, typename std::vector<T>::iterator end)
-{
-	for (;beg != end;beg++)
-	{
-		delete *beg;
-	}
-}
-
 bool InitModels(SdlWindow &win)
 {
 	std::vector<const char *>	shadersPath{"shaders/Vertex.vs.glsl", "shaders/Assimp.fs.glsl"};
@@ -57,18 +50,11 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
 	std::string path= "ressources/obj/Pillar/LP_Pillar_Textured.obj";
-	Model pillar(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	Model *pillar = new Model(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
 	Model cube = Model("ressources/obj/cube.obj");
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, 0.0f))));
 	path = "ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj";
 	Model	frame(path.c_str());													//position						rotation					scale		
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, 6.3f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, 0.0f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, 0.0f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(0.0f, -8.0f, -10.0f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(8.0f, -8.0f, -10.0f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, -10.0f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(pillar, myShader, Transform(glm::vec3(-8.0f, -8.0f, -15.0f))));
 	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
@@ -78,25 +64,25 @@ bool InitModels(SdlWindow &win)
 	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
 						glm::vec3(4.0f, 4.0f, 4.0f));//scale
 	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
-	raymarche_cube(cube, trans, shadersPath2);
+	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
 	trans.position[0] = -8.0f;
-	raymarche_cube(cube, trans, shadersPath2);
+	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 8.0f;
-	raymarche_cube(cube, trans, shadersPath2);
+	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/PrettyCloud.fs.glsl";
 	trans.position = glm::vec3(0.0f, 0.0f, -10.0f);
-	raymarche_cube(cube, trans, shadersPath2, true);
+	raymarche_cube(cube, trans, shadersPath2, true, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
 	trans.position = glm::vec3(8.0f, 0.0f, -10.0f);
-	raymarche_cube(cube, trans, shadersPath2, true);
+	raymarche_cube(cube, trans, shadersPath2, true, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/PlanetMoving.fs.glsl";
 	trans.position = glm::vec3(-8.0f, 0.0f, -10.0f);
-	raymarche_cube(cube, trans, shadersPath2);
+	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/Marble.fs.glsl";
 	trans.position = glm::vec3(-8.0f, 0.0f, -15.0f);
-	raymarche_cube(cube, trans, shadersPath2);
+	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	Skybox *sky = CreateSkyBox();
 	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();

@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 out vec4 FragColor;
 
 in mat4 invertViewMat;
@@ -13,19 +13,18 @@ uniform vec3	uUp;//Dir of the camera
 uniform float	uGlobalTime;
 uniform vec3	uOrigin;
 
-const int MAX_MARCHING_STEPS = 300;
+const int MAX_MARCHING_STEPS = 800;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
-const float EPSILON = 0.001f;
+const float EPSILON = 0.0001f;
 
-float unionSDF(float distA, float distB) {
-    return min(distA, distB);
+float unionSDF(float A, float B) {
+	return min(A, B);
 }
 
 float differenceSDF(float distA, float distB) {
     return max(distA, -distB);
 }
-
 
 float cubeSDF(vec3 p, vec3 size) {
     vec3 d = abs(p) - size;
@@ -44,8 +43,7 @@ float crossSDF(vec3 p, vec2 size)
 
 float menger(vec3 p)
 {
-	float speed = 2.0f;//cos(uGlobalTime * .1) + 1.0f;
-	float d = cubeSDF(p, vec3(speed, speed, speed));
+	float d = cubeSDF(p, vec3(2.0f, 2.0f, 2.0f));
 	float s = 1.0;
 	vec3 r;
 	for(int i = 0; i < 3; i++)
@@ -89,19 +87,7 @@ float	RayMarche(float start, float end, vec3 ray, vec3 origin)
 	return end;
 }
 
-vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity, vec3 N, vec3 L) {
-    L = normalize(L);
-
-    float dotLN = dot(L, N);
-
-    if (dotLN < EPSILON)
-        return vec3(0.0, 0.0, 0.0);
-
-    return lightIntensity * k_d * dotLN;
-}
-
-vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
+vec3 CalcLight(vec3 k_a, vec3 k_d, vec3 p) {
     const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
@@ -110,9 +96,11 @@ vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
     vec3 N = CalcNormal(p);
-	vec3 L = lightPos - p;
+	vec3 L = normalize(lightPos - p);
 
-    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N, L);
+    float dotLN = dot(L, N);
+
+    color += lightIntensity * k_d * max(dotLN, 0.0);
 
     return color;
 }
@@ -143,9 +131,8 @@ void main()
 		vec3 p = uCamPos + dist * ray;
 
 		vec3 K_d = vec3(0.4f * length(p - uOrigin), 0.1f, 0.8f);
-		vec3 K_a = K_d;
 
-		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);
+		vec3 color = CalcLight(K_d, K_d, p);
 
 		FragColor = vec4(color, 1);
 	}

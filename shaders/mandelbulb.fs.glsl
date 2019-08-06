@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 out vec4 FragColor;
 
 in mat4 invertViewMat;
@@ -74,20 +74,16 @@ vec3 CalcNormal(vec3 p) {
     ));
 }
 
-#define OCCLUSION_ITERS 5
-#define OCCLUSION_STRENGTH 8.0
-#define OCCLUSION_GRANULARITY 1.
-
-float   CalcAO( in vec3 hit, in vec3 normal ) {
+float   CalcAO(vec3 hit, vec3 normal) {
     float k = 1.0;
     float d = 0.0;
     float occ = 0.0;
-    for(int i = 0; i < OCCLUSION_ITERS; i++){
-        d = SceneSDF(hit + normal * k * OCCLUSION_GRANULARITY).x;
-        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * OCCLUSION_GRANULARITY - d);
+    for(int i = 0; i < 8; i++){
+        d = SceneSDF(hit + normal * k).x;
+        occ += 1.0 / pow(3.0, k) * ((k - 1.0) * 1 - d);
         k += 1.0;
     }
-    return 1.0 - clamp(occ * OCCLUSION_STRENGTH, 0.0, 1.0);
+    return 1.0 - clamp(occ * 8.0f, 0.0, 1.0);
 }
 
 vec4	RayMarche(float start, float end, vec3 ray, vec3 origin)
@@ -118,34 +114,23 @@ bool CalcShadow(float start, float end, vec3 ray, vec3 origin)
 	return false;
 }
 
-vec3 phongContribForLight(vec3 k_d, vec3 p, vec3 eye,
-                          vec3 lightPos, vec3 lightIntensity, vec3 N, vec3 L) {
-    L = normalize(L);
-
-    float dotLN = dot(L, N);
-
-    if (dotLN < EPSILON)
-        return vec3(0.0, 0.0, 0.0);
-
-	float ao = CalcAO(p, N);
-    return lightIntensity * k_d * dotLN * ao;
-}
 
 vec3 phongIllumination(vec3 k_a, vec3 k_d, vec3 p, vec3 eye) {
     const vec3 ambientLight = 0.5 * vec3(1.0, 1.0, 1.0);
     vec3 color = ambientLight * k_a;
 
-    vec3 lightPos = vec3(2 * sin(uGlobalTime), 2 * cos(uGlobalTime), 3 * cos(uGlobalTime));
-	lightPos += uOrigin;
+    vec3 lightPos = vec3(2 * sin(uGlobalTime), 2 * cos(uGlobalTime), 3 * cos(uGlobalTime)) + uOrigin;
     vec3 lightIntensity = vec3(1.0, 1.0, 1.0);
 
     vec3 N = CalcNormal(p);
-	vec3 L = lightPos - p;
+	vec3 L = normalize(lightPos - p);
 
-    color += phongContribForLight(k_d, p, eye, lightPos, lightIntensity, N, L);
+    float dotLN = dot(L, N);
+
+    color += lightIntensity * k_d * max(dotLN, 0.0) * CalcAO(p, N);
 
 	if (CalcShadow(0.0f, length(L), normalize(L), p + N * 0.01))
-		color = max(color - 0.2f, vec3(0.0f, 0.0f, 0.0f));
+		color = max(color - 0.2f, vec3(0.0f));
     return color;
 }
 
@@ -169,15 +154,14 @@ void main()
 	vec4 dist = RayMarche(MIN_DIST, MAX_DIST, ray, uCamPos);
 
     if (dist.x > MAX_DIST - EPSILON)
-        FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+        FragColor = vec4(0.0);
 	else
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
 		vec3 K_d = vec3(dist.y, dist.z, dist.w);
-		vec3 K_a = K_d;
 
-		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);
+		vec3 color = phongIllumination(K_d, K_d, p, uCamPos);
 
 		FragColor = vec4(color, 1.0);
 	}

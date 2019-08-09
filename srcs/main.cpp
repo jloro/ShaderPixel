@@ -49,18 +49,16 @@ bool InitModels(SdlWindow &win)
 
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
-	std::string path= "ressources/obj/Pillar/LP_Pillar_Textured.obj";
-	Model *pillar = new Model(path.c_str());//, glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+	Model *pillar = new Model("ressources/obj/Pillar/LP_Pillar_Textured.obj");
 	Model cube = Model("ressources/obj/cube.obj");
-	path = "ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj";
-	Model	frame(path.c_str());													//position						rotation					scale		
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, 6.3f, 0.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
+	Model	frame("ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj");
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, -1.7f, -15.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);
-	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/window.fs.glsl"};
-	raymarche_cube(cube, Transform(glm::vec3(0.0f, 8.1f, 0.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
+	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/Window.fs.glsl"};
+	raymarche_cube(cube, Transform(glm::vec3(0.0f, 0.1f, -15.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
 	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
 						glm::vec3(4.0f, 4.0f, 4.0f));//scale
 	shadersPath2[1] = "shaders/Mandelbulb.fs.glsl";
@@ -77,7 +75,7 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
 	trans.position = glm::vec3(8.0f, 0.0f, -10.0f);
 	raymarche_cube(cube, trans, shadersPath2, true, true, 8.0f, pillar, myShader);
-	shadersPath2[1] = "shaders/PlanetMoving.fs.glsl";
+	shadersPath2[1] = "shaders/test.fs.glsl";
 	trans.position = glm::vec3(-8.0f, 0.0f, -10.0f);
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/Marble.fs.glsl";

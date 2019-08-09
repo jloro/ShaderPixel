@@ -20,17 +20,17 @@ const float EPSILON = 0.001f;
 
 const float minRadius = 0.25f;
 const float minRadius2 = minRadius * minRadius;
-const int iter = 10;
+const int iter = 8;
 const float scale = 2.5f;
 const vec4 scalevec = vec4(scale, scale, scale, abs(scale)) / minRadius2;
 const float C1 = abs(scale - 1.0f), C2 = pow(abs(scale), float(1.0f - iter));
 const float foldingLimit = 1.2f;
 
-vec4   mandelbox( vec3 pos ) {
+vec4   mandelbox(vec3 pos) {
 	vec4 p = vec4(pos, 1.0f);
 	vec4 p0 = p;
 	int i;
-	for (i = 0; i < iter;i++)
+	for (i = 0; i < iter; i++)
 	{
 		p.xyz = clamp(p.xyz, -foldingLimit, foldingLimit) * 2.0f - p.xyz;
 		float r2 = dot(p.xyz, p.xyz);
@@ -121,7 +121,8 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = vec3(dist.y * length(p - uOrigin), dist.z / length(p - uOrigin), dist.w * length(p - uOrigin));
+		float d = length(p - uOrigin);
+		vec3 K_d = vec3(dist.y * d, dist.z / d, dist.w * d);
 		vec3 K_a = vec3(.3, .3, .3);
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);

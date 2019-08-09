@@ -61,7 +61,7 @@ bool InitModels(SdlWindow &win)
 	raymarche_cube(cube, Transform(glm::vec3(0.0f, 0.1f, -15.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
 	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
 						glm::vec3(4.0f, 4.0f, 4.0f));//scale
-	shadersPath2[1] = "shaders/Mandelbulb.fs.glsl";
+	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
 	trans.position[0] = -8.0f;
@@ -75,7 +75,7 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/CloudLight.fs.glsl";
 	trans.position = glm::vec3(8.0f, 0.0f, -10.0f);
 	raymarche_cube(cube, trans, shadersPath2, true, true, 8.0f, pillar, myShader);
-	shadersPath2[1] = "shaders/test.fs.glsl";
+	shadersPath2[1] = "shaders/PlanetMoving.fs.glsl";
 	trans.position = glm::vec3(-8.0f, 0.0f, -10.0f);
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/Marble.fs.glsl";

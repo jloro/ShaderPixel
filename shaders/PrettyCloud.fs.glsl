@@ -21,7 +21,7 @@ const float EPSILON = 0.001f;
 const int maxStep = 100;
 const float step = 0.05f;
 
-float noise(in vec3 x)
+float noise(vec3 x)
 {
 	vec3 p = floor(x);
 	vec3 f = fract(x);
@@ -32,7 +32,7 @@ float noise(in vec3 x)
 	return mix(rg.x, rg.y, f.z);
 }
 
-float cloudNoise(in vec3 p, in vec3 dir)
+float cloudNoise(vec3 p, vec3 dir)
 {
 	vec3 q = p + dir;
 	float amplitude = 0.5;
@@ -47,18 +47,18 @@ float cloudNoise(in vec3 p, in vec3 dir)
 	return f;
 }
 
-float sphereSDF(in vec3 samplePoint, in vec3 o, in float r) {
+float sphereSDF(vec3 samplePoint, vec3 o, float r) {
 	return length(samplePoint - o) - r;
 }
 
-float SceneSDF(in vec3 p) {
+float SceneSDF(vec3 p) {
 	p -= uOrigin;
 	float noise = cloudNoise(p, vec3(0.0f, 0.25f, 0.125f) * uGlobalTime); 
 	float d = -sphereSDF(p, vec3(0), 0.5f);
 	return clamp(d + 2.0f * noise, 0.0f, 1.0f);
 }
 
-vec4	RayMarche(in vec3 ray, in vec3 origin)
+vec4	RayMarche(vec3 ray, vec3 origin)
 {
 	vec4 sum = vec4(0.0f), col;
 	float t = 0.0f, d;
@@ -91,7 +91,7 @@ vec3 CalcRayDirection(float fieldOfView, vec2 size, vec2 fragCoord) {
 	return ray;
 }
 
-vec2 sphereIntersect(in vec3 origin, in vec3 ray, in vec3 o, in float r)
+vec2 sphereIntersect(vec3 origin, vec3 ray, vec3 o, float r)
 {
     vec3 oc = origin - o;
     float b = dot(oc, ray);

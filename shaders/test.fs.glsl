@@ -193,7 +193,7 @@ void main()
 	{
 		vec3 p = uCamPos + dist.x * ray;
 
-		vec3 K_d = (CalcNormal(p) + vec3(1.0)) / 2.0;
+		vec3 K_d = vec3(.2, .7, .5);
 		vec3 K_a = K_d;
 
 		vec3 color = phongIllumination(K_a, K_d, p, uCamPos);

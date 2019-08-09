@@ -14,13 +14,14 @@ uniform float uGlobalTime;
 uniform vec3 uOrigin;
 uniform sampler2D uNoise;
 
-const int MAX_MARCHING_STEPS = 300;
+const int MAX_MARCHING_STEPS = 100;
 const float MIN_DIST = 0.0f;
 const float MAX_DIST = 100.0f;
 const float EPSILON = 0.001f;
 const float VOLUME_STEP_LIGHT = 0.1;
 const float VOLUME_DENSITY = 0.05;
-const float LIGHT_INTESITY = 0.03;
+const float LIGHT_INTENSITY = 0.03;
+const float STEP = 0.05f;
 
 struct obj
 {
@@ -45,25 +46,29 @@ obj sphereVolumetric = initSphere(true, vec3(0.0f), 1.0f, vec3(1.0f));
 obj sphereObstacle = initSphere(false, vec3(1.5f, 0.0f, 0.0f), 0.1f, vec3(0.0f, 0.0f, 1.0f));
 obj sphereSun = initSphere(false, vec3(2.0, cos(uGlobalTime), 0.0f), 0.1f, vec3(1.0f, 1.0f, 0.0f));
 
-float noise( in vec3 x )
+float noise(vec3 x)
 {
 	vec3 p = floor(x);
 	vec3 f = fract(x);
-	f = f*f*(3.0-2.0*f);
+	f = f *f *(3.0 - 2.0 * f);
 
-	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = texture( uNoise, (uv+0.5)/256.0, -100.0 ).yx;
-	return mix( rg.x, rg.y, f.z );
+	vec2 uv = (p.xy + vec2(37.0, 17.0) * p.z) + f.xy;
+	vec2 rg = texture(uNoise, (uv + 0.5) / 256.0, -100.0).yx;
+	return mix(rg.x, rg.y, f.z);
 }
-float cloudNoise(float scale,in vec3 p, in vec3 dir)
+
+float cloudNoise(vec3 p, vec3 dir)
 {
-	vec3 q = p + dir;
-	float f;
-	f  = 0.50000*noise( q ); q = q*scale*2.02 + dir;
-	f += 0.25000*noise( q ); q = q*2.03 + dir;
-	f += 0.12500*noise( q ); q = q*2.01 + dir;
-	f += 0.06250*noise( q ); q = q*2.02 + dir;
-	f += 0.03125*noise( q );
+	vec3 q = (p + dir) * 5.0;
+	float amplitude = 0.5;
+	float granularity = 2.0;
+	float f = 0;
+	for (int i = 0; i < 4; i++)
+	{
+		f += amplitude * noise(q);
+		q = q * granularity + dir;
+		amplitude /= 2.0;
+	}
 	return f;
 }
 
@@ -97,15 +102,13 @@ float SceneSDFShadow(vec3 p) {
 float sampleVolume(vec3 p, float mult)
 {
 	p -= uOrigin;
-	return cloudNoise(5, p, vec3(0.0, 0.125, 0.2) * uGlobalTime) * mult;
+	return cloudNoise(p, vec3(0.0, 0.125, 0.2) * uGlobalTime) * mult;
 }
 
 float volumeAbsorption(float lightIntensity, float accumDensityToPoint) {
 	return max(0.0, lightIntensity - accumDensityToPoint);
 }
 
-const int maxStep = 100;
-const float step = 0.05f;
 float RayMarchToLight(vec3 ray, vec3 origin, float end)
 {
 	float density = 0.0f;
@@ -136,11 +139,10 @@ vec4 RayMarche(vec3 ray, vec3 origin)
 	vec4 sum = vec4(0.0f);
 	float t = 0.0f;
 	vec3 pos;
-	float accumDensity = 0.0f, brightness = 0.0f;
-	float transmitance = 0.0f;
+	float accumDensity = 0.0f, brightness = 0.0f, transmitance = 0.0f;
 	obj res;
 	vec3 col = vec3(1.0f);
-	for (int i = 0; i < maxStep; i++)
+	for (int i = 0; i < MAX_MARCHING_STEPS; i++)
 	{
 		pos = origin + ray * t;
 		res = SceneSDF(pos);
@@ -154,12 +156,12 @@ vec4 RayMarche(vec3 ray, vec3 origin)
 			else
 			{
 				float densityAtPos = sampleVolume(pos, VOLUME_DENSITY);
-				accumDensity += densityAtPos * min(-res.d, step);
+				accumDensity += densityAtPos * min(-res.d, STEP);
 				vec3 lightDir = vec3(lightPos - pos);
 				float accumDensityToLight = RayMarchToLight(normalize(lightDir), pos, length(lightDir));
-				float pointBrightness = volumeAbsorption(LIGHT_INTESITY, accumDensityToLight);
+				float pointBrightness = volumeAbsorption(LIGHT_INTENSITY, accumDensityToLight);
 				brightness += volumeAbsorption(pointBrightness, accumDensity);
-				t += step;
+				t += STEP;
 				transmitance += densityAtPos * (1 - transmitance);
 			}
 		}

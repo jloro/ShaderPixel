@@ -71,7 +71,6 @@ void            Engine42::Engine::Loop(void)
     while (!quit)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
-		nbFrame++;
         Time::SetDeltaTime(delta);
         _inst._event.type = SDL_USEREVENT;
         while (SDL_PollEvent(&_inst._event) != 0)
@@ -102,6 +101,7 @@ void            Engine42::Engine::Loop(void)
 			LastTime += 1.0f;
 		}
         _inst._RenderAll();
+		nbFrame++;
     }
 }
 

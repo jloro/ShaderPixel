@@ -40,6 +40,13 @@ void            Engine42::Engine::AddMeshRenderer(MeshRenderer *meshRenderers)
     if (meshRenderers != nullptr)
         _inst._meshRenderers.push_back(meshRenderers);
 }
+
+void            Engine42::Engine::AddFramebuffer(Framebuffer* fbo) 
+{
+    if (fbo != nullptr)
+        _inst._framebuffers.push_back(fbo);
+}
+
 void            Engine42::Engine::AddGameObject(Engine42::IGameObject *object)
 {
     if (object != nullptr)
@@ -58,54 +65,6 @@ void            Engine42::Engine::AddGameObject(std::list<Engine42::IGameObject*
 const SDL_Event &Engine42::Engine::GetEvent(){ return _inst._event;}
 const Uint8 *Engine42::Engine::GetKeyInput(){ return _inst._keys;}
 
-void            Engine42::Engine::createFBO(void)
-{
-	glGenFramebuffers(1, &_inst._fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, _inst._fbo);
-
-	glGenTextures(1, &_inst._colorBuffer);
-	glBindTexture(GL_TEXTURE_2D, _inst._colorBuffer);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 400, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _inst._colorBuffer, 0);
-
-	glGenRenderbuffers(1, &_inst._rbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, _inst._rbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 400);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _inst._rbo);
-
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-        // positions   // texCoords
-        -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-    };
-
-	glGenVertexArrays(1, &_inst.quadVAO);
-    glGenBuffers(1, &_inst.quadVBO);
-    glBindVertexArray(_inst.quadVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, _inst.quadVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-	std::vector<const char *>	shadersPath{"shaders/fbo.vs.glsl", "shaders/fbo.fs.glsl"};
-	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-	_inst.shaderFbo = new Shader(shadersPath, type);
-}
 
 void            Engine42::Engine::Loop(void)
 {
@@ -117,8 +76,6 @@ void            Engine42::Engine::Loop(void)
 	float		LastTime = 0.0f;
 	int nbFrame = 0;
 
-	createFBO();
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     while (!quit)
     {
         delta = (((float)SDL_GetTicks()) / 1000) - lastTime;
@@ -182,34 +139,18 @@ bool		_sort(const MeshRenderer* first, const MeshRenderer* sec)
 
 void                         Engine42::Engine::_RenderAll(void)
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);  
 	_meshRenderers.sort(_sort);
-    std::list<MeshRenderer*>::iterator  it;
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    for (std::list<Framebuffer*>::iterator it = _framebuffers.begin(); it != _framebuffers.end(); it++)
+         (*it)->genTexture();
     if (_skybox != nullptr)
-    {
         _skybox->Draw();
-    }
-    for (it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
-    {
+    for (std::list<MeshRenderer*>::iterator it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
          (*it)->Draw();
-    }
+    for (std::list<Framebuffer*>::iterator it = _framebuffers.begin(); it != _framebuffers.end(); it++)
+         (*it)->Draw();
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	shaderFbo->use();
-	shaderFbo->setInt("screenTexture", 2);
-	glBindVertexArray(quadVAO);
-	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, _colorBuffer);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
 	_win->Swap();
 }
 void                          Engine42::Engine::_UpdateAll(void)

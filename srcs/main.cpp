@@ -13,6 +13,7 @@
 #include "Terrain.hpp"
 #include "Skybox.hpp"
 #include "PrintGlm.hpp"
+#include "Framebuffer.hpp"
 
 void	raymarche_cube(Model &model, const Transform &trans, std::vector<const char *> shadersPath, bool useNoise = false, bool usePillar = false, float pillarOffset = 8.0f, Model *pillar = nullptr, Shader *shaderPillar = nullptr)
 {
@@ -41,16 +42,18 @@ Skybox *CreateSkyBox()
 
 bool InitModels(SdlWindow &win)
 {
-	std::vector<const char *>	shadersPath{"shaders/Vertex.vs.glsl", "shaders/Assimp.fs.glsl"};
+	std::vector<const char *>	shadersPath{"shaders/fbo.vs.glsl", "shaders/fbo.fs.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
 	Shader	*myShader = new Shader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
+	Model cube = Model("ressources/obj/cube.obj");
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
-	Model *pillar = new Model("ressources/obj/Pillar/LP_Pillar_Textured.obj");
-	Model cube = Model("ressources/obj/cube.obj");
+	Framebuffer *fbo = new Framebuffer(win.GetWidth(), win.GetHeight(), myShader, &cube);
+	Engine42::Engine::AddFramebuffer(fbo);
+/*	Model *pillar = new Model("ressources/obj/Pillar/LP_Pillar_Textured.obj");
 	Model	frame("ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj");
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, -1.7f, -15.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
@@ -82,7 +85,7 @@ bool InitModels(SdlWindow &win)
 	trans.position = glm::vec3(-8.0f, 0.0f, -15.0f);
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	Skybox *sky = CreateSkyBox();
-	Engine42::Engine::SetSkybox(sky);
+	Engine42::Engine::SetSkybox(sky);*/
 	Engine42::Engine::Loop();
 	return true;
 }
@@ -101,6 +104,8 @@ int				main(int ac, char **av)
 	SdlWindow	win(800, 400, false, true, "test");
 	win.CreateGlContext(4, 1, true, 24);
 	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	//glViewport(0, 0, 800, 400);
 	InitModels(win);

@@ -9,6 +9,7 @@
 # include "Time.hpp"
 # include "Skybox.hpp"
 # include "MeshRenderer.hpp"
+# include "Framebuffer.hpp"
 
 namespace Engine42
 {
@@ -23,6 +24,7 @@ namespace Engine42
     /*	public functions	*/
         static void            AddMeshRenderer(std::list<MeshRenderer*> meshrenderer);
         static void            AddMeshRenderer(MeshRenderer *meshrenderer);
+        static void            AddFramebuffer(Framebuffer *fbo);
         static void            SetWindow(const SdlWindow *win);
         static void            AddGameObject(Engine42::IGameObject *object);
         static void            AddGameObject(std::list<Engine42::IGameObject*> objects);
@@ -32,19 +34,13 @@ namespace Engine42
         static const Uint8     *GetKeyInput();
         static bool             Destroy(MeshRenderer *meshRenderer);
         static void             ReloadShaders(void);
-		static void	createFBO();
-		unsigned int _fbo;
-		unsigned int _colorBuffer;
-		unsigned int _rbo;
-		unsigned int quadVAO;
-		unsigned int quadVBO;
-		Shader*	shaderFbo;
     private:
     /*  private constructor*/
         Engine(void); 
     /*	private variables	*/
         static Engine                       _inst;
-        std::list<MeshRenderer *>            _meshRenderers;
+        std::list<MeshRenderer *>           _meshRenderers;
+        std::list<Framebuffer *>			_framebuffers;
         std::list<Shader*>                  _shaders;
         std::list<Engine42::IGameObject*>   _gameObjs;
         SDL_Event                           _event;

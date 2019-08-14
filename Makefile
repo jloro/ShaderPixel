@@ -6,7 +6,7 @@
 #    By: fchevrey <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/13 16:05:39 by fchevrey          #+#    #+#              #
-#    Updated: 2019/07/28 17:35:53 by jloro            ###   ########.fr        #
+#    Updated: 2019/08/14 16:00:07 by jules            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,11 +25,11 @@ SRCS_DIR = srcs
 
 SRCS =  Time.cpp SdlWindow.cpp main.cpp Mesh.cpp Model.cpp Shader.cpp Camera.cpp \
 		Engine.cpp MeshRenderer.cpp Terrain.cpp Transform.cpp Skybox.cpp \
-		PrintGlm.cpp
+		PrintGlm.cpp Framebuffer.cpp
 
 HEADER = SdlWindow.hpp Texture.hpp Vertex.hpp Shader.hpp Mesh.hpp Time.hpp \
 		IGameObject.hpp Engine.hpp Transform.hpp MeshRenderer.hpp Skybox.hpp \
-		Terrain.hpp PrintGlm.hpp 
+		Terrain.hpp PrintGlm.hpp Framebuffer.hpp
 
 ## Objects ##
 OBJS = $(SRCS:.cpp=.o)

@@ -32,6 +32,13 @@ namespace Engine42
         static const Uint8     *GetKeyInput();
         static bool             Destroy(MeshRenderer *meshRenderer);
         static void             ReloadShaders(void);
+		static void	createFBO();
+		unsigned int _fbo;
+		unsigned int _colorBuffer;
+		unsigned int _rbo;
+		unsigned int quadVAO;
+		unsigned int quadVBO;
+		Shader*	shaderFbo;
     private:
     /*  private constructor*/
         Engine(void); 
@@ -48,6 +55,7 @@ namespace Engine42
         void                                _RenderAll(void);
         void                                _UpdateAll(void);
         void                                _FixedUpdateAll(void);
+
     };
 }
 

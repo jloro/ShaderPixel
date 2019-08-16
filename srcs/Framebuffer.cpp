@@ -3,8 +3,9 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-Framebuffer::Framebuffer(int width, int height, Shader* shader, Model* model) : _shader(shader), _model(model)
+Framebuffer::Framebuffer(int width, int height, Shader* shader, Model& model, Transform trans) : MeshRenderer(model, shader, trans)
 {
+	UpdateMatrix();
 	glGenFramebuffers(1, &_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
 
@@ -14,7 +15,7 @@ Framebuffer::Framebuffer(int width, int height, Shader* shader, Model* model) : 
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _colorBuffer, 0);
@@ -57,6 +58,7 @@ Framebuffer::~Framebuffer() {}
 
 void	Framebuffer::genTexture() const
 {
+	glDisable(GL_CULL_FACE);
 	glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -70,18 +72,20 @@ void	Framebuffer::genTexture() const
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_CULL_FACE);
 }
 
 unsigned int	Framebuffer::GetTexture(void) const { return _colorBuffer; }
 
 void	Framebuffer::Draw(void) const
 {
+	glCullFace(GL_BACK);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, _colorBuffer);
 	_shaderModel->use();
     _shaderModel->setMat4("view", Camera::instance->GetMatView());
     _shaderModel->setMat4("projection", Camera::instance->GetMatProj());
-    _shaderModel->setMat4("model", glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f)));
+    _shaderModel->setMat4("model", _modelMatrix);
 	_shaderModel->setInt("texture_diffuse0", 0);
-	_model->Draw(*_shaderModel);
+	_model.Draw(*_shaderModel);
 }

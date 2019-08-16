@@ -6,7 +6,7 @@
 /*   By: jules <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/08/14 14:59:11 by jules             #+#    #+#             */
-/*   Updated: 2019/08/14 16:03:12 by jules            ###   ########.fr       */
+/*   Updated: 2019/08/15 11:49:33 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,14 @@
 
 # include "Shader.hpp"
 # include "Model.hpp"
+# include "MeshRenderer.hpp"
 
-class Framebuffer
+class Framebuffer : public MeshRenderer
 {
 	public:
-		Framebuffer(int width, int height, Shader* shader, Model* model);
+		Framebuffer(int width, int height, Shader* shader, Model& model, Transform trans);
 		void genTexture() const;
-		void Draw() const;
+		virtual void Draw() const;
 		virtual	~Framebuffer();
 
 		unsigned int	GetTexture(void) const;
@@ -32,9 +33,7 @@ class Framebuffer
 		unsigned int	_rbo;
 		unsigned int	_quadVAO;
 		unsigned int	_quadVBO;
-		Shader*			_shader;
 		Shader*			_shaderModel;
-		Model*			_model;
 };
 
 #endif

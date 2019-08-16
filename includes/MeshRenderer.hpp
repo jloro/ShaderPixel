@@ -19,9 +19,9 @@ public:
 /*	public variables	*/
     Transform           transform;
 /*	public functions	*/
-    glm::mat4           GetModelMatrix(void) const;
-    void                SetModelMatrix(glm::mat4 matrix);
-    void                UpdateMatrix(void);
+    virtual glm::mat4   GetModelMatrix(void) const;
+    virtual void        SetModelMatrix(glm::mat4 matrix);
+    virtual void        UpdateMatrix(void);
     Shader              *GetShader(void) const;
     void                Destroy(void);
     void                SetShader(Shader *shader);

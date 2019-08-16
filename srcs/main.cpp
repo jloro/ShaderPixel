@@ -45,15 +45,20 @@ bool InitModels(SdlWindow &win)
 	std::vector<const char *>	shadersPath{"shaders/fbo.vs.glsl", "shaders/fbo.fs.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
-	Shader	*myShader = new Shader(shadersPath, type);
+	Shader	*shaderfbo = new Shader(shadersPath, type);
 	Camera cam(win.GetWidth(), win.GetHeight());
 
+	shadersPath[0] = "shaders/Vertex.vs.glsl";
+	shadersPath[1] = "shaders/Assimp.fs.glsl";
+	Shader	*myShader = new Shader(shadersPath, type);
+	Transform trans(glm::vec3(0.0f, 0.0f, -20.0f),//position
+						glm::vec3(1.0f, 1.0f, 1.0f));//scale
 	Model cube = Model("ressources/obj/cube.obj");
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
-	Framebuffer *fbo = new Framebuffer(win.GetWidth(), win.GetHeight(), myShader, &cube);
+	Framebuffer *fbo = new Framebuffer(win.GetWidth(), win.GetHeight(), shaderfbo, cube, trans);
 	Engine42::Engine::AddFramebuffer(fbo);
-/*	Model *pillar = new Model("ressources/obj/Pillar/LP_Pillar_Textured.obj");
+	Model *pillar = new Model("ressources/obj/Pillar/LP_Pillar_Textured.obj");
 	Model	frame("ressources/obj/frame/10305_picture_frame_V2_max2011_it2.obj");
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(frame, myShader, Transform(glm::vec3(0.0f, -1.7f, -15.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
@@ -62,8 +67,8 @@ bool InitModels(SdlWindow &win)
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);
 	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/Window.fs.glsl"};
 	raymarche_cube(cube, Transform(glm::vec3(0.0f, 0.1f, -15.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
-	Transform trans(glm::vec3(0.0f, 0.0f, 0.0f),//position
-						glm::vec3(4.0f, 4.0f, 4.0f));//scale
+	trans.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	trans.scale = glm::vec3(4.0f, 4.0f, 4.0f);
 	shadersPath2[1] = "shaders/mandelbulb.fs.glsl";
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
@@ -85,7 +90,7 @@ bool InitModels(SdlWindow &win)
 	trans.position = glm::vec3(-8.0f, 0.0f, -15.0f);
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	Skybox *sky = CreateSkyBox();
-	Engine42::Engine::SetSkybox(sky);*/
+	Engine42::Engine::SetSkybox(sky);
 	Engine42::Engine::Loop();
 	return true;
 }

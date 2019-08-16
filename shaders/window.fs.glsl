@@ -10,7 +10,7 @@ uniform vec3	uCamPos;//Position of camera in world
 uniform vec2	uRotation;//Rotation of the camera
 uniform vec3	uDir;//Dir of the camera
 uniform vec3	uUp;//Dir of the camera
-uniform vec3	uOrigin;//Dir of the camera
+uniform vec3	uOrigin;//Offset in world
 uniform float	uGlobalTime;
 
 const int MAX_MARCHING_STEPS = 300;

@@ -44,7 +44,10 @@ void            Engine42::Engine::AddMeshRenderer(MeshRenderer *meshRenderers)
 void            Engine42::Engine::AddFramebuffer(Framebuffer* fbo) 
 {
     if (fbo != nullptr)
+	{
         _inst._framebuffers.push_back(fbo);
+        _inst._meshRenderers.push_back(fbo);
+	}
 }
 
 void            Engine42::Engine::AddGameObject(Engine42::IGameObject *object)
@@ -147,8 +150,6 @@ void                         Engine42::Engine::_RenderAll(void)
     if (_skybox != nullptr)
         _skybox->Draw();
     for (std::list<MeshRenderer*>::iterator it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
-         (*it)->Draw();
-    for (std::list<Framebuffer*>::iterator it = _framebuffers.begin(); it != _framebuffers.end(); it++)
          (*it)->Draw();
 
 	_win->Swap();

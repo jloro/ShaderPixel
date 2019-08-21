@@ -62,14 +62,14 @@ bool InitModels(SdlWindow &win)
 	shadersPath[0] = "shaders/Vertex.vs.glsl";
 	shadersPath[1] = "shaders/Assimp.fs.glsl";
 	Shader	*myShader = new Shader(shadersPath, type);
-	Transform trans(glm::vec3(0.0f, 0.1f, -30.0f),//position
+	Transform trans(glm::vec3(10.0f, 0.1f, -20.0f),//position
 						glm::vec3(1.4f, 1.9f, 0.0f));//scale
 
 	Engine42::Engine::SetWindow(&win);
 	Engine42::Engine::AddGameObject(&cam);
 	Engine42::Engine::AddFramebuffer(new Framebuffer(win.GetWidth(), win.GetHeight(), shaderfbo, *cube, trans));
 	Engine42::Engine::AddMeshRenderer(new MeshRenderer(*frame, myShader, Transform(glm::vec3(0.0f, -1.7f, -20.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
-	Engine42::Engine::AddMeshRenderer(new MeshRenderer(*frame, myShader, Transform(glm::vec3(0.0f, -1.7f, -30.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
+	Engine42::Engine::AddMeshRenderer(new MeshRenderer(*frame, myShader, Transform(glm::vec3(10.0f, -1.7f, -20.0f), glm::vec3(-90.0f, 0.0f, 0.0f), glm::vec3(0.1f, 0.1f, 0.1f))));
 	Terrain terrain(10, 10, "ressources/textures/grass.png", 1, 1);
 	Model *terrainModel = &terrain;
 	MeshRenderer *terrainRenderer = new MeshRenderer((*terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f)));

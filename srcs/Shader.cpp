@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 14:24:02 by jloro             #+#    #+#             */
-/*   Updated: 2019/07/29 12:08:30 by jloro            ###   ########.fr       */
+/*   Updated: 2019/08/19 16:46:34 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ void	Shader::_LoadShader(void)
 	for (unsigned int i = 0; i < _shaderSource.size(); i++)
 	{
 		ifs.open(_shaderSource[i], std::ifstream::in);
+		if (!ifs.good())
+			std::cout << _shaderSource[i] << " not found" << std::endl;
 		tmpSource = new std::string((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>()));
 		tmpShader = glCreateShader(_shaderType[i]);
 		tmp = tmpSource->c_str();

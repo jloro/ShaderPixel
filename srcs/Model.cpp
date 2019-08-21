@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/20 12:44:53 by jloro             #+#    #+#             */
-/*   Updated: 2019/07/25 11:19:10 by jules            ###   ########.fr       */
+/*   Updated: 2019/08/19 16:28:22 by jules            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	Model::_LoadModel(std::string path)
 	const aiScene *scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		std::cout << "ERROR::ASSIMP::" << import.GetErrorString() << std::endl;
+		throw std::runtime_error(std::string("ERROR::ASSIMP::") + import.GetErrorString());
 	_dir = path.substr(0, path.find_last_of('/'));
 	_ProcessNode(scene->mRootNode, scene);
 }

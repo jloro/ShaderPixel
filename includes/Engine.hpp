@@ -10,6 +10,7 @@
 # include "Skybox.hpp"
 # include "MeshRenderer.hpp"
 # include "Framebuffer.hpp"
+# include "PostProcess.hpp"
 
 namespace Engine42
 {
@@ -36,13 +37,13 @@ namespace Engine42
 			static void             ReloadShaders(void);
 
 			static void	createFBO();
+		private:
 			unsigned int _fbo;
 			unsigned int _colorBuffer;
 			unsigned int _rbo;
 			unsigned int quadVAO;
 			unsigned int quadVBO;
-			Shader*	shaderFbo;
-		private:
+			std::shared_ptr<PostProcess>	shaderFbo;
 			/*  private constructor*/
 			Engine(void); 
 			/*	private variables	*/

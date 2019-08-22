@@ -6,7 +6,7 @@
 /*   By: jloro <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/06/18 14:19:23 by jloro             #+#    #+#             */
-/*   Updated: 2019/06/18 16:24:20 by jloro            ###   ########.fr       */
+/*   Updated: 2019/08/22 15:30:01 by jloro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ class Shader
 		Shader(std::vector<const char *> shaderSource, std::vector<GLenum> shaderType);
 		virtual~Shader();
 
-		void	use(void) const;
+		virtual void	use(void) const;
 		void	setBool(const std::string &name, bool value) const;
 		bool	GetIsRayMarching(void);
 		void	SetIsRayMarching(bool value);

@@ -95,7 +95,8 @@ void            Engine42::Engine::createFBO(void)
 
 	std::vector<const char *>	shadersPath{"shaders/fbo.vs.glsl", "shaders/PostProcess.fs.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-	_inst.shaderFbo = new Shader(shadersPath, type);
+	_inst.shaderFbo.reset(new PostProcess(shadersPath, type));
+	_inst.AddGameObject(_inst.shaderFbo);
 }
 
 void            Engine42::Engine::Loop(void)

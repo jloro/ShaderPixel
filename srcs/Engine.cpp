@@ -10,38 +10,20 @@ Engine42::Engine::Engine(void){
     _skybox = nullptr;
 }
 
-Engine42::Engine::~Engine(void)
-{
-    std::list<Shader *> shaders;
-    Shader *shader = nullptr;
-
-    if (_skybox)
-        delete _skybox;
-    
-    std::for_each(_inst._meshRenderers.begin(), _inst._meshRenderers.end(),[&shaders] (MeshRenderer *x) -> void {
-        shaders.push_back(x->GetShader());
-        });
-    shaders.sort();
-    shaders.unique();
-    while ((shader = shaders.front()) != nullptr)
-    {
-        shaders.pop_front();
-        delete shader;
-    }
-}
+Engine42::Engine::~Engine(void){}
 
 void            Engine42::Engine::SetWindow(const SdlWindow *win) {_inst._win = win;}
-void            Engine42::Engine::AddMeshRenderer(std::list<MeshRenderer*> meshRenderers)
+void            Engine42::Engine::AddMeshRenderer(std::list<std::shared_ptr<MeshRenderer>> meshRenderers)
 {
     _inst._meshRenderers.insert(_inst._meshRenderers.end(), meshRenderers.begin(), meshRenderers.end());
 }
-void            Engine42::Engine::AddMeshRenderer(MeshRenderer *meshRenderers) 
+void            Engine42::Engine::AddMeshRenderer(std::shared_ptr<MeshRenderer> meshRenderers) 
 {
     if (meshRenderers != nullptr)
         _inst._meshRenderers.push_back(meshRenderers);
 }
 
-void            Engine42::Engine::AddFramebuffer(Framebuffer* fbo) 
+void            Engine42::Engine::AddFramebuffer(std::shared_ptr<Framebuffer> fbo) 
 {
     if (fbo != nullptr)
 	{
@@ -50,17 +32,17 @@ void            Engine42::Engine::AddFramebuffer(Framebuffer* fbo)
 	}
 }
 
-void            Engine42::Engine::AddGameObject(Engine42::IGameObject *object)
+void            Engine42::Engine::AddGameObject(std::shared_ptr<Engine42::IGameObject> object)
 {
     if (object != nullptr)
         _inst._gameObjs.push_back(object);
 }
-void Engine42::Engine::SetSkybox(Skybox *skybox)
+void Engine42::Engine::SetSkybox(std::shared_ptr<Skybox> skybox)
 {
     _inst._skybox = skybox;
 }
 
-void            Engine42::Engine::AddGameObject(std::list<Engine42::IGameObject*> objs)
+void            Engine42::Engine::AddGameObject(std::list<std::shared_ptr<Engine42::IGameObject>> objs)
 {
     _inst._gameObjs.insert(_inst._gameObjs.begin(), objs.begin(), objs.end());
 }
@@ -116,24 +98,14 @@ void            Engine42::Engine::Loop(void)
     }
 }
 
-bool      Engine42::Engine::Destroy(MeshRenderer *meshRenderer)
+bool      Engine42::Engine::Destroy(std::shared_ptr<MeshRenderer> meshRenderer)
 {
     if (meshRenderer == nullptr)
         return false;
-    Shader *shader = meshRenderer->GetShader();
     _inst._meshRenderers.remove(meshRenderer);
-    if (shader != nullptr)
-    {
-        auto it = std::find_if(_inst._meshRenderers.begin(), _inst._meshRenderers.end(),[shader] (MeshRenderer *x) -> bool {return x->GetShader() == shader;});
-        if (it == _inst._meshRenderers.end())
-        {
-            delete shader;
-        }
-    }
-    delete meshRenderer;
     return true;
 }
-bool		_sort(const MeshRenderer* first, const MeshRenderer* sec)
+bool		_sort(const std::shared_ptr<MeshRenderer> first, const std::shared_ptr<MeshRenderer> sec)
 {
 	float d1 = glm::distance(first->transform.position, Camera::instance->GetPos());
 	float d2 = glm::distance(sec->transform.position, Camera::instance->GetPos());
@@ -145,18 +117,18 @@ void                         Engine42::Engine::_RenderAll(void)
 	_meshRenderers.sort(_sort);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (std::list<Framebuffer*>::iterator it = _framebuffers.begin(); it != _framebuffers.end(); it++)
+    for (auto it = _framebuffers.begin(); it != _framebuffers.end(); it++)
          (*it)->genTexture();
     if (_skybox != nullptr)
         _skybox->Draw();
-    for (std::list<MeshRenderer*>::iterator it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
+    for (auto it = _meshRenderers.begin(); it != _meshRenderers.end(); it++)
          (*it)->Draw();
 
 	_win->Swap();
 }
 void                          Engine42::Engine::_UpdateAll(void)
 {
-    std::list<IGameObject*>::iterator  it;
+    std::list<std::shared_ptr<IGameObject>>::iterator  it;
 
     for (it = _gameObjs.begin(); it != _gameObjs.end(); it++)
     {
@@ -165,15 +137,15 @@ void                          Engine42::Engine::_UpdateAll(void)
 }
 void                       Engine42::Engine::ReloadShaders(void)
 {
-    std::for_each(_inst._meshRenderers.begin(), _inst._meshRenderers.end(), [] (MeshRenderer *x) -> void { 
-        Shader *shader = x->GetShader(); 
+    std::for_each(_inst._meshRenderers.begin(), _inst._meshRenderers.end(), [] (std::shared_ptr<MeshRenderer> x) -> void { 
+        std::shared_ptr<Shader> shader = x->GetShader(); 
         if (shader)
             shader->Reload();
         });
 }
 void                       Engine42::Engine::_FixedUpdateAll(void) 
 {
-    std::list<IGameObject*>::iterator  it;
+    std::list<std::shared_ptr<IGameObject>>::iterator  it;
 
     for (it = _gameObjs.begin(); it != _gameObjs.end(); it++)
     {

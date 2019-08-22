@@ -28,6 +28,9 @@ class PostProcess : public Shader, public Engine42::IGameObject
 		virtual void	use(void) const;
 	private:
 		int	_effect;
+		float	_offset;
+		glm::mat3 _kernel;
+		void _ChangeKernel();
 };
 
 #endif

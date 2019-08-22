@@ -185,23 +185,6 @@ void                         Engine42::Engine::_RenderAll(void)
 
 	shaderFbo->use();
 	shaderFbo->setInt("screenTexture", 2);
-	glm::mat3 kernel;
-	glm::mat3x3 k2;
-	//k2[0]= -2.0f;//, -1.0f, 0.0f);
-	/*kernel[0] = glm::vec3(-1.0f,-1.0f, -1.0f);
-	kernel[1] = glm::vec3(-1.0f,9.0f, -1.0f);
-	kernel[2] = glm::vec3(-1.0f,-1.0f, -1.0f);*/
-	k2[0] = glm::vec3(-2.0f,-1.0f, 0.0f);
-	k2[1] = glm::vec3(-1.0f, 1.0f, 1.0f);
-	k2[2] = glm::vec3( 0.0f, 1.0f, 2.0f);
-	kernel[0] = glm::vec3(-2.0f,-1.0f, 0.0f);
-	kernel[1] = glm::vec3(-1.0f, 1.0f, 1.0f);
-	kernel[2] = glm::vec3( 0.0f, 1.0f, 2.0f);
-	//std::cout << kernel<< std::endl;;
-	/*kernel[0] = glm::vec3(0.0f,0.0f, 0.0f);
-	kernel[1] = glm::vec3(0.0f, 1.0f, 0.0f);
-	kernel[2] = glm::vec3( 0.0f, 0.0f, 0.0f);*/
-	shaderFbo->setMat3("kernel", kernel);
 	glBindVertexArray(quadVAO);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, _colorBuffer);

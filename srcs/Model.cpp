@@ -38,7 +38,7 @@ Model::Model(const Model &src)
 
 Model::~Model() {}
 
-void	Model::Draw(const Shader & shader) const
+void	Model::Draw(const std::shared_ptr<Shader>  shader) const
 {
 	for (unsigned int i = 0; i < _meshes.size(); i++)
 		_meshes[i].Draw(shader);

@@ -20,7 +20,7 @@
 class Framebuffer : public MeshRenderer
 {
 	public:
-		Framebuffer(int width, int height, Shader* shader, Model& model, Transform trans);
+		Framebuffer(int width, int height, std::shared_ptr<Shader> shader, std::shared_ptr<Model> model, Transform trans);
 		void genTexture() const;
 		virtual void Draw() const;
 		virtual	~Framebuffer();
@@ -33,7 +33,7 @@ class Framebuffer : public MeshRenderer
 		unsigned int	_rbo;
 		unsigned int	_quadVAO;
 		unsigned int	_quadVBO;
-		Shader*			_shaderModel;
+		std::shared_ptr<Shader>			_shaderModel;
 };
 
 #endif

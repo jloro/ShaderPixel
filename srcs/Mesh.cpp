@@ -69,7 +69,7 @@ void	Mesh::SendToOpenGL()
 	std::cout << "send to opengl" << std::endl;
 }
 
-void	Mesh::Draw(const Shader &shader) const
+void	Mesh::Draw(const std::shared_ptr<Shader>  shader) const
 {
 	unsigned int	diffuseNb = 0;
 	unsigned int	specularNb = 0;
@@ -94,7 +94,7 @@ void	Mesh::Draw(const Shader &shader) const
 		{
 			name = "cubeMap" + std::to_string(cubeMapNb++);
 		}
-		shader.setInt(name.c_str(), i);
+		shader->setInt(name.c_str(), i);
 		if (textures[i].type != eTextureType::Cubemap)
 			glBindTexture(GL_TEXTURE_2D, textures[i].id);
 		else 

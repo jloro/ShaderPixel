@@ -7,7 +7,7 @@ const std::vector<GLenum> &shaderType)
 {
 
     Texture texture;
-    _shader = new Shader(shadersFilenames, shaderType);
+    _shader.reset(new Shader(shadersFilenames, shaderType));
     _cubeMap = _LoadCubeMap(texFilenames);
     texture.id = _cubeMap;
     texture.type =  eTextureType::Cubemap;
@@ -27,8 +27,8 @@ const std::vector<GLenum> &shaderType)
 
 Skybox::~Skybox(void)
 {
-    if (_shader != nullptr)
-        delete _shader;   
+    /*if (_shader != nullptr)
+        delete _shader;   */
 }
 void    Skybox::Draw(void) const
 {
@@ -38,12 +38,12 @@ void    Skybox::Draw(void) const
     _shader->use();
     _shader->setMat4("view",glm::mat4(glm::mat3(Camera::instance->GetViewMatrix())));  
     _shader->setMat4("projection", Camera::instance->GetMatProj());
-    _meshes[0].Draw(*_shader);
+    _meshes[0].Draw(_shader);
     glBindVertexArray(0);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
 }
-void    Skybox::Draw(const Shader &shader) const
+void    Skybox::Draw(const std::shared_ptr<Shader> shader) const
 {
     _model->Draw(shader);
 }

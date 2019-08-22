@@ -9,14 +9,14 @@
 #include "Engine.hpp"
 
 
-MeshRenderer::MeshRenderer(Model &model, Shader *shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
+MeshRenderer::MeshRenderer(std::shared_ptr<Model> model, std::shared_ptr<Shader>  shader, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)};
     UpdateMatrix();
 	if (useNoise)
 		InitNoiseText();
 }
-MeshRenderer::MeshRenderer(Model &model, Shader *shader, const Transform &trans, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
+MeshRenderer::MeshRenderer(std::shared_ptr<Model> model, std::shared_ptr<Shader>  shader, const Transform &trans, bool useNoise) : _model(model), _shader(shader), _noise(useNoise)
 {
     transform = trans;
     UpdateMatrix();
@@ -48,7 +48,7 @@ void        MeshRenderer::Draw(void) const
 	}
 	else
 		glCullFace(GL_BACK);
-	_model.Draw(*_shader);
+	_model->Draw(_shader);
 }
 
 glm::mat4       MeshRenderer::GetModelMatrix(void) const {return _modelMatrix;}
@@ -134,14 +134,14 @@ void		MeshRenderer::InitNoiseText(void)
 }
 void MeshRenderer::Destroy(void)
 {
-	Engine42::Engine::Destroy(this);
+	Engine42::Engine::Destroy(std::shared_ptr<MeshRenderer>(this));
 }
-void MeshRenderer::SetShader(Shader *shader)
+void MeshRenderer::SetShader(std::shared_ptr<Shader>  shader)
 {
 	_shader = shader;
 }
 
-Shader *MeshRenderer::GetShader(void) const
+std::shared_ptr<Shader> MeshRenderer::GetShader(void) const
 {
 	return _shader;
 }

@@ -23,7 +23,7 @@ public:
 /*	public variables*/	
 /*	public functions*/	
     void            Draw() const;
-    virtual void    Draw(const Shader &shader) const ;
+    virtual void    Draw(const std::shared_ptr<Shader> shader) const ;
 
     std::string const	toString(void) const;
 
@@ -32,8 +32,8 @@ protected:
     unsigned int _vbo;
     unsigned int _cubeMap;
 /*	protected variables*/
-    Shader         *_shader;
-    Model           *_model;
+    std::shared_ptr<Shader>         _shader;
+    std::shared_ptr<Model>           _model;
 /*	protected functions*/
     //void _CreateCube(void);
 

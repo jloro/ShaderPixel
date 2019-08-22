@@ -27,7 +27,7 @@ class Model
 		Model(const Model & rhs);
 		virtual~Model();
 /*  public functions    */
-		virtual void Draw(const Shader &shader) const;
+		virtual void Draw(const std::shared_ptr<Shader>  shader) const;
         Model & operator=(const Model &rhs);
 	protected:
 /*  protected variables    */

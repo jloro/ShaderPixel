@@ -3,7 +3,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-Framebuffer::Framebuffer(int width, int height, Shader* shader, Model& model, Transform trans) : MeshRenderer(model, shader, trans)
+Framebuffer::Framebuffer(int width, int height, std::shared_ptr<Shader> shader, std::shared_ptr<Model> model, Transform trans) : MeshRenderer(model, shader, trans)
 {
 	UpdateMatrix();
 	glGenFramebuffers(1, &_fbo);
@@ -51,7 +51,7 @@ Framebuffer::Framebuffer(int width, int height, Shader* shader, Model& model, Tr
 	std::vector<const char *>	shadersPath{"shaders/Vertex.vs.glsl", "shaders/Assimp.fs.glsl"};
 	std::vector<GLenum>			type{GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
 
-	_shaderModel = new Shader(shadersPath, type);
+	_shaderModel.reset(new Shader(shadersPath, type));
 }
 
 Framebuffer::~Framebuffer() {}
@@ -87,5 +87,5 @@ void	Framebuffer::Draw(void) const
     _shaderModel->setMat4("projection", Camera::instance->GetMatProj());
     _shaderModel->setMat4("model", _modelMatrix);
 	_shaderModel->setInt("texture_diffuse0", 0);
-	_model.Draw(*_shaderModel);
+	_model->Draw(_shaderModel);
 }

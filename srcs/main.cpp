@@ -112,7 +112,7 @@ int				main(int ac, char **av)
 		return (EXIT_SUCCESS);
 	}
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SdlWindow	win(800, 400, false, true, "test");
+	SdlWindow	win(1400, 700, false, true, "ShaderPixel");
 	win.CreateGlContext(4, 1, true, 24);
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);

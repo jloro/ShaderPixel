@@ -42,8 +42,8 @@ namespace Engine42
 			unsigned int _fbo;
 			unsigned int _colorBuffer;
 			unsigned int _rbo;
-			unsigned int quadVAO;
-			unsigned int quadVBO;
+			unsigned int _quadVao;
+			unsigned int _quadVbo;
 			std::shared_ptr<PostProcess>	shaderFbo;
 			/*  private constructor*/
 			Engine(void); 

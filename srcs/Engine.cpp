@@ -11,7 +11,14 @@ Engine42::Engine::Engine(void){
 	_skybox = nullptr;
 }
 
-Engine42::Engine::~Engine(void){}
+Engine42::Engine::~Engine(void)
+{
+	glDeleteBuffers(1, &_inst._quadVao);
+    glDeleteBuffers(1, &_inst._quadVbo);
+	glDeleteTextures(1, &_inst._colorBuffer);
+	glDeleteRenderbuffers(1, &_inst._rbo);
+	glDeleteFramebuffers(1, &_fbo);
+}
 
 void            Engine42::Engine::SetWindow(const SdlWindow *win) {_inst._win = win;}
 void            Engine42::Engine::AddMeshRenderer(std::list<std::shared_ptr<MeshRenderer>> meshRenderers)
@@ -83,10 +90,10 @@ void            Engine42::Engine::createFBO(void)
 		1.0f,  1.0f,  1.0f, 1.0f
 	};
 
-	glGenVertexArrays(1, &_inst.quadVAO);
-	glGenBuffers(1, &_inst.quadVBO);
-	glBindVertexArray(_inst.quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _inst.quadVBO);
+	glGenVertexArrays(1, &_inst._quadVao);
+	glGenBuffers(1, &_inst._quadVbo);
+	glBindVertexArray(_inst._quadVao);
+	glBindBuffer(GL_ARRAY_BUFFER, _inst._quadVbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
@@ -185,7 +192,7 @@ void                         Engine42::Engine::_RenderAll(void)
 
 	shaderFbo->use();
 	shaderFbo->setInt("screenTexture", 2);
-	glBindVertexArray(quadVAO);
+	glBindVertexArray(_quadVao);
 	glActiveTexture(GL_TEXTURE2);
 	glBindTexture(GL_TEXTURE_2D, _colorBuffer);
 	glDrawArrays(GL_TRIANGLES, 0, 6);

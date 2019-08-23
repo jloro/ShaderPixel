@@ -54,7 +54,12 @@ Framebuffer::Framebuffer(int width, int height, std::shared_ptr<Shader> shader, 
 	_shaderModel.reset(new Shader(shadersPath, type));
 }
 
-Framebuffer::~Framebuffer() {}
+Framebuffer::~Framebuffer() 
+{
+	glDeleteTextures(1, &_colorBuffer);
+	glDeleteRenderbuffers(1, &_rbo);
+	glDeleteFramebuffers(1, &_fbo);
+}
 
 void	Framebuffer::genTexture() const
 {

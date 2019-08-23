@@ -72,7 +72,7 @@ bool InitModels(SdlWindow &win)
 	std::shared_ptr<Model> terrainModel(new Terrain(10, 10, "ressources/textures/grass.png", 1, 1));
 	std::shared_ptr<MeshRenderer> terrainRenderer(new MeshRenderer((terrainModel), myShader, Transform(glm::vec3(-50.0f, -7.5f, -50.0f))));
 	Engine42::Engine::AddMeshRenderer(terrainRenderer);
-	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/Window.fs.glsl"};
+	std::vector<const char *>	shadersPath2{"shaders/Vertex.vs.glsl", "shaders/window.fs.glsl"};
 	raymarche_cube(cube, Transform(glm::vec3(0.0f, 0.1f, -20.0f),glm::vec3(1.4f, 1.9f, 0.0f)), shadersPath2);
 	trans.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	trans.scale = glm::vec3(4.0f, 4.0f, 4.0f);
@@ -81,7 +81,7 @@ bool InitModels(SdlWindow &win)
 	shadersPath2[1] = "shaders/mandelbox.fs.glsl";
 	trans.position[0] = -10.0f;
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
-	shadersPath2[1] = "shaders/Menger.fs.glsl";
+	shadersPath2[1] = "shaders/menger.fs.glsl";
 	trans.position[0] = 10.0f;
 	raymarche_cube(cube, trans, shadersPath2, false, true, 8.0f, pillar, myShader);
 	shadersPath2[1] = "shaders/PrettyCloud.fs.glsl";

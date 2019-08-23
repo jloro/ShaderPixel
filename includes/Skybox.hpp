@@ -11,7 +11,7 @@
 # include "Shader.hpp"
 # include "Camera.hpp"
 # include "Model.hpp"
-
+# include <memory>
 class Skybox : Model
 {
 
@@ -22,7 +22,7 @@ public:
     ~Skybox(void); 
 /*	public variables*/	
 /*	public functions*/	
-    void            Draw() const;
+    virtual void            Draw() const;
     virtual void    Draw(const std::shared_ptr<Shader> shader) const ;
 
     std::string const	toString(void) const;

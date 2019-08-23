@@ -20,6 +20,7 @@
 # include "Shader.hpp"
 # include "Vertex.hpp"
 # include "Texture.hpp"
+# include <memory>
 
 class Mesh
 {

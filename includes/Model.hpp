@@ -16,6 +16,7 @@
 # include "Mesh.hpp"
 # include <assimp/scene.h>
 # include <glm.hpp>
+# include <memory>
 
 unsigned int TextureFromFile(const char *path, const std::string &directory);
 class Model

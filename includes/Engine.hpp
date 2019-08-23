@@ -11,6 +11,7 @@
 # include "MeshRenderer.hpp"
 # include "Framebuffer.hpp"
 # include "PostProcess.hpp"
+# include <memory>
 
 namespace Engine42
 {

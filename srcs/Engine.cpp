@@ -193,12 +193,8 @@ void                         Engine42::Engine::_RenderAll(void)
 }
 void                          Engine42::Engine::_UpdateAll(void)
 {
-    std::list<std::shared_ptr<IGameObject>>::iterator  it;
-
-	for (it = _gameObjs.begin(); it != _gameObjs.end(); it++)
-	{
+	for (auto it = _gameObjs.begin(); it != _gameObjs.end(); it++)
 		(*it)->Update();
-	}
 }
 void                       Engine42::Engine::ReloadShaders(void)
 {
@@ -210,10 +206,6 @@ void                       Engine42::Engine::ReloadShaders(void)
 }
 void                       Engine42::Engine::_FixedUpdateAll(void) 
 {
-    std::list<std::shared_ptr<IGameObject>>::iterator  it;
-
-	for (it = _gameObjs.begin(); it != _gameObjs.end(); it++)
-	{
+	for (auto it = _gameObjs.begin(); it != _gameObjs.end(); it++)
 		(*it)->FixedUpdate();
-	} 
 }

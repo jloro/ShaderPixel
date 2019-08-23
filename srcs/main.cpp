@@ -118,7 +118,7 @@ int				main(int ac, char **av)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	InitModels(win);
-	Engine42::Engine::Loop();
+	if (InitModels(win))
+		Engine42::Engine::Loop();
 	SDL_Quit();
 }

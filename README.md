@@ -4,6 +4,7 @@ ShaderPixel is a 42 project. It's a fragment shader museum using OpenGL and C++ 
 
 <img src="/ressources/screenshots/note.png" width="200">
 
+video démo https://www.youtube.com/watch?v=ThAawNuKSpk 
 
 ### Installing
 
